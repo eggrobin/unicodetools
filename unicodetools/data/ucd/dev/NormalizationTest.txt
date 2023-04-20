@@ -1,5 +1,5 @@
 # NormalizationTest-15.1.0.txt
-# Date: 2023-04-18, 10:34:41 GMT
+# Date: 2023-04-20, 20:07:26 GMT
 # © 2023 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use, see https://www.unicode.org/terms_of_use.html
@@ -15199,6 +15199,9 @@ FFEE;FFEE;FFEE;25CB;25CB; # (￮; ￮; ￮; ○; ○; ) HALFWIDTH WHITE CIRCLE
 115BA;115BA;115B8 115AF;115BA;115B8 115AF; # (𑖺; 𑖺; 𑖺; 𑖺; 𑖺; ) SIDDHAM VOWEL SIGN O
 115BB;115BB;115B9 115AF;115BB;115B9 115AF; # (𑖻; 𑖻; 𑖻; 𑖻; 𑖻; ) SIDDHAM VOWEL SIGN AU
 11938;11938;11935 11930;11938;11935 11930; # (𑤸; 𑤸; 𑤸; 𑤸; 𑤸; ) DIVES AKURU VOWEL SIGN O
+16D68;16D68;16D67 16D67;16D68;16D67 16D67; # (𖵨; 𖵨; 𖵨; 𖵨; 𖵨; ) KIRAT RAI VOWEL SIGN AI
+16D69;16D69;16D63 16D67;16D69;16D63 16D67; # (𖵩; 𖵩; 𖵩; 𖵩; 𖵩; ) KIRAT RAI VOWEL SIGN O
+16D6A;16D6A;16D63 16D67 16D67;16D6A;16D63 16D67 16D67; # (𖵪; 𖵪; 𖵪; 𖵪; 𖵪; ) KIRAT RAI VOWEL SIGN AU
 1CCD6;1CCD6;1CCD6;0041;0041; # (𜳖; 𜳖; 𜳖; A; A; ) OUTLINED LATIN CAPITAL LETTER A
 1CCD7;1CCD7;1CCD7;0042;0042; # (𜳗; 𜳗; 𜳗; B; B; ) OUTLINED LATIN CAPITAL LETTER B
 1CCD8;1CCD8;1CCD8;0043;0043; # (𜳘; 𜳘; 𜳘; C; C; ) OUTLINED LATIN CAPITAL LETTER C
@@ -19161,5 +19164,8 @@ D750 0334 11B5;D750 0334 11B5;1112 1173 0334 11B5;D750 0334 11B5;1112 1173 0334 
 115B8 0334 115AF;115B8 0334 115AF;115B8 0334 115AF;115B8 0334 115AF;115B8 0334 115AF; # (𑖸◌̴𑖯; 𑖸◌̴𑖯; 𑖸◌̴𑖯; 𑖸◌̴𑖯; 𑖸◌̴𑖯; ) SIDDHAM VOWEL SIGN E, COMBINING TILDE OVERLAY, SIDDHAM VOWEL SIGN AA
 115B9 0334 115AF;115B9 0334 115AF;115B9 0334 115AF;115B9 0334 115AF;115B9 0334 115AF; # (𑖹◌̴𑖯; 𑖹◌̴𑖯; 𑖹◌̴𑖯; 𑖹◌̴𑖯; 𑖹◌̴𑖯; ) SIDDHAM VOWEL SIGN AI, COMBINING TILDE OVERLAY, SIDDHAM VOWEL SIGN AA
 11935 0334 11930;11935 0334 11930;11935 0334 11930;11935 0334 11930;11935 0334 11930; # (𑤵◌̴𑤰; 𑤵◌̴𑤰; 𑤵◌̴𑤰; 𑤵◌̴𑤰; 𑤵◌̴𑤰; ) DIVES AKURU VOWEL SIGN E, COMBINING TILDE OVERLAY, DIVES AKURU VOWEL SIGN AA
+16D63 0334 16D67;16D63 0334 16D67;16D63 0334 16D67;16D63 0334 16D67;16D63 0334 16D67; # (𖵣◌̴𖵧; 𖵣◌̴𖵧; 𖵣◌̴𖵧; 𖵣◌̴𖵧; 𖵣◌̴𖵧; ) KIRAT RAI VOWEL SIGN AA, COMBINING TILDE OVERLAY, KIRAT RAI VOWEL SIGN E
+16D67 0334 16D67;16D67 0334 16D67;16D67 0334 16D67;16D67 0334 16D67;16D67 0334 16D67; # (𖵧◌̴𖵧; 𖵧◌̴𖵧; 𖵧◌̴𖵧; 𖵧◌̴𖵧; 𖵧◌̴𖵧; ) KIRAT RAI VOWEL SIGN E, COMBINING TILDE OVERLAY, KIRAT RAI VOWEL SIGN E
+16D69 0334 16D67;16D69 0334 16D67;16D63 16D67 0334 16D67;16D69 0334 16D67;16D63 16D67 0334 16D67; # (𖵩◌̴𖵧; 𖵩◌̴𖵧; 𖵩◌̴𖵧; 𖵩◌̴𖵧; 𖵩◌̴𖵧; ) KIRAT RAI VOWEL SIGN O, COMBINING TILDE OVERLAY, KIRAT RAI VOWEL SIGN E
 #
 # EOF
