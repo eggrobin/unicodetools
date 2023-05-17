@@ -209,7 +209,15 @@ In \p{U-1:XID_Continue} U-1:NFKC_Simple_Casefold = NFKC_Simple_Casefold
 In \P{U-1:gc=Cn} U-1:NFKC_Simple_Casefold = NFKC_Simple_Casefold
 
 # Case Pair Stability: If two characters form a case pair in a version of Unicode, they will remain a case pair in each subsequent version of Unicode. If two characters do not form a case pair in a version of Unicode, they will never become a case pair in any subsequent version of Unicode.
-# TODO
+#
+# TODO proofs
+#
+# Greek lowercase letters with no uppercase counterpart.
+# These actually change when the toCasefold operation is applied to them, but their NFD does not change, so they are not Changes_When_Casefolded.
+Let $greekLowercaseWithNoUppercase = [ \p{Script=Greek} & [\p{Name=/WITH DIALYTIKA AND|(UPSILON|RHO) WITH PSILI|WITH PERISPOMENI|GREEK PROSGEGRAMMENI/}] ]
+Let $lowerUpperFixedPoint = \P{Changes_When_Casefolded} [\p{Script=Cherokee}&\p{Lowercase}] - [\p{Script=Cherokee}&\p{Uppercase}] - $greekLowercaseWithNoUppercase - [ıǰẖẗẘẙ]
+In [^$lowerUpperFixedPoint] Lowercase_Mapping * Uppercase_Mapping ≠
+In $lowerUpperFixedPoint Lowercase_Mapping * Uppercase_Mapping =
 
 # Red Flag: cased and case_ignorable should be disjoint
 
