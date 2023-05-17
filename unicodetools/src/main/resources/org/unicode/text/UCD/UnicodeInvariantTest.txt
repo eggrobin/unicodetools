@@ -83,8 +83,8 @@
 # On both sides, <props> is a composition of properties and filters, as in an “In” line.
 #
 #   Example:
-#       Case-insensitive equivalence of ASCII identifiers can be done indifferently by uppercasing
-#       or lowercasing.
+#       The case-insensitive comparison of ASCII identifiers defined by comparing their uppercase
+#       mappings is equivalent to that defined by comparing their lowercase mappings:
 #          EquivalencesOf \p{Block=Basic Latin} Uppercase_Mapping ⇔ Lowercase_Mapping
 #       This is not true in the broader Latin script (in fact neither implication holds).
 #          EquivalencesOf \p{Script=Latin} Uppercase_Mapping ⇎ Lowercase_Mapping
@@ -137,7 +137,7 @@
 Let $foo = \p{ccc=9}
 Let $fii = \p{toNFD=/$foo/}
 
-Let $codepoints = [\u0000-\U00010FFF]
+Let $codepoints = [\u0000-\U0010FFFF]
 
 Let $gcAllPunctuation = \p{gc=/_Punctuation/}
 $gcAllPunctuation = [\p{gc=Close_Punctuation}\p{gc=Connector_Punctuation}}\p{gc=Dash_Punctuation}\p{gc=Final_Punctuation}\p{gc=Initial_Punctuation}\p{gc=Open_Punctuation}\p{gc=Other_Punctuation}]
