@@ -218,6 +218,11 @@ Let $greekLowercaseWithNoUppercase = [ \p{Script=Greek} & [\p{Name=/WITH DIALYTI
 Let $lowerUpperFixedPoint = \P{Changes_When_Casefolded} [\p{Script=Cherokee}&\p{Lowercase}] - [\p{Script=Cherokee}&\p{Uppercase}] - $greekLowercaseWithNoUppercase - [ıǰẖẗẘẙ]
 In [^$lowerUpperFixedPoint] Lowercase_Mapping * Uppercase_Mapping ≠
 In $lowerUpperFixedPoint Lowercase_Mapping * Uppercase_Mapping =
+In [^$lowerUpperFixedPoint] U-1:Lowercase_Mapping * U-1:Uppercase_Mapping ≠
+In $lowerUpperFixedPoint U-1:Lowercase_Mapping * U-1:Uppercase_Mapping =
+Let $upperLowerFixedPoint = \P{Changes_When_Uppercased} - [İϴẞ] - \p{name=/^(OHM|KELVIN|ANGSTROM) SIGN/}
+In [^$upperLowerFixedPoint] Uppercase_Mapping * Lowercase_Mapping ≠
+In $upperLowerFixedPoint Uppercase_Mapping * Lowercase_Mapping =
 
 # Red Flag: cased and case_ignorable should be disjoint
 

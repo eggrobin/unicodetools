@@ -979,8 +979,8 @@ public class TestUnicodeInvariants {
         final int totalSize = valueSet.size();
         int abbreviated = 0;
         if (showRangeLimit >= 0) {
-            final UnicodeSet shorter = new UnicodeSet();
             int rangeLimit = showRangeLimit;
+            final UnicodeSet shorter = new UnicodeSet();
             for (final UnicodeSetIterator it = new UnicodeSetIterator(valueSet);
                     it.nextRange() && rangeLimit > 0;
                     --rangeLimit) {
@@ -995,6 +995,9 @@ public class TestUnicodeInvariants {
         if (doHtml) {
             out.println("<table class='s'>");
         }
+        // Show the GC if it happens to be constant over a range, but do not split because of it:
+        // We limit the output based on unsplit ranges.
+        showLister.setLabelSource(null).setRangeBreakSource(null).setRefinedLabelSource(LATEST_PROPS.getProperty("General_Category"));
         showLister.showSetNames(out, valueSet);
         if (doHtml) {
             out.println("</table>");
