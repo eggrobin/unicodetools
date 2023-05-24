@@ -15,6 +15,7 @@ import java.io.StringWriter;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -281,8 +282,6 @@ public class TestUnicodeInvariants {
         final var leftProperty = CompoundProperty.of(LATEST_PROPS, line, pp);
         scan(PATTERN_WHITE_SPACE, line, pp, true);
         char relationOperator = line.charAt(pp.getIndex());
-        pp.setIndex(pp.getIndex() + 1);
-        final var rightProperty = CompoundProperty.of(LATEST_PROPS, line, pp);
 
         boolean leftShouldImplyRight = false;
         boolean rightShouldImplyLeft = false;
@@ -314,8 +313,12 @@ public class TestUnicodeInvariants {
                 leftShouldImplyRight = true;
                 break;
             default:
-                throw new ParseException(line, pp.getIndex());
+                throw new ParseException("Unexpected operator " + relationOperator, pp.getIndex());
         }
+
+        pp.setIndex(pp.getIndex() + 1);
+        final var rightProperty = CompoundProperty.of(LATEST_PROPS, line, pp);
+
         final var leftValues = new HashMap<String, String>();
         final var rightValues = new HashMap<String, String>();
         final var leftClasses = new HashMap<String, UnicodeSet>();
@@ -524,6 +527,54 @@ public class TestUnicodeInvariants {
         return value1.equals(value2);
     }
 
+    static class ConditionalProperty extends UnicodeProperty {
+        private UnicodeSet condition;
+        private String prettyCondition;
+        private UnicodeProperty propertyIfTrue;
+        private UnicodeProperty propertyIfFalse;
+
+        public ConditionalProperty(UnicodeSet condition, String prettyCondition,
+                                   UnicodeProperty propertyIfTrue, UnicodeProperty propertyIfFalse) {
+            this.condition =       condition;
+            this.prettyCondition = prettyCondition;
+            this.propertyIfTrue = propertyIfTrue;
+            this.propertyIfFalse = propertyIfFalse;
+        }
+
+        @Override
+        protected String _getVersion() {
+            return propertyIfTrue.getVersion();
+        }
+
+        @Override
+        protected String _getValue(int codepoint) {
+            return condition.contains(codepoint) ? propertyIfTrue.getValue(codepoint) : propertyIfFalse.getValue(codepoint);
+        }
+
+        @Override
+        protected List<String> _getNameAliases(List<String> result) {
+            return Arrays.asList( 
+                "(if " + prettyCondition + " then " +  propertyIfTrue.getFirstNameAlias() + " else " + propertyIfFalse.getFirstNameAlias() + ")"
+            );
+        }
+
+        @Override
+        protected List<String> _getValueAliases(String valueAlias, List<String> result) {
+            var aliases = new ArrayList<String>();
+            aliases.addAll(propertyIfTrue.getValueAliases());
+            aliases.addAll(propertyIfFalse.getValueAliases());
+            return aliases;
+        }
+
+        @Override
+        protected List<String> _getAvailableValues(List<String> result) {
+            var availableValues = new ArrayList<String>();
+            availableValues.addAll(propertyIfTrue.getAvailableValues());
+            availableValues.addAll(propertyIfFalse.getAvailableValues());
+            return availableValues;
+        }
+    }
+
     static class CompoundProperty extends UnicodeProperty {
         static class FilterOrProp {
             enum Type {
@@ -539,15 +590,50 @@ public class TestUnicodeInvariants {
         }
 
         private static final UnicodeSet PROPCHARS =
-                new UnicodeSet("[a-zA-Z0-9.\\:\\-\\_\\u0020\\p{pattern white space}]");
+                new UnicodeSet("[a-zA-Z0-9.\\:\\-\\_]");
         private final List<FilterOrProp> propOrFilters = new ArrayList<FilterOrProp>();
 
         static UnicodeProperty of(
-                UnicodeProperty.Factory propSource, String line, ParsePosition pp) {
+                UnicodeProperty.Factory propSource, String line, ParsePosition pp) throws ParseException {
             final CompoundProperty result = new CompoundProperty();
             while (true) {
                 scan(PATTERN_WHITE_SPACE, line, pp, true);
-                if (UnicodeSet.resemblesPattern(line, pp.getIndex())) {
+                if (pp.getIndex() < line.length() && line.charAt(pp.getIndex()) == '(') {
+                    pp.setIndex(pp.getIndex() + 1);
+                    scan(PATTERN_WHITE_SPACE, line, pp, true);
+                    if (pp.getIndex() + 2 > line.length() ||
+                        !line.substring(pp.getIndex(), pp.getIndex() + 2).equals("if")) {
+                        throw new ParseException("Expected 'if'", pp.getIndex());
+                    }
+                    pp.setIndex(pp.getIndex() + 2);
+                    scan(PATTERN_WHITE_SPACE, line, pp, true);
+                    final int conditionStart = pp.getIndex();
+                    UnicodeSet condition = parseUnicodeSet(line, pp);
+                    final String prettyCondition = line.substring(conditionStart, pp.getIndex()).trim();
+                    scan(PATTERN_WHITE_SPACE, line, pp, true);
+                    if (     pp.getIndex() + 4 > line.length() ||
+                    !line.substring(pp.getIndex(), pp.getIndex() + 4).equals("then")) {
+                        throw new ParseException("Expected 'then'", pp.getIndex());
+                    }
+                    pp.setIndex(pp.getIndex() + 4);
+                    UnicodeProperty propertyIfTrue = CompoundProperty.of(propSource, line, pp);
+                    scan(PATTERN_WHITE_SPACE, line, pp, true);
+                    if (     pp.getIndex() + 4 > line.length() ||
+                    !line.substring(pp.getIndex(), pp.getIndex() + 4).equals("else")) {
+                        throw new ParseException("Expected 'else'", pp.getIndex());
+                    }
+                    pp.setIndex(pp.getIndex() + 4);
+                    UnicodeProperty propertyIfFalse = CompoundProperty.of(propSource, line, pp);
+                    if (     pp.getIndex() == line.length() ||
+                        line.charAt(pp.getIndex()) != ')') {
+                        throw new ParseException("Expected ')':", pp.getIndex());
+                    }
+                    pp.setIndex(pp.getIndex() + 1);
+                    final FilterOrProp propOrFilter = new FilterOrProp();
+                    propOrFilter.prop = new ConditionalProperty(condition, prettyCondition, propertyIfTrue, propertyIfFalse);
+                    propOrFilter.type = FilterOrProp.Type.prop;
+                    result.propOrFilters.add(propOrFilter);
+                } else if (UnicodeSet.resemblesPattern(line, pp.getIndex())) {
                     final FilterOrProp propOrFilter = new FilterOrProp();
                     final int start = pp.getIndex();
                     propOrFilter.filter = parseUnicodeSet(line, pp);
