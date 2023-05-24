@@ -214,15 +214,19 @@ In \P{U-1:gc=Cn} U-1:NFKC_Simple_Casefold = NFKC_Simple_Casefold
 #
 # Greek lowercase letters with no uppercase counterpart.
 # These actually change when the toCasefold operation is applied to them, but their NFD does not change, so they are not Changes_When_Casefolded.
-Let $greekLowercaseWithNoUppercase = [ \p{Script=Greek} & [\p{Name=/WITH DIALYTIKA AND|(UPSILON|RHO) WITH PSILI|WITH PERISPOMENI|GREEK PROSGEGRAMMENI/}] ]
+Let $greekLowercaseWithNoUppercase = [ \p{Script=Greek} & \p{Age=1.1} & [\p{Name=/WITH DIALYTIKA AND|(UPSILON|RHO) WITH PSILI|WITH PERISPOMENI|GREEK PROSGEGRAMMENI/}] ]
 Let $lowerUpperFixedPoint = \P{Changes_When_Casefolded} [\p{Script=Cherokee}&\p{Lowercase}] - [\p{Script=Cherokee}&\p{Uppercase}] - $greekLowercaseWithNoUppercase - [ıǰẖẗẘẙ]
+Let $previousLowerUpperFixedPoint = \P{U10.0.0:Changes_When_Casefolded} [\p{Script=Cherokee}&\p{Lowercase}] - [\p{Script=Cherokee}&\p{Uppercase}] - $greekLowercaseWithNoUppercase - [ıǰẖẗẘẙ]
 In [^$lowerUpperFixedPoint] Lowercase_Mapping * Uppercase_Mapping ≠
 In $lowerUpperFixedPoint Lowercase_Mapping * Uppercase_Mapping =
-In [^$lowerUpperFixedPoint] U-1:Lowercase_Mapping * U-1:Uppercase_Mapping ≠
-In $lowerUpperFixedPoint U-1:Lowercase_Mapping * U-1:Uppercase_Mapping =
+In [^$previousLowerUpperFixedPoint] U10.0.0:Lowercase_Mapping * U10.0.0:Uppercase_Mapping ≠
+In $previousLowerUpperFixedPoint U10.0.0:Lowercase_Mapping * U10.0.0:Uppercase_Mapping =
 Let $upperLowerFixedPoint = \P{Changes_When_Uppercased} - [İϴẞ] - \p{name=/^(OHM|KELVIN|ANGSTROM) SIGN/}
+Let $previousUpperLowerFixedPoint = \P{U10.0.0:Changes_When_Uppercased} - [İϴẞ] - \p{name=/^(OHM|KELVIN|ANGSTROM) SIGN/}
 In [^$upperLowerFixedPoint] Uppercase_Mapping * Lowercase_Mapping ≠
 In $upperLowerFixedPoint Uppercase_Mapping * Lowercase_Mapping =
+In [^$previousUpperLowerFixedPoint] U10.0.0:Uppercase_Mapping * U10.0.0:Lowercase_Mapping ≠
+In $previousUpperLowerFixedPoint U10.0.0:Uppercase_Mapping * U10.0.0:Lowercase_Mapping =
 
 # Red Flag: cased and case_ignorable should be disjoint
 
