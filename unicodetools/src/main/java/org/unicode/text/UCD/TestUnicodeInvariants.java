@@ -535,6 +535,7 @@ public class TestUnicodeInvariants {
             private Type type;
             private UnicodeProperty prop;
             private UnicodeSet filter;
+            private String filterName;
         }
 
         private static final UnicodeSet PROPCHARS =
@@ -548,7 +549,9 @@ public class TestUnicodeInvariants {
                 scan(PATTERN_WHITE_SPACE, line, pp, true);
                 if (UnicodeSet.resemblesPattern(line, pp.getIndex())) {
                     final FilterOrProp propOrFilter = new FilterOrProp();
+                    final int start = pp.getIndex();
                     propOrFilter.filter = parseUnicodeSet(line, pp);
+                    propOrFilter.filterName = line.substring(start, pp.getIndex()).trim();
                     propOrFilter.type = FilterOrProp.Type.filter;
                     result.propOrFilters.add(propOrFilter);
                 } else {
@@ -599,7 +602,11 @@ public class TestUnicodeInvariants {
                 if (i != 0) {
                     name.append("*");
                 }
-                name.append(propOrFilters.get(i).prop.getFirstNameAlias());
+                if (propOrFilters.get(i).prop != null) {
+                    name.append(propOrFilters.get(i).prop.getFirstNameAlias());
+                } else {
+                    name.append(propOrFilters.get(i).filterName);
+                }
             }
             result.add(name.toString());
             return result;

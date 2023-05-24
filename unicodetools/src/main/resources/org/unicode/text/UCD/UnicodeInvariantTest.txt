@@ -227,6 +227,7 @@ In [^$upperLowerFixedPoint] Uppercase_Mapping * Lowercase_Mapping ≠
 In $upperLowerFixedPoint Uppercase_Mapping * Lowercase_Mapping =
 In [^$previousUpperLowerFixedPoint] U10.0.0:Uppercase_Mapping * U10.0.0:Lowercase_Mapping ≠
 In $previousUpperLowerFixedPoint U10.0.0:Uppercase_Mapping * U10.0.0:Lowercase_Mapping =
+EquivalencesOf \P{U10.0.0:General_Category=Unassigned} [$upperLowerFixedPoint] * Lowercase_Mapping ⇔ [$previousUpperLowerFixedPoint] * U-1:Lowercase_Mapping
 
 # Red Flag: cased and case_ignorable should be disjoint
 
