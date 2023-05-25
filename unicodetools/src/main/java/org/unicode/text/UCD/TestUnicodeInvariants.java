@@ -533,9 +533,12 @@ public class TestUnicodeInvariants {
         private UnicodeProperty propertyIfTrue;
         private UnicodeProperty propertyIfFalse;
 
-        public ConditionalProperty(UnicodeSet condition, String prettyCondition,
-                                   UnicodeProperty propertyIfTrue, UnicodeProperty propertyIfFalse) {
-            this.condition =       condition;
+        public ConditionalProperty(
+                UnicodeSet condition,
+                String prettyCondition,
+                UnicodeProperty propertyIfTrue,
+                UnicodeProperty propertyIfFalse) {
+            this.condition = condition;
             this.prettyCondition = prettyCondition;
             this.propertyIfTrue = propertyIfTrue;
             this.propertyIfFalse = propertyIfFalse;
@@ -548,14 +551,21 @@ public class TestUnicodeInvariants {
 
         @Override
         protected String _getValue(int codepoint) {
-            return condition.contains(codepoint) ? propertyIfTrue.getValue(codepoint) : propertyIfFalse.getValue(codepoint);
+            return condition.contains(codepoint)
+                    ? propertyIfTrue.getValue(codepoint)
+                    : propertyIfFalse.getValue(codepoint);
         }
 
         @Override
         protected List<String> _getNameAliases(List<String> result) {
-            return Arrays.asList( 
-                "(if " + prettyCondition + " then " +  propertyIfTrue.getFirstNameAlias() + " else " + propertyIfFalse.getFirstNameAlias() + ")"
-            );
+            return Arrays.asList(
+                    "(if "
+                            + prettyCondition
+                            + " then "
+                            + propertyIfTrue.getFirstNameAlias()
+                            + " else "
+                            + propertyIfFalse.getFirstNameAlias()
+                            + ")");
         }
 
         @Override
@@ -589,48 +599,49 @@ public class TestUnicodeInvariants {
             private String filterName;
         }
 
-        private static final UnicodeSet PROPCHARS =
-                new UnicodeSet("[a-zA-Z0-9.\\:\\-\\_]");
+        private static final UnicodeSet PROPCHARS = new UnicodeSet("[a-zA-Z0-9.\\:\\-\\_]");
         private final List<FilterOrProp> propOrFilters = new ArrayList<FilterOrProp>();
 
-        static UnicodeProperty of(
-                UnicodeProperty.Factory propSource, String line, ParsePosition pp) throws ParseException {
+        static UnicodeProperty of(UnicodeProperty.Factory propSource, String line, ParsePosition pp)
+                throws ParseException {
             final CompoundProperty result = new CompoundProperty();
             while (true) {
                 scan(PATTERN_WHITE_SPACE, line, pp, true);
                 if (pp.getIndex() < line.length() && line.charAt(pp.getIndex()) == '(') {
                     pp.setIndex(pp.getIndex() + 1);
                     scan(PATTERN_WHITE_SPACE, line, pp, true);
-                    if (pp.getIndex() + 2 > line.length() ||
-                        !line.substring(pp.getIndex(), pp.getIndex() + 2).equals("if")) {
+                    if (pp.getIndex() + 2 > line.length()
+                            || !line.substring(pp.getIndex(), pp.getIndex() + 2).equals("if")) {
                         throw new ParseException("Expected 'if'", pp.getIndex());
                     }
                     pp.setIndex(pp.getIndex() + 2);
                     scan(PATTERN_WHITE_SPACE, line, pp, true);
                     final int conditionStart = pp.getIndex();
                     UnicodeSet condition = parseUnicodeSet(line, pp);
-                    final String prettyCondition = line.substring(conditionStart, pp.getIndex()).trim();
+                    final String prettyCondition =
+                            line.substring(conditionStart, pp.getIndex()).trim();
                     scan(PATTERN_WHITE_SPACE, line, pp, true);
-                    if (     pp.getIndex() + 4 > line.length() ||
-                    !line.substring(pp.getIndex(), pp.getIndex() + 4).equals("then")) {
+                    if (pp.getIndex() + 4 > line.length()
+                            || !line.substring(pp.getIndex(), pp.getIndex() + 4).equals("then")) {
                         throw new ParseException("Expected 'then'", pp.getIndex());
                     }
                     pp.setIndex(pp.getIndex() + 4);
                     UnicodeProperty propertyIfTrue = CompoundProperty.of(propSource, line, pp);
                     scan(PATTERN_WHITE_SPACE, line, pp, true);
-                    if (     pp.getIndex() + 4 > line.length() ||
-                    !line.substring(pp.getIndex(), pp.getIndex() + 4).equals("else")) {
+                    if (pp.getIndex() + 4 > line.length()
+                            || !line.substring(pp.getIndex(), pp.getIndex() + 4).equals("else")) {
                         throw new ParseException("Expected 'else'", pp.getIndex());
                     }
                     pp.setIndex(pp.getIndex() + 4);
                     UnicodeProperty propertyIfFalse = CompoundProperty.of(propSource, line, pp);
-                    if (     pp.getIndex() == line.length() ||
-                        line.charAt(pp.getIndex()) != ')') {
+                    if (pp.getIndex() == line.length() || line.charAt(pp.getIndex()) != ')') {
                         throw new ParseException("Expected ')':", pp.getIndex());
                     }
                     pp.setIndex(pp.getIndex() + 1);
                     final FilterOrProp propOrFilter = new FilterOrProp();
-                    propOrFilter.prop = new ConditionalProperty(condition, prettyCondition, propertyIfTrue, propertyIfFalse);
+                    propOrFilter.prop =
+                            new ConditionalProperty(
+                                    condition, prettyCondition, propertyIfTrue, propertyIfFalse);
                     propOrFilter.type = FilterOrProp.Type.prop;
                     result.propOrFilters.add(propOrFilter);
                 } else if (UnicodeSet.resemblesPattern(line, pp.getIndex())) {
@@ -1090,7 +1101,10 @@ public class TestUnicodeInvariants {
         }
         // Show the GC if it happens to be constant over a range, but do not split because of it:
         // We limit the output based on unsplit ranges.
-        showLister.setLabelSource(null).setRangeBreakSource(null).setRefinedLabelSource(LATEST_PROPS.getProperty("General_Category"));
+        showLister
+                .setLabelSource(null)
+                .setRangeBreakSource(null)
+                .setRefinedLabelSource(LATEST_PROPS.getProperty("General_Category"));
         showLister.showSetNames(out, valueSet);
         if (doHtml) {
             out.println("</table>");
