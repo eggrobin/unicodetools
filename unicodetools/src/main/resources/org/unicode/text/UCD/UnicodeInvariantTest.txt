@@ -208,9 +208,25 @@ In \p{U-1:XID_Continue} U-1:NFKC_Simple_Casefold = NFKC_Simple_Casefold
 # As above, this one would not be guaranteed by the stability policy.
 In \P{U-1:gc=Cn} U-1:NFKC_Simple_Casefold = NFKC_Simple_Casefold
 
-# Case Pair Stability: If two characters form a case pair in a version of Unicode, they will remain a case pair in each subsequent version of Unicode. If two characters do not form a case pair in a version of Unicode, they will never become a case pair in any subsequent version of Unicode.
+# Case Pair Stability: If two characters form a case pair in a version of Unicode, they will remain
+# a case pair in each subsequent version of Unicode. If two characters do not form a case pair in a
+# version of Unicode, they will never become a case pair in any subsequent version of Unicode.
 #
-# TODO proofs
+# More formally, for given versions V and U of Unicode, and any two distinct characters X and Y that
+# are both assigned according to both V and U:
+#   toLowercase_V(X) = Y AND toUppercase_V(Y) = X
+# if and only if
+#   toLowercase_U(X) = Y AND toUppercase_U(Y) = X
+#
+# The relation X ≒ᵥ Y defined by
+#   X ≠ Y ∧ toLowercase_V(X) = Y ∧ toUppercase_V(Y) = X
+# is not an equivalence relation. However, we can define an equivalence relation “belong to the
+# same case pair in version V”, X ≑ᵥ Y, as follows:
+#   X ≑ᵥ Y if and only if one of the following holds:
+#   1. X = Y;
+#   2. toLowercase_V(X) = Y ∧ toUppercase_V(Y) = X;
+#   3. toUppercase_V(Y) = ∧ X toLowercase_V(X) = Y.
+# Then X ≒ᵥ Y
 #
 # Greek lowercase letters with no uppercase counterpart.
 # These actually change when the toCasefold operation is applied to them, but their NFD does not change, so they are not Changes_When_Casefolded.
