@@ -2087,15 +2087,18 @@ public final class UCD implements UCD_Types {
         final String[][] result = new String[2][blockNames.size()];
         for (int i = 0; i < blockNames.size(); ++i) {
             final String longName = blockNames.get(i);
-            final String shortName = longToShortBlockNames.get(longName);
-            if (shortName == null) {
-                throw new IllegalArgumentException(
-                        "Missing short block name for "
-                                + longName
-                                + " -- update ShortBlockNames.txt");
-            }
             result[0][i] = longName;
-            result[1][i] = shortName;
+            if (compositeVersion >= 0x06_01_00) {
+                // http://www.unicode.org/cgi-bin/GetL2Ref.pl?129-C14.
+                final String shortName = longToShortBlockNames.get(longName);
+                if (shortName == null) {
+                    throw new IllegalArgumentException(
+                            "Missing short block name for "
+                                    + longName
+                                    + " -- update ShortBlockNames.txt");
+                }
+                result[1][i] = shortName;
+            }
         }
         return result;
     }

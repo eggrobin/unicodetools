@@ -465,7 +465,9 @@ public class ToolUnicodePropertySource extends UnicodeProperty.Factory {
                                     },
                                     {"Arabic_Presentation_Forms_A", "Arabic_Presentation_Forms-A"},
                                 },
-                                AliasAddAction.REQUIRE_MAIN_ALIAS));
+                                ucd.getCompositeVersion() >= 0x03_02_00
+                                        ? AliasAddAction.REQUIRE_MAIN_ALIAS
+                                        : AliasAddAction.IGNORE_IF_MISSING));
 
         // add(new UnicodeProperty.SimpleProperty() {
         // public String _getValue(int codepoint) {
@@ -959,18 +961,23 @@ public class ToolUnicodePropertySource extends UnicodeProperty.Factory {
                             Indic_Syllabic_Category_Values.class);
 
             UnicodeMap<Binary> pcm =
-                    iupCurrent.loadEnum(UcdProperty.Prepended_Concatenation_Mark, Binary.class);
+                    compositeVersion < 0x09_00_00
+                            ? null
+                            : iupCurrent.loadEnum(
+                                    UcdProperty.Prepended_Concatenation_Mark, Binary.class);
 
             final UnicodeSet prepend =
-                    new UnicodeSet(pcm.getSet(Binary.Yes)) // Prepended_Concatenation_Mark
-                            .addAll(
-                                    isc.getSet(
-                                            Indic_Syllabic_Category_Values
-                                                    .Consonant_Preceding_Repha)) // Consonant_Preceding_Repha
-                            .addAll(
-                                    isc.getSet(
-                                            Indic_Syllabic_Category_Values
-                                                    .Consonant_Prefixed)); // Consonant_Prefixed
+                    compositeVersion < 0x09_00_00
+                            ? UnicodeSet.EMPTY
+                            : new UnicodeSet(pcm.getSet(Binary.Yes)) // Prepended_Concatenation_Mark
+                                    .addAll(
+                                            isc.getSet(
+                                                    Indic_Syllabic_Category_Values
+                                                            .Consonant_Preceding_Repha)) // Consonant_Preceding_Repha
+                                    .addAll(
+                                            isc.getSet(
+                                                    Indic_Syllabic_Category_Values
+                                                            .Consonant_Prefixed)); // Consonant_Prefixed
             //          "[\\u0600-\\u0605\\u06DD\\u070F\\u08E2\\U000110BD"              //
             // Prepended_Concatenation_Mark
             //          + "\\u0D4E\\U00011D46"                                          //
@@ -1190,15 +1197,18 @@ public class ToolUnicodePropertySource extends UnicodeProperty.Factory {
             // WB=Regional_Indicator must be maintained in sync with the binary Regional_Indicator=Y
             unicodeMap.putAll(0x1F1E6, 0x1F1FF, "Regional_Indicator");
 
-            unicodeMap.putAll(
+            UnicodeSet format =
                     cat.getSet("Format")
                             .remove(0x200C)
                             .remove(0x200D)
                             .remove(0x200B)
-                            .removeAll(tags)
-                            // 174-CXX.
-                            .removeAll(gcb.getSet("Prepend")),
-                    "Format");
+                            .removeAll(tags);
+            if (ucd.getCompositeVersion() >= 0x0F_01_00) {
+                // https://www.unicode.org/cgi-bin/GetL2Ref.pl?175-C24.
+                format.removeAll(gcb.getSet("Prepend"));
+            }
+
+            unicodeMap.putAll(format, "Format");
             unicodeMap.putAll(
                     script.getSet("Katakana")
                             .addAll(
@@ -1228,10 +1238,12 @@ public class ToolUnicodePropertySource extends UnicodeProperty.Factory {
                                             "[\\u02C2-\\u02C5\\u02D2-\\u02D7\\u02DE\\u02DF\\u02ED\\u02EF-\\u02FF\\uA720\\uA721\\uA789\\uA78A\\uAB5B]"))
                             // Armenian punctuation marks that occur within words; see
                             // http://www.unicode.org/L2/L2018/18115.htm#155-C3
-                            .addAll(new UnicodeSet("[\\u055B\\u055C\\u055E]"))
-                            // 174-CXX.
-                            .add(0x070F),
+                            .addAll(new UnicodeSet("[\\u055B\\u055C\\u055E]")),
                     "ALetter");
+            if (ucd.getCompositeVersion() >= 0x0F_01_00) {
+                // https://www.unicode.org/cgi-bin/GetL2Ref.pl?175-C24.
+                unicodeMap.put(0x070F, "ALetter");
+            }
             unicodeMap.putAll(
                     new UnicodeSet("[\\u00B7\\u0387\\u05F4\\u2027\\u003A\\uFE13\\uFE55\\uFF1A]"),
                     "MidLetter");
@@ -1284,12 +1296,15 @@ public class ToolUnicodePropertySource extends UnicodeProperty.Factory {
             unicodeMap.putAll(
                     new UnicodeSet(lineBreak.getSet("Numeric"))
                             .add(cat.getSet("Decimal_Number"))
-                            // 174-CXX.
-                            .add(
-                                    new UnicodeSet(
-                                            "[\u0600-\u0605\u06DD\u0890\u0891\u08E2\\U000110BD\\U000110CD]"))
                             .remove(0x066C),
                     "Numeric"); // .remove(0x387)
+            if (ucd.getCompositeVersion() >= 0x0F_01_00) {
+                // https://www.unicode.org/cgi-bin/GetL2Ref.pl?175-C24.
+                unicodeMap.putAll(
+                        new UnicodeSet(
+                                "[\u0600-\u0605\u06DD\u0890\u0891\u08E2\\U000110BD\\U000110CD]"),
+                        "Numeric");
+            }
             unicodeMap.putAll(
                     cat.getSet("Connector_Punctuation")
                             .remove(0x30FB)
@@ -1482,27 +1497,29 @@ public class ToolUnicodePropertySource extends UnicodeProperty.Factory {
                                 .addAll(getProperty("Uppercase").getSet(UCD_Names.YES))
                                 .addAll(getProperty("GeneralCategory").getSet("Lt"))));
 
-        /*
-         * # As defined by Unicode Standard Definition
-         * D121 # C is defined to be case-ignorable if C has the value MidLetter or
-         * the value MidNumLet # for the Word_Break property or its General_Category
-         * is one of # Nonspacing_Mark (Mn), Enclosing_Mark (Me), Format (Cf),
-         * Modifier_Letter (Lm), or Modifier_Symbol (Sk).
-         */
-        add(
-                new SimpleBinaryProperty(
-                        "Case_Ignorable",
-                        "CI",
-                        version,
-                        new UnicodeSet()
-                                .addAll(getProperty("WordBreak").getSet("MidNumLet"))
-                                .addAll(getProperty("WordBreak").getSet("MidLetter"))
-                                .addAll(getProperty("WordBreak").getSet("SQ"))
-                                .addAll(getProperty("GeneralCategory").getSet("Mn"))
-                                .addAll(getProperty("GeneralCategory").getSet("Me"))
-                                .addAll(getProperty("GeneralCategory").getSet("Cf"))
-                                .addAll(getProperty("GeneralCategory").getSet("Lm"))
-                                .addAll(getProperty("GeneralCategory").getSet("Sk"))));
+        if (compositeVersion >= 0x05_02_00) {
+            /*
+             * # As defined by Unicode Standard Definition
+             * D121 # C is defined to be case-ignorable if C has the value MidLetter or
+             * the value MidNumLet # for the Word_Break property or its General_Category
+             * is one of # Nonspacing_Mark (Mn), Enclosing_Mark (Me), Format (Cf),
+             * Modifier_Letter (Lm), or Modifier_Symbol (Sk).
+             */
+            add(
+                    new SimpleBinaryProperty(
+                            "Case_Ignorable",
+                            "CI",
+                            version,
+                            new UnicodeSet()
+                                    .addAll(getProperty("WordBreak").getSet("MidNumLet"))
+                                    .addAll(getProperty("WordBreak").getSet("MidLetter"))
+                                    .addAll(getProperty("WordBreak").getSet("SQ"))
+                                    .addAll(getProperty("GeneralCategory").getSet("Mn"))
+                                    .addAll(getProperty("GeneralCategory").getSet("Me"))
+                                    .addAll(getProperty("GeneralCategory").getSet("Cf"))
+                                    .addAll(getProperty("GeneralCategory").getSet("Lm"))
+                                    .addAll(getProperty("GeneralCategory").getSet("Sk"))));
+        }
 
         /*
          * Property: Is_Lowercased # As defined by Unicode Standard
