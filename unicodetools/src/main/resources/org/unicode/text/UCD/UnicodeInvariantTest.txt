@@ -219,15 +219,18 @@ In \P{U-1:gc=Cn} R-1:NFKC_Simple_Casefold = NFKC_Simple_Casefold
 #   toLowercase_U(X) = Y AND toUppercase_U(Y) = X
 #
 # The relation X ≒ᵥ Y defined by
-#   X ≠ Y ∧ toLowercase_V(X) = Y ∧ toUppercase_V(Y) = X
+#   X ≠ Y ∧ toLowercaseᵥ(X) = Y ∧ toUppercaseᵥ(Y) = X
 # is not an equivalence relation. However, we can define an equivalence relation “belong to the
 # same case pair in version V”, X ≑ᵥ Y, as follows:
 #   X ≑ᵥ Y if and only if one of the following holds:
 #   1. X = Y;
-#   2. toLowercase_V(X) = Y ∧ toUppercase_V(Y) = X;
-#   3. toUppercase_V(Y) = ∧ X toLowercase_V(X) = Y.
-# Then X ≒ᵥ Y
-#
+#   2. toLowercaseᵥ(X) = Y ∧ toUppercaseᵥ(Y) = X;
+#   3. toUppercaseᵥ(Y) = ∧ X toLowercaseᵥ(X) = Y.
+# Then, X ≒ᵥ Y implies X ≑ᵥ Y; conversely, given X ≑ᵥ Y, exactly one of the
+# following is true:
+#   1. X = Y;
+#   2. X ≒ᵥ Y;
+#   3. Y ≒ᵥ X.
 # Greek lowercase letters with no uppercase counterpart.
 # These actually change when the toCasefold operation is applied to them, but their NFD does not change, so they are not Changes_When_Casefolded.
 Let $greekLowercaseWithNoUppercase = [ \p{Script=Greek} & \p{Age=1.1} & [\p{Name=/WITH DIALYTIKA AND|(UPSILON|RHO) WITH PSILI|WITH PERISPOMENI|GREEK PROSGEGRAMMENI/}] ]
