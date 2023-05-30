@@ -235,14 +235,6 @@ In \P{U-1:gc=Cn} R-1:NFKC_Simple_Casefold = NFKC_Simple_Casefold
 #   1. X = Y;
 #   2. X ≒ᵥ Y;
 #   3. Y ≒ᵥ X.
-#
-# Thus (CPS) can be expressed in terms of ≑ᵥ as
-#   X ≑ᵥ Y ⇔ X ≑ᵤ Y.
-# Proof that
-#   ( X ≠ Y ⇒ ( X ≒ᵥ Y ⇔ X ≒ᵤ Y ) ) ⇔ ( X ≑ᵥ Y ⇔ X ≑ᵤ Y ):
-# If X = Y, both sides are true. Let X ≠ Y, we need to show that
-#   ( X ≒ᵥ Y ⇔ X ≒ᵤ Y ) ⇔ ( X ≑ᵥ Y ⇔ X ≑ᵤ Y ).
-# TODO Wait no this is wrong, we could flip the case pair. blarg.
 
 # Greek lowercase letters with no uppercase counterpart.
 # These actually change when the toCasefold operation is applied to them, but their NFD does not change, so they are not Changes_When_Casefolded.
