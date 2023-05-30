@@ -214,14 +214,18 @@ In \P{U-1:gc=Cn} R-1:NFKC_Simple_Casefold = NFKC_Simple_Casefold
 #
 # More formally, for given versions V and U of Unicode, and any two distinct characters X and Y that
 # are both assigned according to both V and U:
-#   toLowercase_V(X) = Y AND toUppercase_V(Y) = X
+#   toLowercaseᵥ(X) = Y AND toUppercaseᵥ(Y) = X
 # if and only if
-#   toLowercase_U(X) = Y AND toUppercase_U(Y) = X
+#   toLowercaseᵤ(X) = Y AND toUppercaseᵤ(Y) = X
 #
-# The relation X ≒ᵥ Y defined by
-#   X ≠ Y ∧ toLowercaseᵥ(X) = Y ∧ toUppercaseᵥ(Y) = X
-# is not an equivalence relation. However, we can define an equivalence relation “belong to the
-# same case pair in version V”, X ≑ᵥ Y, as follows:
+# Consider the relation X ≒ᵥ Y defined by
+#   X ≠ Y ∧ toLowercaseᵥ(X) = Y ∧ toUppercaseᵥ(Y) = X.
+# The stability policy is then: for given versions V and U of Unicode, and any two characters
+# X and Y that are both assigned according to both V and U:
+#   X ≠ Y ⇒ ( X ≒ᵥ Y ⇔ X ≒ᵤ Y )   (CPS)
+# The relation ≒ᵥ is not an equivalence relation.
+# However, we can define an equivalence relation “belong to the same case pair
+# in version V”, X ≑ᵥ Y, as follows:
 #   X ≑ᵥ Y if and only if one of the following holds:
 #   1. X = Y;
 #   2. toLowercaseᵥ(X) = Y ∧ toUppercaseᵥ(Y) = X;
@@ -231,6 +235,15 @@ In \P{U-1:gc=Cn} R-1:NFKC_Simple_Casefold = NFKC_Simple_Casefold
 #   1. X = Y;
 #   2. X ≒ᵥ Y;
 #   3. Y ≒ᵥ X.
+#
+# Thus (CPS) can be expressed in terms of ≑ᵥ as
+#   X ≑ᵥ Y ⇔ X ≑ᵤ Y.
+# Proof that
+#   ( X ≠ Y ⇒ ( X ≒ᵥ Y ⇔ X ≒ᵤ Y ) ) ⇔ ( X ≑ᵥ Y ⇔ X ≑ᵤ Y ):
+# If X = Y, both sides are true. Let X ≠ Y, we need to show that
+#   ( X ≒ᵥ Y ⇔ X ≒ᵤ Y ) ⇔ ( X ≑ᵥ Y ⇔ X ≑ᵤ Y ).
+# TODO Wait no this is wrong, we could flip the case pair. blarg.
+
 # Greek lowercase letters with no uppercase counterpart.
 # These actually change when the toCasefold operation is applied to them, but their NFD does not change, so they are not Changes_When_Casefolded.
 Let $greekLowercaseWithNoUppercase = [ \p{Script=Greek} & \p{Age=1.1} & [\p{Name=/WITH DIALYTIKA AND|(UPSILON|RHO) WITH PSILI|WITH PERISPOMENI|GREEK PROSGEGRAMMENI/}] ]
