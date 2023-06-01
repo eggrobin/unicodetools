@@ -230,7 +230,7 @@ In \P{U-1:gc=Cn} R-1:NFKC_Simple_Casefold = NFKC_Simple_Casefold
 #   1. X = Y;
 #   2. toLowercaseᵥ(X) = Y ∧ toUppercaseᵥ(Y) = X;
 #   3. toUppercaseᵥ(Y) = ∧ X toLowercaseᵥ(X) = Y.
-# Then, X ≒ᵥ Y implies X ≑ᵥ Y; conversely, given X ≑ᵥ Y, exactly one of the
+# Then, X ≒ᵥ Y implies X ≑ᵥ Y; conversely, given X ≑ᵥ Y, exactly(?) one of the
 # following is true:
 #   1. X = Y;
 #   2. X ≒ᵥ Y;
