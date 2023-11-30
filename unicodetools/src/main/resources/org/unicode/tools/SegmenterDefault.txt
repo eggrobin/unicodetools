@@ -212,7 +212,8 @@ $AL=($AL | ^ $CM | (?<=$Spec1_) $CM)
 12.3) ^ $CM+ × $GL
 # LB 13  Do not break before \u2018]\u2019 or \u2018!\u2019 or \u2018;\u2019 or \u2018/\u2019, even after spaces.
 13.01) × $EX
-13.02) × ($CL | $CP | $IS | $SY)
+13.02) [^ $CM] × ($CL | $CP | $IS | $SY)
+13.03) × ($CL | $CP | $IS | $SY)
 #LB 14  Do not break after \u2018[\u2019, even after spaces.
 14) $OP $SP* ×
 # LB 15  Do not break within \u2018\"[\u2019, even with intervening spaces.
