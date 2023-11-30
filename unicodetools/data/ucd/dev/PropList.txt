@@ -1,6 +1,6 @@
-# PropList-15.0.0.txt
-# Date: 2022-08-05, 22:17:16 GMT
-# © 2022 Unicode®, Inc.
+# PropList-16.0.0.txt
+# Date: 2023-11-30, 16:37:16 GMT
+# © 2023 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use, see https://www.unicode.org/terms_of_use.html
 #
@@ -1253,6 +1253,8 @@ E0020..E007F  ; Other_Grapheme_Extend # Cf  [96] TAG SPACE..CANCEL TAG
 
 # ================================================
 
+# ================================================
+
 2E80..2E99    ; Radical # So  [26] CJK RADICAL REPEAT..CJK RADICAL RAP
 2E9B..2EF3    ; Radical # So  [89] CJK RADICAL CHOKE..CJK RADICAL C-SIMPLIFIED TURTLE
 2F00..2FD5    ; Radical # So [214] KANGXI RADICAL ONE..KANGXI RADICAL FLUTE
@@ -1378,6 +1380,10 @@ AABB..AABC    ; Logical_Order_Exception # Lo   [2] TAI VIET VOWEL AUE..TAI VIET 
 19DA          ; Other_ID_Continue # No       NEW TAI LUE THAM DIGIT ONE
 
 # Total code points: 12
+
+# ================================================
+
+# ================================================
 
 # ================================================
 

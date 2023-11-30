@@ -1,6 +1,6 @@
-# WordBreakProperty-15.0.0.txt
-# Date: 2022-04-27, 02:41:26 GMT
-# © 2022 Unicode®, Inc.
+# WordBreakProperty-16.0.0.txt
+# Date: 2023-11-30, 16:39:05 GMT
+# © 2023 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use, see https://www.unicode.org/terms_of_use.html
 #
@@ -615,12 +615,7 @@ E0100..E01EF  ; Extend # Mn [240] VARIATION SELECTOR-17..VARIATION SELECTOR-256
 # ================================================
 
 00AD          ; Format # Cf       SOFT HYPHEN
-0600..0605    ; Format # Cf   [6] ARABIC NUMBER SIGN..ARABIC NUMBER MARK ABOVE
 061C          ; Format # Cf       ARABIC LETTER MARK
-06DD          ; Format # Cf       ARABIC END OF AYAH
-070F          ; Format # Cf       SYRIAC ABBREVIATION MARK
-0890..0891    ; Format # Cf   [2] ARABIC POUND MARK ABOVE..ARABIC PIASTRE MARK ABOVE
-08E2          ; Format # Cf       ARABIC DISPUTED END OF AYAH
 180E          ; Format # Cf       MONGOLIAN VOWEL SEPARATOR
 200E..200F    ; Format # Cf   [2] LEFT-TO-RIGHT MARK..RIGHT-TO-LEFT MARK
 202A..202E    ; Format # Cf   [5] LEFT-TO-RIGHT EMBEDDING..RIGHT-TO-LEFT OVERRIDE
@@ -628,14 +623,12 @@ E0100..E01EF  ; Extend # Mn [240] VARIATION SELECTOR-17..VARIATION SELECTOR-256
 2066..206F    ; Format # Cf  [10] LEFT-TO-RIGHT ISOLATE..NOMINAL DIGIT SHAPES
 FEFF          ; Format # Cf       ZERO WIDTH NO-BREAK SPACE
 FFF9..FFFB    ; Format # Cf   [3] INTERLINEAR ANNOTATION ANCHOR..INTERLINEAR ANNOTATION TERMINATOR
-110BD         ; Format # Cf       KAITHI NUMBER SIGN
-110CD         ; Format # Cf       KAITHI NUMBER SIGN ABOVE
 13430..1343F  ; Format # Cf  [16] EGYPTIAN HIEROGLYPH VERTICAL JOINER..EGYPTIAN HIEROGLYPH END WALLED ENCLOSURE
 1BCA0..1BCA3  ; Format # Cf   [4] SHORTHAND FORMAT LETTER OVERLAP..SHORTHAND FORMAT UP STEP
 1D173..1D17A  ; Format # Cf   [8] MUSICAL SYMBOL BEGIN BEAM..MUSICAL SYMBOL END PHRASE
 E0001         ; Format # Cf       LANGUAGE TAG
 
-# Total code points: 71
+# Total code points: 58
 
 # ================================================
 
@@ -718,6 +711,7 @@ FF71..FF9D    ; Katakana # Lo  [45] HALFWIDTH KATAKANA LETTER A..HALFWIDTH KATAK
 06EE..06EF    ; ALetter # Lo   [2] ARABIC LETTER DAL WITH INVERTED V..ARABIC LETTER REH WITH INVERTED V
 06FA..06FC    ; ALetter # Lo   [3] ARABIC LETTER SHEEN WITH DOT BELOW..ARABIC LETTER GHAIN WITH DOT BELOW
 06FF          ; ALetter # Lo       ARABIC LETTER HEH WITH INVERTED V
+070F          ; ALetter # Cf       SYRIAC ABBREVIATION MARK
 0710          ; ALetter # Lo       SYRIAC LETTER ALAPH
 0712..072F    ; ALetter # Lo  [30] SYRIAC LETTER BETH..SYRIAC LETTER PERSIAN DHALATH
 074D..07A5    ; ALetter # Lo  [89] SYRIAC LETTER SOGDIAN ZHAIN..THAANA LETTER WAAVU
@@ -1319,7 +1313,7 @@ FFDA..FFDC    ; ALetter # Lo   [3] HALFWIDTH HANGUL LETTER EU..HALFWIDTH HANGUL 
 1F150..1F169  ; ALetter # So  [26] NEGATIVE CIRCLED LATIN CAPITAL LETTER A..NEGATIVE CIRCLED LATIN CAPITAL LETTER Z
 1F170..1F189  ; ALetter # So  [26] NEGATIVE SQUARED LATIN CAPITAL LETTER A..NEGATIVE SQUARED LATIN CAPITAL LETTER Z
 
-# Total code points: 29489
+# Total code points: 29490
 
 # ================================================
 
