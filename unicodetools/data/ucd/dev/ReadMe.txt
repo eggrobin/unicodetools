@@ -1,6 +1,6 @@
 # Unicode Character Database
-# Date: PUB_DATE
-# © COPY_YEAR Unicode®, Inc.
+# Date: 2022-09-02
+# © 2022 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use, see https://www.unicode.org/terms_of_use.html
 #
@@ -10,7 +10,7 @@
 # UAX #44, "Unicode Character Database"
 # UTS #51, "Unicode Emoji"
 #
-# The UAXes and UTS #51 can be accessed at https://www.unicode.org/versions/UnicodeUNI_VER/
+# The UAXes and UTS #51 can be accessed at https://www.unicode.org/versions/Unicode15.0.0/
 
-This directory contains PUB_STATUS data files
-for the Unicode Character Database, for Version UNI_VER of the Unicode Standard.
+This directory contains the final data files
+for the Unicode Character Database, for Version 15.0.0 of the Unicode Standard.
