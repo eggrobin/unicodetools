@@ -49,7 +49,6 @@ public enum UcdProperty {
     kPrimaryNumeric(PropertyType.Numeric, "cjkPrimaryNumeric"),
 
     // String
-    Arabic_Shaping_Schematic_Name(PropertyType.String, "Arabic_Shaping_Schematic_Name"),
     Bidi_Mirroring_Glyph(PropertyType.String, "bmg"),
     Bidi_Paired_Bracket(PropertyType.String, "bpb"),
     Case_Folding(PropertyType.String, "cf"),
@@ -77,6 +76,7 @@ public enum UcdProperty {
             PropertyType.String, null, ValueCardinality.Unordered, "cjkTraditionalVariant"),
 
     // Miscellaneous
+    Arabic_Shaping_Schematic_Name(PropertyType.Miscellaneous, "Arabic_Shaping_Schematic_Name"),
     CJK_Radical(PropertyType.Miscellaneous, null, ValueCardinality.Ordered, "CJKR"),
     Emoji_DCM(PropertyType.Miscellaneous, "EDCM"),
     Emoji_KDDI(PropertyType.Miscellaneous, "EKDDI"),

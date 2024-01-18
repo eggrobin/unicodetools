@@ -49,8 +49,6 @@ bpb                      ; Bidi_Paired_Bracket
 cjkSimplifiedVariant ; kSimplifiedVariant
 cjkTraditionalVariant ; kTraditionalVariant
 
-Arabic_Shaping_Schematic_Name; Arabic_Shaping_Schematic_Name
-
 # ================================================
 # Miscellaneous Properties
 # ================================================
@@ -63,6 +61,8 @@ ESB ; Emoji_SB
 NS ; Named_Sequences
 NSP ; Named_Sequences_Prov
 SV ; Standardized_Variant
+
+Arabic_Shaping_Schematic_Name; Arabic_Shaping_Schematic_Name
 
 cjkCheungBauerIndex ; kCheungBauerIndex
 cjkCowles ; kCowles
