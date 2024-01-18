@@ -49,6 +49,7 @@ public enum UcdProperty {
     kPrimaryNumeric(PropertyType.Numeric, "cjkPrimaryNumeric"),
 
     // String
+    Arabic_Shaping_Schematic_Name(PropertyType.String, "Arabic_Shaping_Schematic_Name"),
     Bidi_Mirroring_Glyph(PropertyType.String, "bmg"),
     Bidi_Paired_Bracket(PropertyType.String, "bpb"),
     Case_Folding(PropertyType.String, "cf"),
