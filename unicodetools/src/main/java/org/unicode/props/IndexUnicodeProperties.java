@@ -716,16 +716,22 @@ public class IndexUnicodeProperties extends UnicodeProperty.Factory {
                 final long start = System.currentTimeMillis();
                 UnicodeMap<String> newMap = new UnicodeMap<>();
                 for (UnicodeMap.EntryRange<String> range : raw.entryRanges()) {
-                    if (range.codepoint == -1) {
-                        newMap.put(range.string, range.value);
-                    } else if (DefaultValueType.forString(range.value)
-                                    == DefaultValueType.CODE_POINT
-                            || (prop == UcdProperty.Name && range.value.endsWith("#"))) {
+                    if (range.value.equals(UNCHANGED_IN_NEXT_VERSION)) {
                         for (int c = range.codepoint; c <= range.codepointEnd; ++c) {
                             newMap.put(c, resolveValue(range.value, c));
                         }
                     } else {
-                        newMap.putAll(range.codepoint, range.codepointEnd, range.value);
+                        if (range.codepoint == -1) {
+                            newMap.put(range.string, range.value);
+                        } else if (DefaultValueType.forString(range.value)
+                                        == DefaultValueType.CODE_POINT
+                                || (prop == UcdProperty.Name && range.value.endsWith("#"))) {
+                            for (int c = range.codepoint; c <= range.codepointEnd; ++c) {
+                                newMap.put(c, resolveValue(range.value, c));
+                            }
+                        } else {
+                            newMap.putAll(range.codepoint, range.codepointEnd, range.value);
+                        }
                     }
                 }
                 final long stop = System.currentTimeMillis();
