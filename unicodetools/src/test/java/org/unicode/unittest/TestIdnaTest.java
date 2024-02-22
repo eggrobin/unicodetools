@@ -26,6 +26,7 @@ import org.unicode.props.UcdProperty;
 import org.unicode.props.UcdPropertyValues.Bidi_Class_Values;
 import org.unicode.props.UcdPropertyValues.General_Category_Values;
 import org.unicode.props.UcdPropertyValues.Idn_Status_Values;
+import org.unicode.props.UnicodeProperty;
 import org.unicode.text.utility.Settings;
 
 public class TestIdnaTest extends TestFmwkMinusMinus {
@@ -66,7 +67,7 @@ public class TestIdnaTest extends TestFmwkMinusMinus {
 
     @Test
     public void testBackwardsCompatibility() {
-        UnicodeMap<String> idnaMapping = iup.load(UcdProperty.Idn_Mapping);
+        UnicodeProperty idnaMapping = iup.getProperty(UcdProperty.Idn_Mapping);
         UnicodeMap<Idn_Status_Values> idnaStatus =
                 iup.loadEnum(UcdProperty.Idn_Status, Idn_Status_Values.class);
 
@@ -92,7 +93,9 @@ public class TestIdnaTest extends TestFmwkMinusMinus {
                 boolean skip = c0 == 0x1E9E;
                 if (!skip) {
                     assertEquals(
-                            "mapping" + versionString, idnaMappingLast.get(x), idnaMapping.get(x));
+                            "mapping" + versionString,
+                            idnaMappingLast.get(x),
+                            idnaMapping.getValue(x));
                 }
             }
             {

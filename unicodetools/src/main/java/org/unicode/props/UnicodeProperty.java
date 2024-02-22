@@ -259,6 +259,15 @@ public abstract class UnicodeProperty extends UnicodeLabel {
         return _getVersion();
     }
 
+    public String getValue(String codepoint) {
+        if (codepoint.codePoints().count() != 1) {
+            // TODO(egg): There are some properties of strings in UcdProperty, so this should be
+            // supported.
+            throw new IllegalArgumentException("Should be exactly one code point: " + codepoint);
+        }
+        return getValue(codepoint.codePointAt(0));
+    }
+
     public String getValue(int codepoint) {
         if (DEBUG && CHECK_VALUE == codepoint && CHECK_NAME.equals(getName())) {
             String value = _getValue(codepoint);
