@@ -5,6 +5,7 @@ import com.ibm.icu.dev.util.UnicodeMap;
 import com.ibm.icu.dev.util.UnicodeMap.EntryRange;
 import com.ibm.icu.text.UnicodeSet;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 import org.junit.jupiter.api.Test;
@@ -15,11 +16,13 @@ import org.unicode.props.UcdProperty;
 import org.unicode.props.UcdPropertyValues.General_Category_Values;
 import org.unicode.props.UcdPropertyValues.Identifier_Type_Values;
 import org.unicode.props.UcdPropertyValues.Script_Values;
+import org.unicode.props.UnicodeProperty;
 
 public class TestIdentifierInfo extends TestFmwkMinusMinus {
-    static final IndexUnicodeProperties uip = IndexUnicodeProperties.make("12.0");
+    static final IndexUnicodeProperties iup = IndexUnicodeProperties.make("12.0");
     static final UnicodeSet NotCharacter =
-            uip.loadEnumSet(UcdProperty.General_Category, General_Category_Values.Unassigned);
+            iup.getProperty(UcdProperty.General_Category)
+                    .getSet(General_Category_Values.Unassigned);
 
     static final UnicodeSet SpecialExclusions =
             new UnicodeSet(
@@ -41,15 +44,17 @@ public class TestIdentifierInfo extends TestFmwkMinusMinus {
                 ImmutableSet.of(
                         Identifier_Type_Values.Exclusion, Identifier_Type_Values.Limited_Use);
 
-        UnicodeMap<Set<Identifier_Type_Values>> idType =
-                uip.loadEnumSet(UcdProperty.Identifier_Type, Identifier_Type_Values.class);
+        UnicodeProperty idType = iup.getProperty(UcdProperty.Identifier_Type);
 
         UnicodeMap<String> mismatch = new UnicodeMap<>();
 
         for (EntryRange<Identifier_Type_Values> entry : scriptUsage.entryRanges()) {
             main:
             for (int cp = entry.codepoint; cp <= entry.codepointEnd; ++cp) {
-                Set<Identifier_Type_Values> idTypes = idType.get(cp);
+                Set<Identifier_Type_Values> idTypes = new HashSet<>();
+                for (final String value : idType.getDelimiter().split(idType.getValue(cp))) {
+                    idTypes.add(Identifier_Type_Values.forName(value));
+                }
                 if (inclusion.equals(idTypes)) { // skip testing inclusion
                     continue;
                 }
@@ -83,7 +88,7 @@ public class TestIdentifierInfo extends TestFmwkMinusMinus {
     private UnicodeMap<Identifier_Type_Values> getScriptUsage() {
         UnicodeMap<Identifier_Type_Values> results = new UnicodeMap<>();
         UnicodeMap<Set<Script_Values>> scriptExtensions =
-                uip.loadEnumSet(UcdProperty.Script_Extensions, Script_Values.class);
+                iup.loadEnumSet(UcdProperty.Script_Extensions, Script_Values.class);
         for (Set<Script_Values> scriptSet : scriptExtensions.values()) {
             Identifier_Type_Values u31 = getValues(scriptSet);
             if (u31 != null) {
