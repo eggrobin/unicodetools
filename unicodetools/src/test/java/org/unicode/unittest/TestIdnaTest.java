@@ -68,16 +68,13 @@ public class TestIdnaTest extends TestFmwkMinusMinus {
     @Test
     public void testBackwardsCompatibility() {
         UnicodeProperty idnaMapping = iup.getProperty(UcdProperty.Idn_Mapping);
-        UnicodeMap<Idn_Status_Values> idnaStatus =
-                iup.loadEnum(UcdProperty.Idn_Status, Idn_Status_Values.class);
+        UnicodeProperty idnaStatus = iup.getProperty(UcdProperty.Idn_Status);
 
         IndexUnicodeProperties iupLast = IndexUnicodeProperties.make(Settings.lastVersion);
-        UnicodeMap<String> idnaMappingLast = iupLast.load(UcdProperty.Idn_Mapping);
-        UnicodeMap<Idn_Status_Values> idnaStatusLast =
-                iupLast.loadEnum(UcdProperty.Idn_Status, Idn_Status_Values.class);
+        UnicodeProperty idnaMappingLast = iupLast.getProperty(UcdProperty.Idn_Mapping);
+        UnicodeProperty idnaStatusLast = iupLast.getProperty(UcdProperty.Idn_Status);
 
-        UnicodeMap<General_Category_Values> gcOld =
-                iupLast.loadEnum(UcdProperty.General_Category, General_Category_Values.class);
+        UnicodeProperty gcOld = iupLast.getProperty(UcdProperty.General_Category);
         UnicodeSet oldAssigned =
                 new UnicodeSet(gcOld.getSet(General_Category_Values.Unassigned))
                         .complement()
@@ -94,13 +91,14 @@ public class TestIdnaTest extends TestFmwkMinusMinus {
                 if (!skip) {
                     assertEquals(
                             "mapping" + versionString,
-                            idnaMappingLast.get(x),
+                            idnaMappingLast.getValue(x),
                             idnaMapping.getValue(x));
                 }
             }
             {
-                Idn_Status_Values lastStatus = idnaStatusLast.get(x);
-                Idn_Status_Values currentStatus = idnaStatus.get(x);
+                Idn_Status_Values lastStatus =
+                        Idn_Status_Values.forName(idnaStatusLast.getValue(x));
+                Idn_Status_Values currentStatus = Idn_Status_Values.forName(idnaStatus.getValue(x));
                 // Unicode 15.1 changes these from disallowed_STD3_valid to valid.
                 boolean skip =
                         (c0 == 0x2260 || c0 == 0x226E || c0 == 0x226F)
