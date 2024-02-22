@@ -170,6 +170,10 @@ public abstract class UnicodeProperty extends UnicodeLabel {
         return this;
     }
 
+    public Splitter getDelimiter() {
+        return delimiterSplitter;
+    }
+
     /*
      * Name: Unicode_1_Name Name: ISO_Comment Name: Name Name: Unicode_1_Name
      *

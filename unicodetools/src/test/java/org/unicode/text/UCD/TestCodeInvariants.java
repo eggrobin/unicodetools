@@ -9,7 +9,9 @@ import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.text.UnicodeSet.EntryRange;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 import org.unicode.props.IndexUnicodeProperties;
 import org.unicode.props.UcdProperty;
@@ -17,6 +19,7 @@ import org.unicode.props.UcdPropertyValues;
 import org.unicode.props.UcdPropertyValues.Age_Values;
 import org.unicode.props.UcdPropertyValues.Grapheme_Cluster_Break_Values;
 import org.unicode.props.UcdPropertyValues.Script_Values;
+import org.unicode.props.UnicodeProperty;
 import org.unicode.text.utility.Utility;
 
 public class TestCodeInvariants {
@@ -54,15 +57,12 @@ public class TestCodeInvariants {
             }
 
             IndexUnicodeProperties current = IndexUnicodeProperties.make(age);
-            UnicodeMap<Script_Values> script =
-                    current.loadEnum(UcdProperty.Script, UcdPropertyValues.Script_Values.class);
-            UnicodeMap<Set<Script_Values>> scriptExtension =
-                    current.loadEnumSet(
-                            UcdProperty.Script_Extensions, UcdPropertyValues.Script_Values.class);
+            UnicodeProperty script = current.getProperty(UcdProperty.Script);
+            UnicodeProperty scriptExtension = current.getProperty(UcdProperty.Script_Extensions);
 
             // Now test for each explicit value.
 
-            for (Script_Values value : script.values()) {
+            for (Script_Values value : Script_Values.values()) {
                 if (IMPLICIT.contains(value)) {
                     continue;
                 }
@@ -70,7 +70,13 @@ public class TestCodeInvariants {
                     for (int codePoint = range.codepoint;
                             codePoint <= range.codepointEnd;
                             ++codePoint) {
-                        Set<Script_Values> extensions = scriptExtension.get(codePoint);
+                        Set<Script_Values> extensions = new HashSet<>();
+                        for (final String extension :
+                                scriptExtension
+                                        .getDelimiter()
+                                        .split(scriptExtension.getValue(codePoint))) {
+                            extensions.add(Script_Values.forName(extension));
+                        }
                         if (!extensions.contains(value)) {
                             System.out.println(
                                     "FAIL: Script Extensions invariant doesn't work for version "
@@ -96,13 +102,23 @@ public class TestCodeInvariants {
             //    NO script extensions value set with more than one element can contain an implicit
             // value
 
-            for (Set<Script_Values> extensions : scriptExtension.values()) {
+            for (String extensionsString : scriptExtension.getAvailableValues()) {
+                Set<Script_Values> extensions = new HashSet<>();
+                for (final String extension :
+                        scriptExtension.getDelimiter().split(extensionsString)) {
+                    extensions.add(Script_Values.forName(extension));
+                }
                 if (extensions.size() == 1) {
                     Script_Values singleton = extensions.iterator().next();
                     if (!IMPLICIT.contains(singleton)) {
                         continue;
                     }
-                    UnicodeSet setWithExtensions = scriptExtension.getSet(extensions);
+                    // Get the set of characters with exactly this set of script extensions.
+                    // Normal getSet cannot do that, but regex-based getSet can.
+                    UnicodeSet setWithExtensions =
+                            scriptExtension.getSet(
+                                    new UnicodeProperty.RegexMatcher()
+                                            .set(Pattern.quote(extensionsString)));
                     UnicodeSet setWithSingleton = script.getSet(singleton);
                     if (setWithSingleton.containsAll(setWithExtensions)) {
                         continue;
@@ -110,7 +126,7 @@ public class TestCodeInvariants {
                     // failure!
                     UnicodeSet diff = new UnicodeSet(setWithSingleton).removeAll(setWithExtensions);
                     int firstCodePoint = diff.getRangeStart(0);
-                    Script_Values value = script.get(firstCodePoint);
+                    Script_Values value = Script_Values.forName(script.getValue(firstCodePoint));
                     System.out.println(
                             "FAIL: characters with implicit script value don't "
                                     + "contain those with that script extensions value "
@@ -121,8 +137,8 @@ public class TestCodeInvariants {
                     continue;
                 } else if (!Collections.disjoint(
                         extensions, IMPLICIT)) { // more than one element, so
-                    int firstCodePoint = scriptExtension.getSet(extensions).getRangeStart(0);
-                    Script_Values value = script.get(firstCodePoint);
+                    int firstCodePoint = scriptExtension.getSet(extensionsString).getRangeStart(0);
+                    Script_Values value = Script_Values.forName(script.getValue(firstCodePoint));
                     System.out.println(
                             "FAIL: Script Extensions with >1 element contains implicit value "
                                     + age
