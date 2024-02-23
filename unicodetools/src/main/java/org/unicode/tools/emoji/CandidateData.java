@@ -40,6 +40,7 @@ import org.unicode.cldr.util.CldrUtility;
 import org.unicode.props.IndexUnicodeProperties;
 import org.unicode.props.UcdProperty;
 import org.unicode.props.UcdPropertyValues;
+import org.unicode.props.UnicodeProperty;
 import org.unicode.props.UcdPropertyValues.Age_Values;
 import org.unicode.props.UcdPropertyValues.General_Category_Values;
 import org.unicode.props.UnicodeRelation;
@@ -389,7 +390,7 @@ public class CandidateData implements Transform<String, String>, EmojiDataSource
                                                 .length()));
             }
         }
-        UnicodeMap<Age_Values> ages = Emoji.LATEST.loadEnum(UcdProperty.Age, Age_Values.class);
+        UnicodeProperty ages = Emoji.LATEST.getProperty(UcdProperty.Age);
         Age_Values minAge =
                 Age_Values.forName(Emoji.VERSION_LAST_RELEASED_UNICODE.getVersionString(2, 2));
         EmojiData releasedData = EmojiData.of(Emoji.VERSION_LAST_RELEASED);
@@ -411,7 +412,7 @@ public class CandidateData implements Transform<String, String>, EmojiDataSource
                 continue;
             }
             // if unassigned, we don't care
-            Age_Values age = ages.get(s);
+            Age_Values age = Age_Values.forName(ages.getValue(s));
             if (age == Age_Values.Unassigned) {
                 continue;
             }
@@ -949,10 +950,7 @@ public class CandidateData implements Transform<String, String>, EmojiDataSource
                     break;
                 case "order":
                     IndexUnicodeProperties iup = IndexUnicodeProperties.make(Emoji.VERSION_BETA);
-                    UnicodeMap<General_Category_Values> gc =
-                            iup.loadEnum(
-                                    UcdProperty.General_Category,
-                                    UcdPropertyValues.General_Category_Values.class);
+                    UnicodeProperty gc = iup.getProperty(UcdProperty.General_Category);
                     UnicodeSet unassigned =
                             gc.getSet(UcdPropertyValues.General_Category_Values.Unassigned);
                     showOrdering(candidateData, unassigned);
