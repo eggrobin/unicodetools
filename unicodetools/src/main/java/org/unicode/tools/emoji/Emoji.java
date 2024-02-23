@@ -35,6 +35,7 @@ import org.unicode.props.IndexUnicodeProperties;
 import org.unicode.props.UcdProperty;
 import org.unicode.props.UcdPropertyValues;
 import org.unicode.props.UcdPropertyValues.Age_Values;
+import org.unicode.props.UnicodeProperty;
 import org.unicode.text.utility.Settings;
 import org.unicode.text.utility.Utility;
 
@@ -962,7 +963,7 @@ public class Emoji {
 
     // Certain resources we always load from latest.
 
-    static final UnicodeMap<String> NAME = BETA.load(UcdProperty.Name);
+    static final UnicodeProperty NAME = BETA.getProperty(UcdProperty.Name);
 
     public static final LocaleDisplayNames LOCALE_DISPLAY =
             LocaleDisplayNames.getInstance(ULocale.ENGLISH);

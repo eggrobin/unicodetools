@@ -43,7 +43,7 @@ import org.unicode.props.UcdProperty;
 import org.unicode.props.UcdPropertyValues;
 import org.unicode.props.UcdPropertyValues.Age_Values;
 import org.unicode.props.UcdPropertyValues.Binary;
-import org.unicode.props.UcdPropertyValues.General_Category_Values;
+import org.unicode.props.UnicodeProperty;
 import org.unicode.props.UnicodeRelation;
 import org.unicode.text.utility.Settings;
 import org.unicode.text.utility.Utility;
@@ -176,10 +176,7 @@ public class EmojiData implements EmojiDataSource {
     // 261D ; Emoji_Modifier_Base # [1] (☝️) WHITE UP POINTING INDEX
 
     private EmojiData(VersionInfo version) {
-        final UnicodeMap<General_Category_Values> gc =
-                Emoji.BETA.loadEnum(
-                        UcdProperty.General_Category,
-                        UcdPropertyValues.General_Category_Values.class);
+        final UnicodeProperty gc = Emoji.BETA.getProperty(UcdProperty.General_Category);
         UnicodeSet NSM = gc.getSet(UcdPropertyValues.General_Category_Values.Nonspacing_Mark);
         UnicodeSet EM = gc.getSet(UcdPropertyValues.General_Category_Values.Enclosing_Mark);
         EnumMap<Emoji.ModifierStatus, UnicodeSet> _modifierClassMap =
@@ -1388,7 +1385,7 @@ public class EmojiData implements EmojiDataSource {
 
     public String getFallbackName(String s) {
         final int firstCodePoint = s.codePointAt(0);
-        String name = Emoji.NAME.get(firstCodePoint);
+        String name = Emoji.NAME.getValue(firstCodePoint);
         if (s.indexOf(Emoji.ENCLOSING_KEYCAP) >= 0) {
             return "Keycap " + name.toLowerCase(Locale.ENGLISH);
         }
@@ -1416,14 +1413,14 @@ public class EmojiData implements EmojiDataSource {
                         name =
                                 nameBuffer
                                         .append("FEMALE: ")
-                                        .append(Emoji.NAME.get(s.codePointAt(0)))
+                                        .append(Emoji.NAME.getValue(s.codePointAt(0)))
                                         .toString();
                         break main;
                     } else if (s.indexOf(0x2642) >= 0) {
                         name =
                                 nameBuffer
                                         .append("MALE: ")
-                                        .append(Emoji.NAME.get(s.codePointAt(0)))
+                                        .append(Emoji.NAME.getValue(s.codePointAt(0)))
                                         .toString();
                         break main;
                     } else if (Emoji.PROFESSION_OBJECT.containsSome(s)) {
@@ -1446,7 +1443,7 @@ public class EmojiData implements EmojiDataSource {
                     } else {
                         sep = true;
                     }
-                    nameBuffer.append(Emoji.NAME.get(cp));
+                    nameBuffer.append(Emoji.NAME.getValue(cp));
 
                     // nameBuffer.append(cp == Emoji.JOINER ? "zwj"
                     // : cp == Emoji.EMOJI_VARIANT ? "emoji-vs"
@@ -1459,11 +1456,11 @@ public class EmojiData implements EmojiDataSource {
     }
 
     static String shortModName(int cp2) {
-        return Emoji.NAME.get(cp2).substring("emoji modifier fitzpatrick ".length());
+        return Emoji.NAME.getValue(cp2).substring("emoji modifier fitzpatrick ".length());
     }
 
     static String shortModNameX(int cp2) {
-        return Emoji.NAME.get(cp2).substring("EMOJI MODIFIER FITZPATRICK TYPE".length());
+        return Emoji.NAME.getValue(cp2).substring("EMOJI MODIFIER FITZPATRICK TYPE".length());
     }
 
     static String shortModNameZ(int cp2) {

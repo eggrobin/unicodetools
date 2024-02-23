@@ -708,7 +708,7 @@ public class GenerateEmoji {
             if (!EmojiData.EMOJI_DATA.getChars().contains(emoji)) {
                 continue;
             }
-            if (Emoji.NAME.get(realChars.codePointAt(0)) == null) {
+            if (Emoji.NAME.getValue(realChars.codePointAt(0)) == null) {
                 if (SHOW)
                     System.out.println(
                             "skipping private use: "
