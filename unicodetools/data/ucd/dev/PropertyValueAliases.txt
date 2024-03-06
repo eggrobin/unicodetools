@@ -1,6 +1,6 @@
-# PropertyValueAliases-15.1.0.txt
-# Date: 2023-08-07, 15:21:34 GMT
-# © 2023 Unicode®, Inc.
+# PropertyValueAliases-16.0.0.txt
+# Date: 2024-03-06, 13:29:49 GMT
+# © 2024 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use, see https://www.unicode.org/terms_of_use.html
 #
@@ -92,6 +92,7 @@ age; 13.0                             ; V13_0
 age; 14.0                             ; V14_0
 age; 15.0                             ; V15_0
 age; 15.1                             ; V15_1
+age; 16.0                             ; V16_0
 age; NA                               ; Unassigned
 
 # Alphabetic (Alpha)
@@ -909,6 +910,7 @@ InSC; Number_Joiner                   ; Number_Joiner
 InSC; Other                           ; Other
 InSC; Pure_Killer                     ; Pure_Killer
 InSC; Register_Shifter                ; Register_Shifter
+InSC; Reordering_Killer               ; Reordering_Killer
 InSC; Syllable_Modifier               ; Syllable_Modifier
 InSC; Tone_Letter                     ; Tone_Letter
 InSC; Tone_Mark                       ; Tone_Mark
@@ -1073,7 +1075,7 @@ jg ; Syriac_Waw                       ; Syriac_Waw
 jg ; Tah                              ; Tah
 jg ; Taw                              ; Taw
 jg ; Teh_Marbuta                      ; Teh_Marbuta
-jg ; Teh_Marbuta_Goal                 ; Hamza_On_Heh_Goal
+jg ; Teh_Marbuta_Goal                 ; Teh_Marbuta_Goal                 ; Hamza_On_Heh_Goal
 jg ; Teth                             ; Teth
 jg ; Thin_Yeh                         ; Thin_Yeh
 jg ; Vertical_Tail                    ; Vertical_Tail

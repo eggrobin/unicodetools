@@ -1,6 +1,6 @@
-# VerticalOrientation-15.1.0.txt
-# Date: 2023-07-28, 23:34:39 GMT
-# © 2023 Unicode®, Inc.
+# VerticalOrientation-16.0.0.txt
+# Date: 2024-03-06, 13:30:05 GMT
+# © 2024 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use, see https://www.unicode.org/terms_of_use.html
 #
@@ -42,7 +42,7 @@
 #         Specials:                           U+FFF0..U+FFF8
 #         Siddham:                           U+11580..U+115FF
 #         Zanabazar Square & Soyombo:        U+11A00..U+11AAF
-#         Egyptian Hieroglyphs & Controls:   U+13000..U+1345F
+#         Egyptian Hieroglyphs & Controls:   U+13000..U+143FF
 #         Anatolian Hieroglyphs:             U+14400..U+1467F
 #         Ideographic Symbols & Tangut:      U+16FE0..U+18AFF
 #         Khitan Small Script & Tangut Sup:  U+18B00..U+18D7F
