@@ -1,6 +1,6 @@
-# ScriptExtensions-16.0.0.txt
-# Date: 2024-02-29, 00:08:00 GMT
-# © 2024 Unicode®, Inc.
+# ScriptExtensions-15.1.0.txt
+# Date: 2023-02-01, 23:02:24 GMT
+# © 2023 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use, see https://www.unicode.org/terms_of_use.html
 #
@@ -127,14 +127,6 @@
 
 # ================================================
 
-# Script_Extensions=Adlm Arab
-
-204F          ; Adlm Arab # Po       REVERSED SEMICOLON
-
-# Total code points: 1
-
-# ================================================
-
 # Script_Extensions=Arab Copt
 
 102E0         ; Arab Copt # Mn       COPTIC EPACT THOUSANDS MARK
@@ -179,14 +171,6 @@ FDFD          ; Arab Thaa # So       ARABIC LIGATURE BISMILLAH AR-RAHMAN AR-RAHE
 
 # ================================================
 
-# Script_Extensions=Avst Orkh
-
-2E30          ; Avst Orkh # Po       RING POINT
-
-# Total code points: 1
-
-# ================================================
-
 # Script_Extensions=Beng Deva
 
 1CD5..1CD6    ; Beng Deva # Mn   [2] VEDIC TONE YAJURVEDIC AGGRAVATED INDEPENDENT SVARITA..VEDIC TONE YAJURVEDIC INDEPENDENT SVARITA
@@ -195,8 +179,9 @@ FDFD          ; Arab Thaa # So       ARABIC LIGATURE BISMILLAH AR-RAHMAN AR-RAHE
 1CEA          ; Beng Deva # Lo       VEDIC SIGN ANUSVARA BAHIRGOMUKHA
 1CED          ; Beng Deva # Mn       VEDIC SIGN TIRYAK
 1CF5..1CF6    ; Beng Deva # Lo   [2] VEDIC SIGN JIHVAMULIYA..VEDIC SIGN UPADHMANIYA
+A8F1          ; Beng Deva # Mn       COMBINING DEVANAGARI SIGN AVAGRAHA
 
-# Total code points: 8
+# Total code points: 9
 
 # ================================================
 
@@ -208,36 +193,9 @@ FDFD          ; Arab Thaa # So       ARABIC LIGATURE BISMILLAH AR-RAHMAN AR-RAHE
 
 # ================================================
 
-# Script_Extensions=Bopo Latn
-
-02C7          ; Bopo Latn # Lm       CARON
-02C9..02CB    ; Bopo Latn # Lm   [3] MODIFIER LETTER MACRON..MODIFIER LETTER GRAVE ACCENT
-02D9          ; Bopo Latn # Sk       DOT ABOVE
-
-# Total code points: 5
-
-# ================================================
-
 # Script_Extensions=Bugi Java
 
 A9CF          ; Bugi Java # Lm       JAVANESE PANGRANGKEP
-
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Copt Grek
-
-0374          ; Copt Grek # Lm       GREEK NUMERAL SIGN
-0375          ; Copt Grek # Sk       GREEK LOWER NUMERAL SIGN
-
-# Total code points: 2
-
-# ================================================
-
-# Script_Extensions=Copt Latn
-
-2E17          ; Copt Latn # Pd       DOUBLE OBLIQUE HYPHEN
 
 # Total code points: 1
 
@@ -324,9 +282,9 @@ A8F3          ; Deva Taml # Lo       DEVANAGARI SIGN CANDRABINDU VIRAMA
 
 # ================================================
 
-# Script_Extensions=Ethi Latn
+# Script_Extensions=Geor Latn
 
-030E          ; Ethi Latn # Mn       COMBINING DOUBLE VERTICAL LINE ABOVE
+10FB          ; Geor Latn # Po       GEORGIAN PARAGRAPH SEPARATOR
 
 # Total code points: 1
 
@@ -371,15 +329,6 @@ A700..A707    ; Hani Latn # Sk   [8] MODIFIER LETTER CHINESE TONE YIN PING..MODI
 
 # ================================================
 
-# Script_Extensions=Hani Tang
-
-2FF0..2FFF    ; Hani Tang # So  [16] IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT..IDEOGRAPHIC DESCRIPTION CHARACTER ROTATION
-31EF          ; Hani Tang # So       IDEOGRAPHIC DESCRIPTION CHARACTER SUBTRACTION
-
-# Total code points: 17
-
-# ================================================
-
 # Script_Extensions=Hira Kana
 
 3031..3035    ; Hira Kana # Lm   [5] VERTICAL KANA REPEAT MARK..VERTICAL KANA REPEAT MARK LOWER HALF
@@ -394,53 +343,17 @@ FF9E..FF9F    ; Hira Kana # Lm   [2] HALFWIDTH KATAKANA VOICED SOUND MARK..HALFW
 
 # ================================================
 
-# Script_Extensions=Latn Lisu
+# Script_Extensions=Knda Nand
 
-02CD          ; Latn Lisu # Lm       MODIFIER LETTER LOW MACRON
+0CE6..0CEF    ; Knda Nand # Nd  [10] KANNADA DIGIT ZERO..KANNADA DIGIT NINE
 
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Latn Osge
-
-0358          ; Latn Osge # Mn       COMBINING DOT ABOVE RIGHT
-
-# Total code points: 1
+# Total code points: 10
 
 # ================================================
 
-# Script_Extensions=Latn Sunu
+# Script_Extensions=Latn Mong
 
-030D          ; Latn Sunu # Mn       COMBINING VERTICAL LINE ABOVE
-0310          ; Latn Sunu # Mn       COMBINING CANDRABINDU
-
-# Total code points: 2
-
-# ================================================
-
-# Script_Extensions=Latn Syrc
-
-030A          ; Latn Syrc # Mn       COMBINING RING ABOVE
-0320          ; Latn Syrc # Mn       COMBINING MINUS SIGN BELOW
-0325          ; Latn Syrc # Mn       COMBINING RING BELOW
-032E          ; Latn Syrc # Mn       COMBINING BREVE BELOW
-
-# Total code points: 4
-
-# ================================================
-
-# Script_Extensions=Latn Tfng
-
-0309          ; Latn Tfng # Mn       COMBINING HOOK ABOVE
-
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Latn Thai
-
-02D7          ; Latn Thai # Sk       MODIFIER LETTER MINUS SIGN
+202F          ; Latn Mong # Zs       NARROW NO-BREAK SPACE
 
 # Total code points: 1
 
@@ -463,22 +376,6 @@ FF9E..FF9F    ; Hira Kana # Lm   [2] HALFWIDTH KATAKANA VOICED SOUND MARK..HALFW
 
 # ================================================
 
-# Script_Extensions=Adlm Arab Hung
-
-2E41          ; Adlm Arab Hung # Po       REVERSED COMMA
-
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Aghb Latn Todr
-
-035E          ; Aghb Latn Todr # Mn       COMBINING DOUBLE MACRON
-
-# Total code points: 1
-
-# ================================================
-
 # Script_Extensions=Arab Syrc Thaa
 
 061C          ; Arab Syrc Thaa # Cf       ARABIC LETTER MARK
@@ -495,14 +392,6 @@ FF9E..FF9F    ; Hira Kana # Lm   [2] HALFWIDTH KATAKANA VOICED SOUND MARK..HALFW
 
 # ================================================
 
-# Script_Extensions=Armn Geor Glag
-
-0589          ; Armn Geor Glag # Po       ARMENIAN FULL STOP
-
-# Total code points: 1
-
-# ================================================
-
 # Script_Extensions=Beng Cakm Sylo
 
 09E6..09EF    ; Beng Cakm Sylo # Nd  [10] BENGALI DIGIT ZERO..BENGALI DIGIT NINE
@@ -511,36 +400,11 @@ FF9E..FF9F    ; Hira Kana # Lm   [2] HALFWIDTH KATAKANA VOICED SOUND MARK..HALFW
 
 # ================================================
 
-# Script_Extensions=Beng Deva Tutg
-
-A8F1          ; Beng Deva Tutg # Mn       COMBINING DEVANAGARI SIGN AVAGRAHA
-
-# Total code points: 1
-
-# ================================================
-
 # Script_Extensions=Cakm Mymr Tale
 
 1040..1049    ; Cakm Mymr Tale # Nd  [10] MYANMAR DIGIT ZERO..MYANMAR DIGIT NINE
 
 # Total code points: 10
-
-# ================================================
-
-# Script_Extensions=Cher Latn Syrc
-
-0324          ; Cher Latn Syrc # Mn       COMBINING DIAERESIS BELOW
-0330          ; Cher Latn Syrc # Mn       COMBINING TILDE BELOW
-
-# Total code points: 2
-
-# ================================================
-
-# Script_Extensions=Cher Latn Tale
-
-030C          ; Cher Latn Tale # Mn       COMBINING CARON
-
-# Total code points: 1
 
 # ================================================
 
@@ -560,9 +424,9 @@ A8F1          ; Beng Deva Tutg # Mn       COMBINING DEVANAGARI SIGN AVAGRAHA
 
 # ================================================
 
-# Script_Extensions=Cyrl Latn Todr
+# Script_Extensions=Deva Gran Knda
 
-0311          ; Cyrl Latn Todr # Mn       COMBINING INVERTED BREVE
+1CF4          ; Deva Gran Knda # Mn       VEDIC TONE CANDRA ABOVE
 
 # Total code points: 1
 
@@ -571,14 +435,6 @@ A8F1          ; Beng Deva Tutg # Mn       COMBINING DEVANAGARI SIGN AVAGRAHA
 # Script_Extensions=Deva Gran Latn
 
 20F0          ; Deva Gran Latn # Mn       COMBINING ASTERISK ABOVE
-
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Geor Glag Latn
-
-10FB          ; Geor Glag Latn # Po       GEORGIAN PARAGRAPH SEPARATOR
 
 # Total code points: 1
 
@@ -601,30 +457,6 @@ A92E          ; Kali Latn Mymr # Po       KAYAH LI SIGN CWI
 
 # ================================================
 
-# Script_Extensions=Knda Nand Tutg
-
-0CE6..0CEF    ; Knda Nand Tutg # Nd  [10] KANNADA DIGIT ZERO..KANNADA DIGIT NINE
-
-# Total code points: 10
-
-# ================================================
-
-# Script_Extensions=Latn Mong Phag
-
-202F          ; Latn Mong Phag # Zs       NARROW NO-BREAK SPACE
-
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Latn Sunu Syrc
-
-032D          ; Latn Sunu Syrc # Mn       COMBINING CIRCUMFLEX ACCENT BELOW
-
-# Total code points: 1
-
-# ================================================
-
 # Script_Extensions=Beng Deva Gran Knda
 
 1CD0          ; Beng Deva Gran Knda # Mn       VEDIC TONE KARSHANA
@@ -642,67 +474,11 @@ A92E          ; Kali Latn Mymr # Po       KAYAH LI SIGN CWI
 
 # ================================================
 
-# Script_Extensions=Cari Grek Hung Mero
-
-205D          ; Cari Grek Hung Mero # Po       TRICOLON
-
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Cher Cyrl Latn Osge
-
-030B          ; Cher Cyrl Latn Osge # Mn       COMBINING DOUBLE ACUTE ACCENT
-
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Cher Cyrl Latn Tfng
-
-0302          ; Cher Cyrl Latn Tfng # Mn       COMBINING CIRCUMFLEX ACCENT
-
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Cher Kana Latn Syrc
-
-0323          ; Cher Kana Latn Syrc # Mn       COMBINING DOT BELOW
-
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Cyrl Grek Latn Perm
-
-0306          ; Cyrl Grek Latn Perm # Mn       COMBINING BREVE
-
-# Total code points: 1
-
-# ================================================
-
 # Script_Extensions=Deva Dogr Kthi Mahj
 
 0966..096F    ; Deva Dogr Kthi Mahj # Nd  [10] DEVANAGARI DIGIT ZERO..DEVANAGARI DIGIT NINE
 
 # Total code points: 10
-
-# ================================================
-
-# Script_Extensions=Deva Gran Knda Tutg
-
-1CF4          ; Deva Gran Knda Tutg # Mn       VEDIC TONE CANDRA ABOVE
-
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Grek Latn Perm Todr
-
-0313          ; Grek Latn Perm Todr # Mn       COMBINING COMMA ABOVE
-
-# Total code points: 1
 
 # ================================================
 
@@ -721,26 +497,22 @@ FE45..FE46    ; Bopo Hang Hani Hira Kana # Po   [2] SESAME DOT..WHITE SESAME DOT
 
 # ================================================
 
-# Script_Extensions=Glag Latn Sunu Syrc Thai
+# Script_Extensions=Arab Nkoo Rohg Syrc Thaa Yezi
 
-0303          ; Glag Latn Sunu Syrc Thai # Mn       COMBINING TILDE
+060C          ; Arab Nkoo Rohg Syrc Thaa Yezi # Po       ARABIC COMMA
+061B          ; Arab Nkoo Rohg Syrc Thaa Yezi # Po       ARABIC SEMICOLON
 
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Aghb Cher Goth Latn Sunu Thai
-
-0331          ; Aghb Cher Goth Latn Sunu Thai # Mn       COMBINING MACRON BELOW
-
-# Total code points: 1
+# Total code points: 2
 
 # ================================================
 
 # Script_Extensions=Bopo Hang Hani Hira Kana Yiii
 
+3001..3002    ; Bopo Hang Hani Hira Kana Yiii # Po   [2] IDEOGRAPHIC COMMA..IDEOGRAPHIC FULL STOP
 3008          ; Bopo Hang Hani Hira Kana Yiii # Ps       LEFT ANGLE BRACKET
 3009          ; Bopo Hang Hani Hira Kana Yiii # Pe       RIGHT ANGLE BRACKET
+300A          ; Bopo Hang Hani Hira Kana Yiii # Ps       LEFT DOUBLE ANGLE BRACKET
+300B          ; Bopo Hang Hani Hira Kana Yiii # Pe       RIGHT DOUBLE ANGLE BRACKET
 300C          ; Bopo Hang Hani Hira Kana Yiii # Ps       LEFT CORNER BRACKET
 300D          ; Bopo Hang Hani Hira Kana Yiii # Pe       RIGHT CORNER BRACKET
 300E          ; Bopo Hang Hani Hira Kana Yiii # Ps       LEFT WHITE CORNER BRACKET
@@ -761,23 +533,7 @@ FF62          ; Bopo Hang Hani Hira Kana Yiii # Ps       HALFWIDTH LEFT CORNER B
 FF63          ; Bopo Hang Hani Hira Kana Yiii # Pe       HALFWIDTH RIGHT CORNER BRACKET
 FF64..FF65    ; Bopo Hang Hani Hira Kana Yiii # Po   [2] HALFWIDTH IDEOGRAPHIC COMMA..HALFWIDTH KATAKANA MIDDLE DOT
 
-# Total code points: 22
-
-# ================================================
-
-# Script_Extensions=Cari Geor Glag Hung Lyci Orkh
-
-205A          ; Cari Geor Glag Hung Lyci Orkh # Po       TWO DOT PUNCTUATION
-
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Copt Elba Glag Goth Kana Latn
-
-0305          ; Copt Elba Glag Goth Kana Latn # Mn       COMBINING OVERLINE
-
-# Total code points: 1
+# Total code points: 26
 
 # ================================================
 
@@ -789,75 +545,9 @@ FF64..FF65    ; Bopo Hang Hani Hira Kana Yiii # Po   [2] HALFWIDTH IDEOGRAPHIC C
 
 # ================================================
 
-# Script_Extensions=Arab Gara Nkoo Rohg Syrc Thaa Yezi
+# Script_Extensions=Adlm Arab Nkoo Rohg Syrc Thaa Yezi
 
-060C          ; Arab Gara Nkoo Rohg Syrc Thaa Yezi # Po       ARABIC COMMA
-061B          ; Arab Gara Nkoo Rohg Syrc Thaa Yezi # Po       ARABIC SEMICOLON
-
-# Total code points: 2
-
-# ================================================
-
-# Script_Extensions=Avst Cari Geor Hung Kthi Lydi Samr
-
-2E31          ; Avst Cari Geor Hung Kthi Lydi Samr # Po       WORD SEPARATOR MIDDLE DOT
-
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Beng Cyrl Deva Latn Lisu Thai Toto
-
-02BC          ; Beng Cyrl Deva Latn Lisu Thai Toto # Lm       MODIFIER LETTER APOSTROPHE
-
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Bopo Hang Hani Hira Kana Mong Yiii
-
-3001          ; Bopo Hang Hani Hira Kana Mong Yiii # Po       IDEOGRAPHIC COMMA
-
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Adlm Arab Gara Nkoo Rohg Syrc Thaa Yezi
-
-061F          ; Adlm Arab Gara Nkoo Rohg Syrc Thaa Yezi # Po       ARABIC QUESTION MARK
-
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Bopo Hang Hani Hira Kana Lisu Mong Yiii
-
-300A          ; Bopo Hang Hani Hira Kana Lisu Mong Yiii # Ps       LEFT DOUBLE ANGLE BRACKET
-300B          ; Bopo Hang Hani Hira Kana Lisu Mong Yiii # Pe       RIGHT DOUBLE ANGLE BRACKET
-
-# Total code points: 2
-
-# ================================================
-
-# Script_Extensions=Bopo Hang Hani Hira Kana Mong Phag Yiii
-
-3002          ; Bopo Hang Hani Hira Kana Mong Phag Yiii # Po       IDEOGRAPHIC FULL STOP
-
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Cher Cyrl Grek Latn Osge Sunu Tale Todr
-
-0301          ; Cher Cyrl Grek Latn Osge Sunu Tale Todr # Mn       COMBINING ACUTE ACCENT
-
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Copt Hebr Latn Perm Syrc Tale Tfng Todr
-
-0307          ; Copt Hebr Latn Perm Syrc Tale Tfng Todr # Mn       COMBINING DOT ABOVE
+061F          ; Adlm Arab Nkoo Rohg Syrc Thaa Yezi # Po       ARABIC QUESTION MARK
 
 # Total code points: 1
 
@@ -871,17 +561,9 @@ FF64..FF65    ; Bopo Hang Hani Hira Kana Yiii # Po   [2] HALFWIDTH IDEOGRAPHIC C
 
 # ================================================
 
-# Script_Extensions=Aghb Cher Copt Cyrl Goth Grek Latn Osge Syrc Tfng Todr
+# Script_Extensions=Beng Deva Gran Knda Mlym Nand Orya Sinh Telu Tirh
 
-0304          ; Aghb Cher Copt Cyrl Goth Grek Latn Osge Syrc Tfng Todr # Mn       COMBINING MACRON
-
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Beng Deva Gran Knda Mlym Nand Orya Sinh Telu Tirh Tutg
-
-1CF2          ; Beng Deva Gran Knda Mlym Nand Orya Sinh Telu Tirh Tutg # Lo       VEDIC SIGN ARDHAVISARGA
+1CF2          ; Beng Deva Gran Knda Mlym Nand Orya Sinh Telu Tirh # Lo       VEDIC SIGN ARDHAVISARGA
 
 # Total code points: 1
 
@@ -920,41 +602,33 @@ A838          ; Deva Dogr Gujr Guru Khoj Kthi Mahj Modi Shrd Sind Takr Tirh # Sc
 
 # ================================================
 
-# Script_Extensions=Avst Cari Copt Elba Geor Glag Gong Goth Grek Hani Latn Lydi Mahj Perm Shaw
+# Script_Extensions=Deva Dogr Gujr Guru Khoj Knda Kthi Mahj Modi Nand Shrd Sind Takr Tirh
 
-00B7          ; Avst Cari Copt Elba Geor Glag Gong Goth Grek Hani Latn Lydi Mahj Perm Shaw # Po       MIDDLE DOT
-
-# Total code points: 1
-
-# ================================================
-
-# Script_Extensions=Deva Dogr Gujr Guru Khoj Knda Kthi Mahj Modi Nand Shrd Sind Takr Tirh Tutg
-
-A833..A835    ; Deva Dogr Gujr Guru Khoj Knda Kthi Mahj Modi Nand Shrd Sind Takr Tirh Tutg # No   [3] NORTH INDIC FRACTION ONE SIXTEENTH..NORTH INDIC FRACTION THREE SIXTEENTHS
+A833..A835    ; Deva Dogr Gujr Guru Khoj Knda Kthi Mahj Modi Nand Shrd Sind Takr Tirh # No   [3] NORTH INDIC FRACTION ONE SIXTEENTH..NORTH INDIC FRACTION THREE SIXTEENTHS
 
 # Total code points: 3
 
 # ================================================
 
-# Script_Extensions=Deva Dogr Gujr Guru Khoj Knda Kthi Mahj Mlym Modi Nand Shrd Sind Takr Tirh Tutg
+# Script_Extensions=Deva Dogr Gujr Guru Khoj Knda Kthi Mahj Mlym Modi Nand Shrd Sind Takr Tirh
 
-A830..A832    ; Deva Dogr Gujr Guru Khoj Knda Kthi Mahj Mlym Modi Nand Shrd Sind Takr Tirh Tutg # No   [3] NORTH INDIC FRACTION ONE QUARTER..NORTH INDIC FRACTION THREE QUARTERS
+A830..A832    ; Deva Dogr Gujr Guru Khoj Knda Kthi Mahj Mlym Modi Nand Shrd Sind Takr Tirh # No   [3] NORTH INDIC FRACTION ONE QUARTER..NORTH INDIC FRACTION THREE QUARTERS
 
 # Total code points: 3
 
 # ================================================
 
-# Script_Extensions=Beng Deva Dogr Gong Gonm Gran Gujr Guru Knda Mahj Mlym Nand Onao Orya Sind Sinh Sylo Takr Taml Telu Tirh
+# Script_Extensions=Beng Deva Dogr Gong Gonm Gran Gujr Guru Knda Mahj Mlym Nand Orya Sind Sinh Sylo Takr Taml Telu Tirh
 
-0964          ; Beng Deva Dogr Gong Gonm Gran Gujr Guru Knda Mahj Mlym Nand Onao Orya Sind Sinh Sylo Takr Taml Telu Tirh # Po       DEVANAGARI DANDA
+0964          ; Beng Deva Dogr Gong Gonm Gran Gujr Guru Knda Mahj Mlym Nand Orya Sind Sinh Sylo Takr Taml Telu Tirh # Po       DEVANAGARI DANDA
 
 # Total code points: 1
 
 # ================================================
 
-# Script_Extensions=Beng Deva Dogr Gong Gonm Gran Gujr Gukh Guru Knda Limb Mahj Mlym Nand Onao Orya Sind Sinh Sylo Takr Taml Telu Tirh
+# Script_Extensions=Beng Deva Dogr Gong Gonm Gran Gujr Guru Knda Limb Mahj Mlym Nand Orya Sind Sinh Sylo Takr Taml Telu Tirh
 
-0965          ; Beng Deva Dogr Gong Gonm Gran Gujr Gukh Guru Knda Limb Mahj Mlym Nand Onao Orya Sind Sinh Sylo Takr Taml Telu Tirh # Po       DEVANAGARI DOUBLE DANDA
+0965          ; Beng Deva Dogr Gong Gonm Gran Gujr Guru Knda Limb Mahj Mlym Nand Orya Sind Sinh Sylo Takr Taml Telu Tirh # Po       DEVANAGARI DOUBLE DANDA
 
 # Total code points: 1
 
