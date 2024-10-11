@@ -72,7 +72,7 @@ $BK=\p{Line_Break=Mandatory_Break}
 $CB=\p{Line_Break=Contingent_Break}
 $CL=\p{Line_Break=Close_Punctuation}
 $CP=\p{Line_Break=CP}
-$CM1=\p{Line_Break=Combining_Mark}
+$CM=\p{Line_Break=Combining_Mark}
 $CR=\p{Line_Break=Carriage_Return}
 $EX=\p{Line_Break=Exclamation}
 $GL=\p{Line_Break=Glue}
@@ -135,7 +135,6 @@ $eot=(?!.)
 
 # SPECIAL EXTENSIONS
 
-$CM=[$CM1 $ZWJ]
 # LB 1  Assign a line breaking class to each code point of the input. 
 # Resolve AI, CB, SA, SG, and XX into other line breaking classes depending on criteria outside the scope of this algorithm.
 # NOTE: CB is ok to fall through, but must handle others here.
@@ -167,8 +166,8 @@ $Spec3a_=[^ $SP $BA $HY]
 8.1) $ZWJ_O ×
 # LB 9  Do not break a combining character sequence; treat it as if it has the LB class of the base character
 # in all of the following rules. (Where X is any line break class except SP, BK, CR, LF, NL or ZW.)
-9) ([^$SP $BK $CR $LF $NL $ZW]) [$CM $ZWJ]* → $1
-10) [$CM $ZWJ] → A
+9) ([^$SP $BK $CR $LF $NL $ZW]) ( $CM | $ZWJ )* → $1
+10) ( $CM | $ZWJ ) → A
 ## LB 11  Do not break before or after WORD JOINER and related characters.
 11.01) × $WJ
 11.02) $WJ ×
