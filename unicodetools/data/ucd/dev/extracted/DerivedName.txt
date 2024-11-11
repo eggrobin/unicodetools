@@ -1,5 +1,5 @@
 # DerivedName-17.0.0.txt
-# Date: 2024-11-11, 19:09:02 GMT
+# Date: 2024-11-11, 19:10:31 GMT
 # © 2024 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use and license, see https://www.unicode.org/terms_of_use.html
@@ -6128,6 +6128,11 @@
 1AD6          ; COMBINING VERTICAL-LINE-ACUTE-GRAVE
 1AD7          ; COMBINING VERTICAL-LINE-GRAVE-ACUTE
 1AD8          ; COMBINING MACRON-ACUTE-GRAVE
+1AD9          ; COMBINING SHARP SIGN
+1ADA          ; COMBINING FLAT SIGN
+1ADB          ; COMBINING DOWN TACK ABOVE
+1ADC          ; COMBINING DIAERESIS WITH RAISED LEFT DOT
+1ADD          ; COMBINING DOT-AND-RING BELOW
 1AE0          ; COMBINING LEFT TACK ABOVE
 1AE1          ; COMBINING RIGHT TACK ABOVE
 1AE2          ; COMBINING MINUS SIGN ABOVE
@@ -45692,6 +45697,6 @@ E01ED         ; VARIATION SELECTOR-254
 E01EE         ; VARIATION SELECTOR-255
 E01EF         ; VARIATION SELECTOR-256
 
-# Total code points: 159624
+# Total code points: 159629
 
 # EOF
