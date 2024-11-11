@@ -1,5 +1,5 @@
 # DerivedAge-17.0.0.txt
-# Date: 2024-10-16, 13:46:01 GMT
+# Date: 2024-11-11, 17:25:18 GMT
 # © 2024 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use and license, see https://www.unicode.org/terms_of_use.html
@@ -2059,5 +2059,15 @@ A7DA..A7DC    ; 16.0 #   [3] LATIN CAPITAL LETTER LAMBDA..LATIN CAPITAL LETTER L
 2B73A         ; 16.0 #       CJK UNIFIED IDEOGRAPH-2B73A
 
 # Total code points: 5186
+
+# ================================================
+
+# Age=V17_0
+
+# Newly assigned in Unicode 17.0.0 (September, 2025)
+
+323B0..3347B  ; 17.0 # [4300] CJK UNIFIED IDEOGRAPH-323B0..CJK UNIFIED IDEOGRAPH-3347B
+
+# Total code points: 4300
 
 # EOF
