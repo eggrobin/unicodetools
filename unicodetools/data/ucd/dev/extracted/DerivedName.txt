@@ -1,5 +1,5 @@
 # DerivedName-17.0.0.txt
-# Date: 2024-11-11, 18:58:05 GMT
+# Date: 2024-11-11, 18:59:31 GMT
 # © 2024 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use and license, see https://www.unicode.org/terms_of_use.html
@@ -6119,6 +6119,12 @@
 1ACD          ; COMBINING LATIN SMALL LETTER INSULAR R
 1ACE          ; COMBINING LATIN SMALL LETTER INSULAR T
 1ACF          ; COMBINING DOUBLE CARON
+1AD0          ; COMBINING VERTICAL-LINE-ACUTE
+1AD1          ; COMBINING GRAVE-VERTICAL-LINE
+1AD2          ; COMBINING VERTICAL-LINE-GRAVE
+1AD3          ; COMBINING ACUTE-VERTICAL-LINE
+1AD4          ; COMBINING VERTICAL-LINE-MACRON
+1AD5          ; COMBINING MACRON-VERTICAL-LINE
 1AE0          ; COMBINING LEFT TACK ABOVE
 1AE1          ; COMBINING RIGHT TACK ABOVE
 1AE2          ; COMBINING MINUS SIGN ABOVE
@@ -45641,6 +45647,6 @@ E01ED         ; VARIATION SELECTOR-254
 E01EE         ; VARIATION SELECTOR-255
 E01EF         ; VARIATION SELECTOR-256
 
-# Total code points: 159573
+# Total code points: 159579
 
 # EOF
