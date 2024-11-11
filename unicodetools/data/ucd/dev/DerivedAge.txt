@@ -1,5 +1,5 @@
 # DerivedAge-17.0.0.txt
-# Date: 2024-11-11, 18:52:44 GMT
+# Date: 2024-11-11, 18:54:51 GMT
 # © 2024 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use and license, see https://www.unicode.org/terms_of_use.html
@@ -2073,6 +2073,7 @@ A7DA..A7DC    ; 16.0 #   [3] LATIN CAPITAL LETTER LAMBDA..LATIN CAPITAL LETTER L
 0CDC          ; 17.0 #       KANNADA ARCHAIC SHRII
 1ACF          ; 17.0 #       COMBINING DOUBLE CARON
 1AE0..1AEB    ; 17.0 #  [12] COMBINING LEFT TACK ABOVE..COMBINING DOUBLE RIGHTWARDS ARROW ABOVE
+2B96          ; 17.0 #       EQUALS SIGN WITH INFINITY ABOVE
 A7F1          ; 17.0 #       MODIFIER LETTER CAPITAL S
 FBC3..FBD2    ; 17.0 #  [16] ARABIC LIGATURE JALLA WA-ALAA..ARABIC LIGATURE ALAYHI AR-RAHMAH
 FD91          ; 17.0 #       ARABIC LIGATURE RAHMATU ALLAAHI ALAYHAA
@@ -2091,6 +2092,6 @@ FD91          ; 17.0 #       ARABIC LIGATURE RAHMATU ALLAAHI ALAYHAA
 1FA54..1FA57  ; 17.0 #   [4] WHITE CHESS FERZ..BLACK CHESS ALFIL
 323B0..3347B  ; 17.0 # [4300] CJK UNIFIED IDEOGRAPH-323B0..CJK UNIFIED IDEOGRAPH-3347B
 
-# Total code points: 4515
+# Total code points: 4516
 
 # EOF

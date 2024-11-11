@@ -1,5 +1,5 @@
 # DerivedName-17.0.0.txt
-# Date: 2024-11-11, 18:53:07 GMT
+# Date: 2024-11-11, 18:55:14 GMT
 # © 2024 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use and license, see https://www.unicode.org/terms_of_use.html
@@ -10233,6 +10233,7 @@
 2B93          ; NEWLINE RIGHT
 2B94          ; FOUR CORNER ARROWS CIRCLING ANTICLOCKWISE
 2B95          ; RIGHTWARDS BLACK ARROW
+2B96          ; EQUALS SIGN WITH INFINITY ABOVE
 2B97          ; SYMBOL FOR TYPE A ELECTRONICS
 2B98          ; THREE-D TOP-LIGHTED LEFTWARDS EQUILATERAL ARROWHEAD
 2B99          ; THREE-D RIGHT-LIGHTED UPWARDS EQUILATERAL ARROWHEAD
@@ -45582,6 +45583,6 @@ E01ED         ; VARIATION SELECTOR-254
 E01EE         ; VARIATION SELECTOR-255
 E01EF         ; VARIATION SELECTOR-256
 
-# Total code points: 159514
+# Total code points: 159515
 
 # EOF
