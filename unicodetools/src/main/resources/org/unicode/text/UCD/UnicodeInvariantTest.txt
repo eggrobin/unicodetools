@@ -1207,6 +1207,7 @@ $NonOtherLetterIdeographs = [
     \N{KHITAN SMALL SCRIPT FILLER}
     〇 〡-〩 〸-〺
     \p{Name=/^YANGQIN SIGN SLOW (ONE|THREE HALF|TWO) BEATS?$/}
+  \p{NAME=/^CHINESE SMALL (SIMPLIFIED|TRADITIONAL) ER$/}
 ]
 # Ideographic closing mark, gc=Lo.
 Let $CommonIdeographs := [〆]
