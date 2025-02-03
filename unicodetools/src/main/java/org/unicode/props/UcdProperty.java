@@ -311,6 +311,7 @@ public enum UcdProperty {
     Deprecated(PropertyType.Binary, Binary.class, null, "Dep"),
     Diacritic(PropertyType.Binary, Binary.class, null, "Dia"),
     Emoji(PropertyType.Binary, Binary.class, null, "Emoji"),
+    Emoji_Combining_Sequence(PropertyType.Binary, Binary.class, null, "Emoji_Combining_Sequence"),
     Emoji_Component(PropertyType.Binary, Binary.class, null, "EComp"),
     Emoji_Modifier(PropertyType.Binary, Binary.class, null, "EMod"),
     Emoji_Modifier_Base(PropertyType.Binary, Binary.class, null, "EBase"),
