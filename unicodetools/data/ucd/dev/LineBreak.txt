@@ -114,7 +114,7 @@
 00B4           ; BB # Sk         ACUTE ACCENT
 00B5           ; AL # Ll         MICRO SIGN
 00B6..00B7     ; AI # Po     [2] PILCROW SIGN..MIDDLE DOT
-00B8           ; AI # Lm         CEDILLA
+00B8           ; AI # Sk         CEDILLA
 00B9           ; AI # No         SUPERSCRIPT ONE
 00BA           ; AI # Lo         MASCULINE ORDINAL INDICATOR
 00BB           ; QU # Pf         RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK

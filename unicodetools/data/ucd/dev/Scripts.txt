@@ -69,7 +69,7 @@
 00B4          ; Common # Sk       ACUTE ACCENT
 00B5          ; Common # L&       MICRO SIGN
 00B6..00B7    ; Common # Po   [2] PILCROW SIGN..MIDDLE DOT
-00B8          ; Common # Lm       CEDILLA
+00B8          ; Common # Sk       CEDILLA
 00B9          ; Common # No       SUPERSCRIPT ONE
 00BB          ; Common # Pf       RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
 00BC..00BE    ; Common # No   [3] VULGAR FRACTION ONE QUARTER..VULGAR FRACTION THREE QUARTERS

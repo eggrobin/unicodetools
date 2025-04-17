@@ -2005,7 +2005,7 @@ FF21..FF3A    ; Upper # L&  [26] FULLWIDTH LATIN CAPITAL LETTER A..FULLWIDTH LAT
 
 # ================================================
 
-00B8          ; OLetter # Lm       CEDILLA
+00B8          ; OLetter # Sk       CEDILLA
 01BB          ; OLetter # Lo       LATIN LETTER TWO WITH STROKE
 01C0..01C3    ; OLetter # Lo   [4] LATIN LETTER DENTAL CLICK..LATIN LETTER RETROFLEX CLICK
 0294..0295    ; OLetter # Lo   [2] LATIN LETTER GLOTTAL STOP..LATIN LETTER PHARYNGEAL VOICED FRICATIVE

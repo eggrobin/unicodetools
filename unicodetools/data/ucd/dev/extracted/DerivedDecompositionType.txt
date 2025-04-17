@@ -280,7 +280,7 @@ FB46..FB4E    ; Canonical # Lo   [9] HEBREW LETTER TSADI WITH DAGESH..HEBREW LET
 00AF          ; Compat # Sk       MACRON
 00B4          ; Compat # Sk       ACUTE ACCENT
 00B5          ; Compat # L&       MICRO SIGN
-00B8          ; Compat # Lm       CEDILLA
+00B8          ; Compat # Sk       CEDILLA
 0132..0133    ; Compat # L&   [2] LATIN CAPITAL LIGATURE IJ..LATIN SMALL LIGATURE IJ
 013F..0140    ; Compat # L&   [2] LATIN CAPITAL LETTER L WITH MIDDLE DOT..LATIN SMALL LETTER L WITH MIDDLE DOT
 0149          ; Compat # L&       LATIN SMALL LETTER N PRECEDED BY APOSTROPHE

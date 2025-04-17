@@ -68,7 +68,7 @@
 00B4          ; 0 # Sk       ACUTE ACCENT
 00B5          ; 0 # L&       MICRO SIGN
 00B6..00B7    ; 0 # Po   [2] PILCROW SIGN..MIDDLE DOT
-00B8          ; 0 # Lm       CEDILLA
+00B8          ; 0 # Sk       CEDILLA
 00B9          ; 0 # No       SUPERSCRIPT ONE
 00BA          ; 0 # Lo       MASCULINE ORDINAL INDICATOR
 00BB          ; 0 # Pf       RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
