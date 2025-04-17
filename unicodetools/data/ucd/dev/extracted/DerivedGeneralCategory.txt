@@ -1,5 +1,5 @@
 # DerivedGeneralCategory-17.0.0.txt
-# Date: 2025-01-27, 18:09:13 GMT
+# Date: 2025-04-17, 09:04:16 GMT
 # © 2025 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use and license, see https://www.unicode.org/terms_of_use.html
@@ -2110,6 +2110,7 @@ FF41..FF5A    ; Ll #  [26] FULLWIDTH LATIN SMALL LETTER A..FULLWIDTH LATIN SMALL
 
 # General_Category=Modifier_Letter
 
+00B8          ; Lm #       CEDILLA
 02B0..02C1    ; Lm #  [18] MODIFIER LETTER SMALL H..MODIFIER LETTER REVERSED GLOTTAL STOP
 02C6..02D1    ; Lm #  [12] MODIFIER LETTER CIRCUMFLEX ACCENT..MODIFIER LETTER HALF TRIANGULAR COLON
 02E0..02E4    ; Lm #   [5] MODIFIER LETTER SMALL GAMMA..MODIFIER LETTER SMALL REVERSED GLOTTAL STOP
@@ -2190,7 +2191,7 @@ FF9E..FF9F    ; Lm #   [2] HALFWIDTH KATAKANA VOICED SOUND MARK..HALFWIDTH KATAK
 1E6FF         ; Lm #       TAI YO XAM LAI
 1E94B         ; Lm #       ADLAM NASALIZATION MARK
 
-# Total code points: 410
+# Total code points: 411
 
 # ================================================
 
@@ -4111,7 +4112,6 @@ FFE5..FFE6    ; Sc #   [2] FULLWIDTH YEN SIGN..FULLWIDTH WON SIGN
 00A8          ; Sk #       DIAERESIS
 00AF          ; Sk #       MACRON
 00B4          ; Sk #       ACUTE ACCENT
-00B8          ; Sk #       CEDILLA
 02C2..02C5    ; Sk #   [4] MODIFIER LETTER LEFT ARROWHEAD..MODIFIER LETTER DOWN ARROWHEAD
 02D2..02DF    ; Sk #  [14] MODIFIER LETTER CENTRED RIGHT HALF RING..MODIFIER LETTER CROSS ACCENT
 02E5..02EB    ; Sk #   [7] MODIFIER LETTER EXTRA-HIGH TONE BAR..MODIFIER LETTER YANG DEPARTING TONE MARK
@@ -4138,7 +4138,7 @@ FF40          ; Sk #       FULLWIDTH GRAVE ACCENT
 FFE3          ; Sk #       FULLWIDTH MACRON
 1F3FB..1F3FF  ; Sk #   [5] EMOJI MODIFIER FITZPATRICK TYPE-1-2..EMOJI MODIFIER FITZPATRICK TYPE-6
 
-# Total code points: 125
+# Total code points: 124
 
 # ================================================
 

@@ -1,5 +1,5 @@
 # VerticalOrientation-17.0.0.txt
-# Date: 2025-01-29
+# Date: 2025-04-17, 09:04:47 GMT
 # © 2025 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use and license, see https://www.unicode.org/terms_of_use.html
@@ -124,7 +124,7 @@
 00B4           ; R  # Sk         ACUTE ACCENT
 00B5           ; R  # Ll         MICRO SIGN
 00B6..00B7     ; R  # Po     [2] PILCROW SIGN..MIDDLE DOT
-00B8           ; R  # Sk         CEDILLA
+00B8           ; R  # Lm         CEDILLA
 00B9           ; R  # No         SUPERSCRIPT ONE
 00BA           ; R  # Lo         MASCULINE ORDINAL INDICATOR
 00BB           ; R  # Pf         RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK

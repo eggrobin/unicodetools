@@ -1,5 +1,5 @@
 # PropList-17.0.0.txt
-# Date: 2025-02-18, 12:46:41 GMT
+# Date: 2025-04-17, 09:04:31 GMT
 # © 2025 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use and license, see https://www.unicode.org/terms_of_use.html
@@ -908,7 +908,7 @@ FA70..FAD9    ; Ideographic # Lo [106] CJK COMPATIBILITY IDEOGRAPH-FA70..CJK COM
 00AF          ; Diacritic # Sk       MACRON
 00B4          ; Diacritic # Sk       ACUTE ACCENT
 00B7          ; Diacritic # Po       MIDDLE DOT
-00B8          ; Diacritic # Sk       CEDILLA
+00B8          ; Diacritic # Lm       CEDILLA
 02B0..02C1    ; Diacritic # Lm  [18] MODIFIER LETTER SMALL H..MODIFIER LETTER REVERSED GLOTTAL STOP
 02C2..02C5    ; Diacritic # Sk   [4] MODIFIER LETTER LEFT ARROWHEAD..MODIFIER LETTER DOWN ARROWHEAD
 02C6..02D1    ; Diacritic # Lm  [12] MODIFIER LETTER CIRCUMFLEX ACCENT..MODIFIER LETTER HALF TRIANGULAR COLON

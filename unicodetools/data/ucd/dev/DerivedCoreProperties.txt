@@ -1,5 +1,5 @@
 # DerivedCoreProperties-17.0.0.txt
-# Date: 2025-02-14, 00:13:14 GMT
+# Date: 2025-04-17, 09:04:15 GMT
 # © 2025 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use and license, see https://www.unicode.org/terms_of_use.html
@@ -267,6 +267,7 @@ FFE9..FFEC    ; Math # Sm   [4] HALFWIDTH LEFTWARDS ARROW..HALFWIDTH DOWNWARDS A
 0061..007A    ; Alphabetic # L&  [26] LATIN SMALL LETTER A..LATIN SMALL LETTER Z
 00AA          ; Alphabetic # Lo       FEMININE ORDINAL INDICATOR
 00B5          ; Alphabetic # L&       MICRO SIGN
+00B8          ; Alphabetic # Lm       CEDILLA
 00BA          ; Alphabetic # Lo       MASCULINE ORDINAL INDICATOR
 00C0..00D6    ; Alphabetic # L&  [23] LATIN CAPITAL LETTER A WITH GRAVE..LATIN CAPITAL LETTER O WITH DIAERESIS
 00D8..00F6    ; Alphabetic # L&  [31] LATIN CAPITAL LETTER O WITH STROKE..LATIN SMALL LETTER O WITH DIAERESIS
@@ -1471,7 +1472,7 @@ FFDA..FFDC    ; Alphabetic # Lo   [3] HALFWIDTH HANGUL LETTER EU..HALFWIDTH HANG
 30000..3134A  ; Alphabetic # Lo [4939] CJK UNIFIED IDEOGRAPH-30000..CJK UNIFIED IDEOGRAPH-3134A
 31350..33479  ; Alphabetic # Lo [8490] CJK UNIFIED IDEOGRAPH-31350..CJK UNIFIED IDEOGRAPH-33479
 
-# Total code points: 147441
+# Total code points: 147442
 
 # ================================================
 
@@ -3043,7 +3044,7 @@ FF41..FF5A    ; Cased # L&  [26] FULLWIDTH LATIN SMALL LETTER A..FULLWIDTH LATIN
 00AF          ; Case_Ignorable # Sk       MACRON
 00B4          ; Case_Ignorable # Sk       ACUTE ACCENT
 00B7          ; Case_Ignorable # Po       MIDDLE DOT
-00B8          ; Case_Ignorable # Sk       CEDILLA
+00B8          ; Case_Ignorable # Lm       CEDILLA
 02B0..02C1    ; Case_Ignorable # Lm  [18] MODIFIER LETTER SMALL H..MODIFIER LETTER REVERSED GLOTTAL STOP
 02C2..02C5    ; Case_Ignorable # Sk   [4] MODIFIER LETTER LEFT ARROWHEAD..MODIFIER LETTER DOWN ARROWHEAD
 02C6..02D1    ; Case_Ignorable # Lm  [12] MODIFIER LETTER CIRCUMFLEX ACCENT..MODIFIER LETTER HALF TRIANGULAR COLON
@@ -6267,6 +6268,7 @@ FF41..FF5A    ; Changes_When_Casemapped # L&  [26] FULLWIDTH LATIN SMALL LETTER 
 0061..007A    ; ID_Start # L&  [26] LATIN SMALL LETTER A..LATIN SMALL LETTER Z
 00AA          ; ID_Start # Lo       FEMININE ORDINAL INDICATOR
 00B5          ; ID_Start # L&       MICRO SIGN
+00B8          ; ID_Start # Lm       CEDILLA
 00BA          ; ID_Start # Lo       MASCULINE ORDINAL INDICATOR
 00C0..00D6    ; ID_Start # L&  [23] LATIN CAPITAL LETTER A WITH GRAVE..LATIN CAPITAL LETTER O WITH DIAERESIS
 00D8..00F6    ; ID_Start # L&  [31] LATIN CAPITAL LETTER O WITH STROKE..LATIN SMALL LETTER O WITH DIAERESIS
@@ -7044,7 +7046,7 @@ FFDA..FFDC    ; ID_Start # Lo   [3] HALFWIDTH HANGUL LETTER EU..HALFWIDTH HANGUL
 30000..3134A  ; ID_Start # Lo [4939] CJK UNIFIED IDEOGRAPH-30000..CJK UNIFIED IDEOGRAPH-3134A
 31350..33479  ; ID_Start # Lo [8490] CJK UNIFIED IDEOGRAPH-31350..CJK UNIFIED IDEOGRAPH-33479
 
-# Total code points: 145935
+# Total code points: 145936
 
 # ================================================
 
@@ -7065,6 +7067,7 @@ FFDA..FFDC    ; ID_Start # Lo   [3] HALFWIDTH HANGUL LETTER EU..HALFWIDTH HANGUL
 00AA          ; ID_Continue # Lo       FEMININE ORDINAL INDICATOR
 00B5          ; ID_Continue # L&       MICRO SIGN
 00B7          ; ID_Continue # Po       MIDDLE DOT
+00B8          ; ID_Continue # Lm       CEDILLA
 00BA          ; ID_Continue # Lo       MASCULINE ORDINAL INDICATOR
 00C0..00D6    ; ID_Continue # L&  [23] LATIN CAPITAL LETTER A WITH GRAVE..LATIN CAPITAL LETTER O WITH DIAERESIS
 00D8..00F6    ; ID_Continue # L&  [31] LATIN CAPITAL LETTER O WITH STROKE..LATIN SMALL LETTER O WITH DIAERESIS
@@ -8484,7 +8487,7 @@ FFDA..FFDC    ; ID_Continue # Lo   [3] HALFWIDTH HANGUL LETTER EU..HALFWIDTH HAN
 31350..33479  ; ID_Continue # Lo [8490] CJK UNIFIED IDEOGRAPH-31350..CJK UNIFIED IDEOGRAPH-33479
 E0100..E01EF  ; ID_Continue # Mn [240] VARIATION SELECTOR-17..VARIATION SELECTOR-256
 
-# Total code points: 149273
+# Total code points: 149274
 
 # ================================================
 
@@ -11256,7 +11259,7 @@ E0100..E01EF  ; Grapheme_Extend # Mn [240] VARIATION SELECTOR-17..VARIATION SELE
 00B4          ; Grapheme_Base # Sk       ACUTE ACCENT
 00B5          ; Grapheme_Base # L&       MICRO SIGN
 00B6..00B7    ; Grapheme_Base # Po   [2] PILCROW SIGN..MIDDLE DOT
-00B8          ; Grapheme_Base # Sk       CEDILLA
+00B8          ; Grapheme_Base # Lm       CEDILLA
 00B9          ; Grapheme_Base # No       SUPERSCRIPT ONE
 00BA          ; Grapheme_Base # Lo       MASCULINE ORDINAL INDICATOR
 00BB          ; Grapheme_Base # Pf       RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK

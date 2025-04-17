@@ -1,5 +1,5 @@
 # DerivedNormalizationProps-17.0.0.txt
-# Date: 2025-01-27, 18:09:14 GMT
+# Date: 2025-04-17, 09:04:18 GMT
 # © 2025 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use and license, see https://www.unicode.org/terms_of_use.html
@@ -1200,7 +1200,7 @@ FB46..FB4E    ; NFC_QC; N # Lo   [9] HEBREW LETTER TSADI WITH DAGESH..HEBREW LET
 00B2..00B3    ; NFKD_QC; N # No   [2] SUPERSCRIPT TWO..SUPERSCRIPT THREE
 00B4          ; NFKD_QC; N # Sk       ACUTE ACCENT
 00B5          ; NFKD_QC; N # L&       MICRO SIGN
-00B8          ; NFKD_QC; N # Sk       CEDILLA
+00B8          ; NFKD_QC; N # Lm       CEDILLA
 00B9          ; NFKD_QC; N # No       SUPERSCRIPT ONE
 00BA          ; NFKD_QC; N # Lo       MASCULINE ORDINAL INDICATOR
 00BC..00BE    ; NFKD_QC; N # No   [3] VULGAR FRACTION ONE QUARTER..VULGAR FRACTION THREE QUARTERS
@@ -1776,7 +1776,7 @@ FFED..FFEE    ; NFKD_QC; N # So   [2] HALFWIDTH BLACK SQUARE..HALFWIDTH WHITE CI
 00B2..00B3    ; NFKC_QC; N # No   [2] SUPERSCRIPT TWO..SUPERSCRIPT THREE
 00B4          ; NFKC_QC; N # Sk       ACUTE ACCENT
 00B5          ; NFKC_QC; N # L&       MICRO SIGN
-00B8          ; NFKC_QC; N # Sk       CEDILLA
+00B8          ; NFKC_QC; N # Lm       CEDILLA
 00B9          ; NFKC_QC; N # No       SUPERSCRIPT ONE
 00BA          ; NFKC_QC; N # Lo       MASCULINE ORDINAL INDICATOR
 00BC..00BE    ; NFKC_QC; N # No   [3] VULGAR FRACTION ONE QUARTER..VULGAR FRACTION THREE QUARTERS
@@ -2526,7 +2526,7 @@ FB46..FB4E    ; Expands_On_NFC # Lo   [9] HEBREW LETTER TSADI WITH DAGESH..HEBRE
 00A8          ; Expands_On_NFKD # Sk       DIAERESIS
 00AF          ; Expands_On_NFKD # Sk       MACRON
 00B4          ; Expands_On_NFKD # Sk       ACUTE ACCENT
-00B8          ; Expands_On_NFKD # Sk       CEDILLA
+00B8          ; Expands_On_NFKD # Lm       CEDILLA
 00BC..00BE    ; Expands_On_NFKD # No   [3] VULGAR FRACTION ONE QUARTER..VULGAR FRACTION THREE QUARTERS
 00C0..00C5    ; Expands_On_NFKD # L&   [6] LATIN CAPITAL LETTER A WITH GRAVE..LATIN CAPITAL LETTER A WITH RING ABOVE
 00C7..00CF    ; Expands_On_NFKD # L&   [9] LATIN CAPITAL LETTER C WITH CEDILLA..LATIN CAPITAL LETTER I WITH DIAERESIS
@@ -2852,7 +2852,7 @@ FFE3          ; Expands_On_NFKD # Sk       FULLWIDTH MACRON
 00A8          ; Expands_On_NFKC # Sk       DIAERESIS
 00AF          ; Expands_On_NFKC # Sk       MACRON
 00B4          ; Expands_On_NFKC # Sk       ACUTE ACCENT
-00B8          ; Expands_On_NFKC # Sk       CEDILLA
+00B8          ; Expands_On_NFKC # Lm       CEDILLA
 00BC..00BE    ; Expands_On_NFKC # No   [3] VULGAR FRACTION ONE QUARTER..VULGAR FRACTION THREE QUARTERS
 0132..0133    ; Expands_On_NFKC # L&   [2] LATIN CAPITAL LIGATURE IJ..LATIN SMALL LIGATURE IJ
 013F..0140    ; Expands_On_NFKC # L&   [2] LATIN CAPITAL LETTER L WITH MIDDLE DOT..LATIN SMALL LETTER L WITH MIDDLE DOT
@@ -3029,7 +3029,7 @@ FFE3          ; Expands_On_NFKC # Sk       FULLWIDTH MACRON
 00B3          ; NFKC_CF; 0033           # No       SUPERSCRIPT THREE
 00B4          ; NFKC_CF; 0020 0301      # Sk       ACUTE ACCENT
 00B5          ; NFKC_CF; 03BC           # L&       MICRO SIGN
-00B8          ; NFKC_CF; 0020 0327      # Sk       CEDILLA
+00B8          ; NFKC_CF; 0020 0327      # Lm       CEDILLA
 00B9          ; NFKC_CF; 0031           # No       SUPERSCRIPT ONE
 00BA          ; NFKC_CF; 006F           # Lo       MASCULINE ORDINAL INDICATOR
 00BC          ; NFKC_CF; 0031 2044 0034 # No       VULGAR FRACTION ONE QUARTER
@@ -9230,7 +9230,7 @@ E01F0..E0FFF  ; NFKC_CF;                # Cn [3600] <reserved-E01F0>..<reserved-
 00B3          ; NFKC_SCF; 0033           # No       SUPERSCRIPT THREE
 00B4          ; NFKC_SCF; 0020 0301      # Sk       ACUTE ACCENT
 00B5          ; NFKC_SCF; 03BC           # L&       MICRO SIGN
-00B8          ; NFKC_SCF; 0020 0327      # Sk       CEDILLA
+00B8          ; NFKC_SCF; 0020 0327      # Lm       CEDILLA
 00B9          ; NFKC_SCF; 0031           # No       SUPERSCRIPT ONE
 00BA          ; NFKC_SCF; 006F           # Lo       MASCULINE ORDINAL INDICATOR
 00BC          ; NFKC_SCF; 0031 2044 0034 # No       VULGAR FRACTION ONE QUARTER
@@ -15358,7 +15358,7 @@ E01F0..E0FFF  ; NFKC_SCF;                # Cn [3600] <reserved-E01F0>..<reserved
 00B2..00B3    ; Changes_When_NFKC_Casefolded # No   [2] SUPERSCRIPT TWO..SUPERSCRIPT THREE
 00B4          ; Changes_When_NFKC_Casefolded # Sk       ACUTE ACCENT
 00B5          ; Changes_When_NFKC_Casefolded # L&       MICRO SIGN
-00B8          ; Changes_When_NFKC_Casefolded # Sk       CEDILLA
+00B8          ; Changes_When_NFKC_Casefolded # Lm       CEDILLA
 00B9          ; Changes_When_NFKC_Casefolded # No       SUPERSCRIPT ONE
 00BA          ; Changes_When_NFKC_Casefolded # Lo       MASCULINE ORDINAL INDICATOR
 00BC..00BE    ; Changes_When_NFKC_Casefolded # No   [3] VULGAR FRACTION ONE QUARTER..VULGAR FRACTION THREE QUARTERS

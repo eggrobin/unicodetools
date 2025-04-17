@@ -1,5 +1,5 @@
 # DerivedCombiningClass-17.0.0.txt
-# Date: 2025-01-27, 18:09:10 GMT
+# Date: 2025-04-17, 09:04:14 GMT
 # © 2025 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use and license, see https://www.unicode.org/terms_of_use.html
@@ -68,7 +68,7 @@
 00B4          ; 0 # Sk       ACUTE ACCENT
 00B5          ; 0 # L&       MICRO SIGN
 00B6..00B7    ; 0 # Po   [2] PILCROW SIGN..MIDDLE DOT
-00B8          ; 0 # Sk       CEDILLA
+00B8          ; 0 # Lm       CEDILLA
 00B9          ; 0 # No       SUPERSCRIPT ONE
 00BA          ; 0 # Lo       MASCULINE ORDINAL INDICATOR
 00BB          ; 0 # Pf       RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK

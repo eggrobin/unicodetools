@@ -1,5 +1,5 @@
 # DerivedDecompositionType-17.0.0.txt
-# Date: 2025-01-27, 18:09:12 GMT
+# Date: 2025-04-17, 09:04:16 GMT
 # © 2025 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use and license, see https://www.unicode.org/terms_of_use.html
@@ -280,7 +280,7 @@ FB46..FB4E    ; Canonical # Lo   [9] HEBREW LETTER TSADI WITH DAGESH..HEBREW LET
 00AF          ; Compat # Sk       MACRON
 00B4          ; Compat # Sk       ACUTE ACCENT
 00B5          ; Compat # L&       MICRO SIGN
-00B8          ; Compat # Sk       CEDILLA
+00B8          ; Compat # Lm       CEDILLA
 0132..0133    ; Compat # L&   [2] LATIN CAPITAL LIGATURE IJ..LATIN SMALL LIGATURE IJ
 013F..0140    ; Compat # L&   [2] LATIN CAPITAL LETTER L WITH MIDDLE DOT..LATIN SMALL LETTER L WITH MIDDLE DOT
 0149          ; Compat # L&       LATIN SMALL LETTER N PRECEDED BY APOSTROPHE
