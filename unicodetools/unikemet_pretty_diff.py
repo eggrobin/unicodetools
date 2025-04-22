@@ -5,13 +5,19 @@ from unikemet_diff import UNIKEMET_DIFF
 
 with open("unikemet_diff.html", "w", encoding="utf-8") as f:
   print("""
+  <!DOCTYPE html>
+  <html>
   <head>
     <style>
     .changed	 	{ background-color: #FFFF00; border-style: dotted; border-width: 1px; }
     .removed	 	{ text-decoration: line-through; background-color: #FFFF00; border-style: dotted; border-width: 1px; }
     </style>
+    <title>Changes to Unikemet properties between 16.0 and 17.0β</title>
   </head>
   <body>
+    <p style=text-align:right>L2/25-139</p>
+    <p>From: Robin Leroy</p>
+    <p>Date: 2025-04-22</p>
   """, file=f)
   print(f"<h1>Changes to Unikemet properties between 16.0 and 17.0β</h1>", file=f)
   for provisional in False, True:
@@ -64,4 +70,4 @@ with open("unikemet_diff.html", "w", encoding="utf-8") as f:
             html_diff += "".join(new_words[new_begin:new_end])
         print("<tr><th>", codepoint, "</th><td>", html_diff, "</td></tr>", file=f)
       print("</table>", file=f)
-    print("</body>", file=f)
+  print("</body></html>", file=f)
