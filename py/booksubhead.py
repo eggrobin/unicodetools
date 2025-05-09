@@ -37,20 +37,32 @@ def main():
             line = line.split("#", maxsplit=1)[0].strip()
             if not line:
                 continue
-            range, block = line.split(";")
+            hex_range, block = line.split(";")
             block = block.strip()
-            first, last = range.split("..")
+            first, last = hex_range.split("..")
             block_to_range[block] = (int(first, 16), int(last, 16))
     for root, _, files in os.walk(sys.argv[1]):
         for file in files:
             if file.endswith(".svelte"):
                 with open(root + "/" + file, encoding="utf-8") as f:
                     parser.feed(f.read())
-    parser.range_to_id
-    for block, id in parser.block_to_id.items():
-        parser.range_to_id[block_to_range[block]] = id
-    for range, id in sorted(parser.range_to_id.items()):
-        print("%04X..%04X" % range, ";", id)
+    data = {block_to_range[block]: id for block, id in parser.block_to_id.items()}
+    for (first, last), id in parser.range_to_id.items():
+        for cp in range(first, last + 1):
+            for (f, l), block_based_id in data.items():
+                if f <= cp and cp <= l:
+                    break
+            else:
+                continue
+            del data[f, l]
+            if cp > f:
+                data[f, cp - 1] = block_based_id
+            if cp < l:
+                data[cp + 1, l] = block_based_id
+        data[first, last] = id
+
+    for (first, last), id in sorted(data.items()):
+        print("%04X..%04X" % (first, last), ";", id)
 
 if __name__ == "__main__":
   main()
