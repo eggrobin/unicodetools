@@ -557,3 +557,5 @@ NamesList ; Names_List_Cross_Ref
 NamesList ; Names_List_Comment
 NamesList ; Names_List_Subheader
 NamesList ; Names_List_Subheader_Notice
+
+other/*/CoreSpecIds ; Core_Specification_ID

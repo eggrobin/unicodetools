@@ -742,6 +742,7 @@ public class UcdPropertyValues {
     // Confusable_ML
     // Confusable_SA
     // Confusable_SL
+    // Core_Specification_ID
     // Decomposition_Mapping
     public enum Decomposition_Type_Values implements Named {
         Canonical("Can", "can"),

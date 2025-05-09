@@ -119,6 +119,10 @@ public enum UcdProperty {
             null,
             ValueCardinality.Ordered,
             "CJKR"),
+    Core_Specification_ID(
+            PropertyType.Miscellaneous,
+            DerivedPropertyStatus.NonUCDNonProperty,
+            "Core_Specification_ID"),
     Emoji_DCM(PropertyType.Miscellaneous, DerivedPropertyStatus.UCDNonProperty, "EDCM"),
     Emoji_KDDI(PropertyType.Miscellaneous, DerivedPropertyStatus.UCDNonProperty, "EKDDI"),
     Emoji_SB(PropertyType.Miscellaneous, DerivedPropertyStatus.UCDNonProperty, "ESB"),

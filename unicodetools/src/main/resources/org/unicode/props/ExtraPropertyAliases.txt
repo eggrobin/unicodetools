@@ -206,3 +206,5 @@ Names_List_Subheader        ; Names_List_Subheader ; subhead ; UCDNonProperty
 Names_List_Subheader_Notice ; Names_List_Subheader_Notice    ; UCDNonProperty
 Names_List_Alias            ; Names_List_Alias               ; UCDNonProperty
 Names_List_Comment          ; Names_List_Comment             ; UCDNonProperty
+
+Core_Specification_ID ; Core_Specification_ID ; NonUCDNonProperty
