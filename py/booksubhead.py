@@ -5,19 +5,20 @@ import re
 import sys
 from typing import Optional
 
-CODE_POINT_OR_RANGE = re.compile(r"U\+([0-9A-F]{4,6})(?:\u2013U\+([0-9A-F]{4,6}))")
+CODE_POINT_OR_RANGE = re.compile(r"U\+([0-9A-F]{4,6})(?:\u2013U\+([0-9A-F]{4,6}))?")
 
 class SubHeadParser(html.parser.HTMLParser):
     def __init__(self, *, convert_charrefs: bool = True) -> None:
         super().__init__(convert_charrefs=convert_charrefs)
         self.block_to_id: dict[str, str] = {}
         self.range_to_id: dict[tuple[int, int], str] = {}
+        self.last_id = None
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, Optional[str]]]):
+        attrs: dict[str, Optional[str]] = dict(attrs)
+        id = attrs.get("id")
         if tag == "subheading":
-            attrs: dict[str, Optional[str]] = dict(attrs)
             title = attrs["title"]
-            id = attrs["id"]
             if not title or not id:
                 raise ValueError(title, id)
             if "block" in attrs:
@@ -28,6 +29,8 @@ class SubHeadParser(html.parser.HTMLParser):
                     self.range_to_id[
                         (int(match.group(1), 16),
                          int(match.group(2) or match.group(1), 16))] = id
+        if id:
+            self.last_id = id
 
 def main():
     parser = SubHeadParser()
