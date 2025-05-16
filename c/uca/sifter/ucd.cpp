@@ -5,6 +5,9 @@
 namespace unicode {
 
 CharacterDatabase::CharacterDatabase(const std::string_view versionDirectory) {
+
+    int Hawaiʻi, ǃnu, 𒉭, 𓋴𓅱𓎛𓏏𓆇, íkǃaːⁿd̥ǎ̤, fʹ, grad_𝑓, 𝑥2, xⁿ, 𝔰𝔬;
+
     const auto ucdDirectory = std::filesystem::current_path()
                                       .parent_path()
                                       .parent_path()

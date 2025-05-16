@@ -1,3 +1,4 @@
+from collections import defaultdict
 import os
 import html
 import html.parser
@@ -12,6 +13,7 @@ class SubHeadParser(html.parser.HTMLParser):
         super().__init__(convert_charrefs=convert_charrefs)
         self.block_to_id: dict[str, str] = {}
         self.range_to_id: dict[tuple[int, int], str] = {}
+        self.name_to_mentions: dict[str, list[str]] = defaultdict(list)
         self.last_id = None
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, Optional[str]]]):
@@ -20,7 +22,7 @@ class SubHeadParser(html.parser.HTMLParser):
         if tag == "subheading":
             title = attrs["title"]
             if not title or not id:
-                raise ValueError(title, id)
+                raise ValueError(tag, attrs)
             if "block" in attrs:
                 self.block_to_id[title] = id
             elif ":" in title:
@@ -29,12 +31,18 @@ class SubHeadParser(html.parser.HTMLParser):
                     self.range_to_id[
                         (int(match.group(1), 16),
                          int(match.group(2) or match.group(1), 16))] = id
+        elif tag == "cp" and "cp" in attrs:
+            name = attrs["cp"]
+            if not name or not self.last_id:
+                raise ValueError(tag, attrs)
+            self.name_to_mentions[name].append(self.last_id)
         if id:
             self.last_id = id
 
 def main():
     parser = SubHeadParser()
     block_to_range: dict[str, tuple[int, int]] = {}
+    name_to_cp: dict[str, int] = {}
     with open(sys.argv[2] + "/Blocks.txt", encoding="utf-8") as f:
         for line in f.readlines():
             line = line.split("#", maxsplit=1)[0].strip()
@@ -44,6 +52,16 @@ def main():
             block = block.strip()
             first, last = hex_range.split("..")
             block_to_range[block] = (int(first, 16), int(last, 16))
+    with open(sys.argv[2] + "/extracted/DerivedName.txt", encoding="utf-8") as f:
+        for line in f.readlines():
+            line = line.split("#", maxsplit=1)[0].strip()
+            if not line:
+                continue
+            hex_range, name = line.split(";")
+            name = name.strip()
+            if ".." in hex_range:
+                continue
+            name_to_cp[name] = int(hex_range, 16)
     for root, _, files in os.walk(sys.argv[1]):
         for file in files:
             if file.endswith(".svelte"):
@@ -63,6 +81,13 @@ def main():
             if cp < l:
                 data[cp + 1, l] = block_based_id
         data[first, last] = id
+    for name, ids in parser.name_to_mentions.items():
+        if name not in name_to_cp:
+            continue
+        cp = name_to_cp[name]
+        if any(f <= cp and cp <= l for (f, l) in data):
+            continue
+        data[cp, cp] = " ".join(ids)
 
     for (first, last), id in sorted(data.items()):
         print("%04X..%04X" % (first, last), ";", id)
