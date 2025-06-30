@@ -31,6 +31,8 @@ kEH_Core                 ; kEH_Core ; Provisional
 
 RGI_Emoji_Qualification ; RGI_Emoji_Qualification ; NonUCDProperty
 
+East_Asian_Spacing ; East_Asian_Spacing ; NonUCDProperty
+
 # ================================================
 # String Properties
 # ================================================

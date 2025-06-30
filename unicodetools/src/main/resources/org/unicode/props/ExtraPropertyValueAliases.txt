@@ -375,3 +375,8 @@ RGI_Emoji_Qualification ; UQE                 ; Unqualified
 RGI_Emoji_Qualification ; component           ; Standalone_Component
 # Value used in 11.0 and earlier, refined in 12.0.
 RGI_Emoji_Qualification ; Non_Fully_Qualified ; Non_Fully_Qualified
+
+East_Asian_Spacing ; W ; Wide
+East_Asian_Spacing ; N ; Narrow
+East_Asian_Spacing ; O ; Other
+East_Asian_Spacing ; C ; Conditional
