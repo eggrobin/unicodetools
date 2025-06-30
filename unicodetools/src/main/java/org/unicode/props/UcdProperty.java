@@ -11,6 +11,7 @@ import org.unicode.props.UcdPropertyValues.Block_Values;
 import org.unicode.props.UcdPropertyValues.Canonical_Combining_Class_Values;
 import org.unicode.props.UcdPropertyValues.Decomposition_Type_Values;
 import org.unicode.props.UcdPropertyValues.Do_Not_Emit_Type_Values;
+import org.unicode.props.UcdPropertyValues.East_Asian_Spacing_Values;
 import org.unicode.props.UcdPropertyValues.East_Asian_Width_Values;
 import org.unicode.props.UcdPropertyValues.General_Category_Values;
 import org.unicode.props.UcdPropertyValues.Grapheme_Cluster_Break_Values;
@@ -623,6 +624,12 @@ public enum UcdProperty {
             Do_Not_Emit_Type_Values.class,
             null,
             "Do_Not_Emit_Type"),
+    East_Asian_Spacing(
+            PropertyType.Enumerated,
+            DerivedPropertyStatus.NonUCDProperty,
+            East_Asian_Spacing_Values.class,
+            null,
+            "East_Asian_Spacing"),
     East_Asian_Width(
             PropertyType.Enumerated,
             DerivedPropertyStatus.Approved,

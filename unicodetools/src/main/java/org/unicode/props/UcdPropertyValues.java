@@ -831,6 +831,37 @@ public class UcdPropertyValues {
         }
     }
 
+    public enum East_Asian_Spacing_Values implements Named {
+        Wide("W"),
+        Narrow("N"),
+        Other("O"),
+        Conditional("C");
+        private final PropertyNames<East_Asian_Spacing_Values> names;
+
+        private East_Asian_Spacing_Values(String shortName, String... otherNames) {
+            names =
+                    new PropertyNames<East_Asian_Spacing_Values>(
+                            East_Asian_Spacing_Values.class, this, shortName, otherNames);
+        }
+
+        @Override
+        public PropertyNames<East_Asian_Spacing_Values> getNames() {
+            return names;
+        }
+
+        @Override
+        public String getShortName() {
+            return names.getShortName();
+        }
+
+        private static final NameMatcher<East_Asian_Spacing_Values> NAME_MATCHER =
+                PropertyNames.getNameToEnums(East_Asian_Spacing_Values.class);
+
+        public static East_Asian_Spacing_Values forName(String name) {
+            return NAME_MATCHER.get(name);
+        }
+    }
+
     public enum East_Asian_Width_Values implements Named {
         Ambiguous("A"),
         Fullwidth("F"),
