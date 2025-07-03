@@ -1355,4 +1355,5 @@ BidiMirroring
 CompositionExclusions
 StandardizedVariants
 
-
+File:	../spacing/east-asian-spacing
+Property: East_Asian_Spacing
