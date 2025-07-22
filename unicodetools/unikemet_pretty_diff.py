@@ -12,14 +12,14 @@ with open("unikemet_diff.html", "w", encoding="utf-8") as f:
     .changed	 	{ background-color: #FFFF00; border-style: dotted; border-width: 1px; }
     .removed	 	{ text-decoration: line-through; background-color: #FFFF00; border-style: dotted; border-width: 1px; }
     </style>
-    <title>Changes to Unikemet properties between 16.0 and 17.0β</title>
+    <title>Changes to Unikemet properties between 17.0β and 17.0</title>
   </head>
   <body>
-    <p style=text-align:right>L2/25-139</p>
+    <p style=text-align:right>L2/25-XXX</p>
     <p>From: Robin Leroy</p>
-    <p>Date: 2025-04-22</p>
+    <p>Date: 2025-07-22</p>
   """, file=f)
-  print(f"<h1>Changes to Unikemet properties between 16.0 and 17.0β</h1>", file=f)
+  print(f"<h1>Changes to Unikemet properties between 17.0β and 17.0</h1>", file=f)
   for provisional in False, True:
     if provisional:
       print(f"<h2>Changes to Provisional properties</h2>", file=f)
@@ -28,9 +28,10 @@ with open("unikemet_diff.html", "w", encoding="utf-8") as f:
     for property, changes in UNIKEMET_DIFF.items():
       if ("Provisional" in property) != provisional:
         continue
-      if property == "kEH_AltSeq (Provisional)":
-        continue
       print(f"<h3>Changes for {property}</h3>", file=f)
+      if not changes:
+        print("(None)", file=f)
+        continue
       print("<table>", file=f)
       for codepoint, (old, new) in changes.items():
         if (old and ("<" in old or "&" in old)) or (new and ("<" in new or "&" in new)):
