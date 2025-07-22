@@ -222,7 +222,6 @@ public class UcdPropertyValues {
         Cherokee("Cherokee"),
         Cherokee_Supplement("Cherokee_Sup"),
         Chess_Symbols("Chess_Symbols"),
-        Chisoi("Chisoi"),
         Chorasmian("Chorasmian"),
         CJK_Unified_Ideographs("CJK"),
         CJK_Compatibility("CJK_Compat"),
@@ -1147,6 +1146,38 @@ public class UcdPropertyValues {
         }
     }
 
+    public enum IDNA2008_Category_Values implements Named {
+        Protocol_Valid("PVALID"),
+        Contextual_Rule_Required_Join_Controls("CONTEXTJ"),
+        Contextual_Rule_Required_Other("CONTEXTO"),
+        Disallowed("DISALLOWED"),
+        Unassigned("UNASSIGNED");
+        private final PropertyNames<IDNA2008_Category_Values> names;
+
+        private IDNA2008_Category_Values(String shortName, String... otherNames) {
+            names =
+                    new PropertyNames<IDNA2008_Category_Values>(
+                            IDNA2008_Category_Values.class, this, shortName, otherNames);
+        }
+
+        @Override
+        public PropertyNames<IDNA2008_Category_Values> getNames() {
+            return names;
+        }
+
+        @Override
+        public String getShortName() {
+            return names.getShortName();
+        }
+
+        private static final NameMatcher<IDNA2008_Category_Values> NAME_MATCHER =
+                PropertyNames.getNameToEnums(IDNA2008_Category_Values.class);
+
+        public static IDNA2008_Category_Values forName(String name) {
+            return NAME_MATCHER.get(name);
+        }
+    }
+
     public enum Indic_Conjunct_Break_Values implements Named {
         Consonant("Consonant"),
         Extend("Extend"),
@@ -1670,18 +1701,18 @@ public class UcdPropertyValues {
     // kMojiJoho
     // kMorohashi
     // kNelson
+    // kNSHU_DubenSrc
+    // kNSHU_Reading
     // kOtherNumeric
     // kPhonetic
     // kPrimaryNumeric
     // kPseudoGB1
-    // kReading
     // kRSAdobe_Japan1_6
     // kRSJapanese
     // kRSKangXi
     // kRSKanWa
     // kRSKorean
     // kRSMerged
-    // kRSTUnicode
     // kRSUnicode
     // kSBGY
     // kSemanticVariant
@@ -1690,13 +1721,14 @@ public class UcdPropertyValues {
     // kSMSZD2003Readings
     // kSpecializedSemanticVariant
     // kSpoofingVariant
-    // kSrc_NushuDuben
     // kStrange
     // kTaiwanTelegraph
     // kTang
+    // kTayNumeric
     // kTGH
     // kTGHZ2013
     // kTGT_MergedSrc
+    // kTGT_RSUnicode
     // kTotalStrokes
     // kTraditionalVariant
     // kUnihanCore2020
@@ -1788,6 +1820,11 @@ public class UcdPropertyValues {
     // Name_Alias
     // Named_Sequences
     // Named_Sequences_Prov
+    // Names_List_Alias
+    // Names_List_Comment
+    // Names_List_Cross_Ref
+    // Names_List_Subheader
+    // Names_List_Subheader_Notice
     public enum NFC_Quick_Check_Values implements Named {
         Maybe("M"),
         No("N"),
@@ -1908,6 +1945,7 @@ public class UcdPropertyValues {
         }
     }
 
+    // Non_Unihan_Numeric_Value
     // normalization_correction_corrected
     // normalization_correction_original
     // normalization_correction_version
@@ -1977,6 +2015,39 @@ public class UcdPropertyValues {
         }
     }
 
+    public enum RGI_Emoji_Qualification_Values implements Named {
+        None("None"),
+        Fully_Qualified("FQE"),
+        Minimally_Qualified("MQE"),
+        Unqualified("UQE"),
+        Standalone_Component("component"),
+        Non_Fully_Qualified("Non_Fully_Qualified");
+        private final PropertyNames<RGI_Emoji_Qualification_Values> names;
+
+        private RGI_Emoji_Qualification_Values(String shortName, String... otherNames) {
+            names =
+                    new PropertyNames<RGI_Emoji_Qualification_Values>(
+                            RGI_Emoji_Qualification_Values.class, this, shortName, otherNames);
+        }
+
+        @Override
+        public PropertyNames<RGI_Emoji_Qualification_Values> getNames() {
+            return names;
+        }
+
+        @Override
+        public String getShortName() {
+            return names.getShortName();
+        }
+
+        private static final NameMatcher<RGI_Emoji_Qualification_Values> NAME_MATCHER =
+                PropertyNames.getNameToEnums(RGI_Emoji_Qualification_Values.class);
+
+        public static RGI_Emoji_Qualification_Values forName(String name) {
+            return NAME_MATCHER.get(name);
+        }
+    }
+
     public enum Script_Values implements Named {
         Adlam("Adlm"),
         Caucasian_Albanian("Aghb"),
@@ -2002,7 +2073,6 @@ public class UcdPropertyValues {
         Carian("Cari"),
         Cham("Cham"),
         Cherokee("Cher"),
-        Chisoi("Chis"),
         Chorasmian("Chrs"),
         Coptic("Copt", "Qaac"),
         Cypro_Minoan("Cpmn"),

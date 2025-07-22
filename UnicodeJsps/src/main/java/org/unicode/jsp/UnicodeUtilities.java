@@ -40,6 +40,8 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.unicode.cldr.tool.TablePrinter;
 import org.unicode.cldr.util.Predicate;
 import org.unicode.cldr.util.UnicodeSetPrettyPrinter;
@@ -74,8 +76,6 @@ public class UnicodeUtilities {
                     .removeAll(new UnicodeSet("[:whitespace:]"))
                     .freeze();
 
-    private static Subheader subheader = null;
-
     static Transliterator toHTML;
     static Transliterator toHTMLInput;
     static String HTML_RULES_CONTROLS;
@@ -92,7 +92,7 @@ public class UnicodeUtilities {
 
         String CONTENT_RULES = "'>' > '&gt;' ;";
 
-        String HTML_RULES = BASE_RULES + CONTENT_RULES + "'\"' > '&quot;' ; ";
+        String HTML_RULES = BASE_RULES + CONTENT_RULES + "'\"' > '&quot;' ; '' > '&apos;' ;";
 
         toHTMLInput = Transliterator.createFromRules("any-xml", HTML_RULES, Transliterator.FORWARD);
 
@@ -449,17 +449,26 @@ public class UnicodeUtilities {
                                             + "}'>"
                                             + block
                                             + "</a>";
-                    String newSubhead = getSubheader().getSubheader(s);
-                    if (newSubhead == null) {
-                        newSubhead = "<u>no subhead</u>";
-                    } else {
-                        newSubhead =
-                                "<a href='list-unicodeset.jsp?a=\\p{subhead="
-                                        + newSubhead
-                                        + "}'>"
-                                        + newSubhead
-                                        + "</a>";
-                    }
+                    String devSubhead =
+                            getFactory().getProperty("Udev:Names_List_Subheader").getValue(s);
+                    String subhead = getFactory().getProperty("Names_List_Subheader").getValue(s);
+                    String newSubhead =
+                            showDevProperties && devSubhead != null && !devSubhead.equals(subhead)
+                                    ? "<a class='changed' href='list-unicodeset.jsp?a=\\p{U"
+                                            + Settings.latestVersion
+                                            + Settings.latestVersionPhase
+                                            + ":Names_List_Subheader="
+                                            + devSubhead
+                                            + "}'>"
+                                            + devSubhead
+                                            + "</a>"
+                                    : subhead != null
+                                            ? "<a href='list-unicodeset.jsp?a=\\p{Names_List_Subheader="
+                                                    + subhead
+                                                    + "}'>"
+                                                    + subhead
+                                                    + "</a>"
+                                            : "<u>no subheader</u>";
                     newBlock = newBlock + " \u2014 <i>" + newSubhead + "</i>";
                     UnicodeSet set = items.get(newBlock);
                     if (set == null) items.put(newBlock, set = new UnicodeSet());
@@ -507,7 +516,8 @@ public class UnicodeUtilities {
         }
     }
 
-    public static String getIdentifier(String script, boolean showDevProperties) {
+    public static String getIdentifier(
+            String script, boolean showDevProperties, List<String> originalParameters) {
         StringBuilder result = new StringBuilder();
         UnicodeProperty scriptProp = getFactory().getProperty("sc");
         UnicodeSet scriptSet;
@@ -553,7 +563,8 @@ public class UnicodeUtilities {
                 showSet(
                         allowed,
                         showDevProperties,
-                        new CodePointShower("", "", showDevProperties, true, false, false),
+                        new CodePointShower(
+                                "", "", showDevProperties, true, false, false, originalParameters),
                         result);
             }
 
@@ -573,7 +584,14 @@ public class UnicodeUtilities {
                         showSet(
                                 items,
                                 showDevProperties,
-                                new CodePointShower("", "", showDevProperties, true, false, false)
+                                new CodePointShower(
+                                                "",
+                                                "",
+                                                showDevProperties,
+                                                true,
+                                                false,
+                                                false,
+                                                originalParameters)
                                         .setRestricted(true),
                                 result);
                     }
@@ -621,6 +639,7 @@ public class UnicodeUtilities {
         public final boolean collate;
         public final List<UnicodeProperty> groupingProps;
         public final List<UnicodeProperty> infoProps;
+        public final List<String> originalParameters;
 
         public boolean restricted;
 
@@ -635,7 +654,8 @@ public class UnicodeUtilities {
                 boolean showDevProperties,
                 boolean abbreviate,
                 boolean ucdFormat,
-                boolean collate) {
+                boolean collate,
+                List<String> originalParameters) {
             this.groupingProps = getProps(grouping);
             this.infoProps = getProps(info);
             this.doTable = true; // !infoProps.isEmpty();
@@ -643,6 +663,7 @@ public class UnicodeUtilities {
             this.abbreviate = abbreviate;
             this.ucdFormat = ucdFormat;
             this.collate = collate;
+            this.originalParameters = originalParameters;
         }
 
         void showCodePoint(int codePoint, Appendable out) throws IOException {
@@ -676,7 +697,8 @@ public class UnicodeUtilities {
                                 + literal
                                 + "\u00A0</td>"
                                 + "<td width='7m'>"
-                                + UnicodeUtilities.getHex(string, separator, ucdFormat)
+                                + UnicodeUtilities.getHex(
+                                        string, separator, ucdFormat, originalParameters)
                                 + "</td>"
                                 + "<td"
                                 + (restricted ? " class='redName'" : "")
@@ -684,7 +706,10 @@ public class UnicodeUtilities {
                                 + name
                                 + "</td>");
             } else if (ucdFormat) {
-                out.append(UnicodeUtilities.getHex(string, separator, ucdFormat) + " ;\t" + name);
+                out.append(
+                        UnicodeUtilities.getHex(string, separator, ucdFormat, originalParameters)
+                                + " ;\t"
+                                + name);
             } else {
                 // out.append("<div class='cx'>\u00A0" + literal + "\u00A0</div>" +
                 // UnicodeUtilities.getHex(string, separator, ucdFormat) + " \t" + name);
@@ -692,7 +717,8 @@ public class UnicodeUtilities {
                         "\u00A0"
                                 + literal
                                 + "\u00A0\t"
-                                + UnicodeUtilities.getHex(string, separator, ucdFormat)
+                                + UnicodeUtilities.getHex(
+                                        string, separator, ucdFormat, originalParameters)
                                 + " \t"
                                 + name);
                 if (hasJoiner) {
@@ -766,7 +792,9 @@ public class UnicodeUtilities {
                         codePointShower.showCodePoint(end, out);
                     } else {
                         if (codePointShower.ucdFormat) {
-                            out.append(UnicodeUtilities.getHex(s, codePointShower.ucdFormat));
+                            out.append(
+                                    UnicodeUtilities.getHex(
+                                            s, codePointShower.ucdFormat, originalParameters));
                             out.append("..");
                             codePointShower.showCodePoint(end, out);
                         } else {
@@ -867,25 +895,32 @@ public class UnicodeUtilities {
         return result.toString();
     }
 
-    private static String getHex(int codePoint, boolean ucdFormat) {
+    private static String getHex(
+            int codePoint, boolean ucdFormat, List<String> additionalParameters) {
         String hex = com.ibm.icu.impl.Utility.hex(codePoint, 4);
         final String string =
                 "<code>"
-                        + ("<a target='c' href='character.jsp?a=" + hex + "'>")
+                        + ("<a target='c' href='character.jsp?a="
+                                + hex
+                                + additionalParameters.stream()
+                                        .map(p -> "&" + p)
+                                        .collect(Collectors.joining())
+                                + "'>")
                         + (ucdFormat ? "" : "U+")
                         + hex
                         + "</a></code>";
         return string;
     }
 
-    private static String getHex(String string, String separator, boolean ucdFormat) {
+    private static String getHex(
+            String string, String separator, boolean ucdFormat, List<String> additionalParameters) {
         StringBuilder result = new StringBuilder();
         int cp;
         for (int i = 0; i < string.length(); i += UTF16.getCharCount(cp)) {
             if (i != 0) {
                 result.append(separator);
             }
-            result.append(getHex(cp = UTF16.charAt(string, i), ucdFormat));
+            result.append(getHex(cp = UTF16.charAt(string, i), ucdFormat, additionalParameters));
         }
         return result.toString();
     }
@@ -1370,7 +1405,12 @@ public class UnicodeUtilities {
     }
 
     public static void showProperties(
-            int cp, String history, boolean showDevProperties, Appendable out) throws IOException {
+            int cp,
+            String history,
+            boolean showDevProperties,
+            List<String> originalParameters,
+            Appendable out)
+            throws IOException {
         String text = UTF16.valueOf(cp);
 
         String name = getFactory().getProperty("Name").getValue(cp);
@@ -1494,7 +1534,7 @@ public class UnicodeUtilities {
                 cp,
                 minVersion,
                 maxVersion,
-                showDevProperties,
+                originalParameters,
                 out);
         showProperties(
                 nonUCDProperties.stream().map(UcdProperty::toString).collect(Collectors.toList()),
@@ -1502,7 +1542,7 @@ public class UnicodeUtilities {
                 cp,
                 minVersion,
                 maxVersion,
-                showDevProperties,
+                originalParameters,
                 out);
         showProperties(
                 ucdNonProperties.stream().map(UcdProperty::toString).collect(Collectors.toList()),
@@ -1510,7 +1550,7 @@ public class UnicodeUtilities {
                 cp,
                 minVersion,
                 maxVersion,
-                showDevProperties,
+                originalParameters,
                 out);
         if (isUnihan) {
             showProperties(
@@ -1519,7 +1559,7 @@ public class UnicodeUtilities {
                     cp,
                     minVersion,
                     maxVersion,
-                    showDevProperties,
+                    originalParameters,
                     out);
         }
         showProperties(
@@ -1528,7 +1568,7 @@ public class UnicodeUtilities {
                 cp,
                 minVersion,
                 maxVersion,
-                showDevProperties,
+                originalParameters,
                 out);
         out.append("</table>\n");
     }
@@ -1539,7 +1579,7 @@ public class UnicodeUtilities {
             int cp,
             VersionInfo minVersion,
             VersionInfo maxVersion,
-            boolean showDevProperties,
+            List<String> originalParameters,
             Appendable out)
             throws IOException {
         out.append("<tr><th colspan=2>" + title + "</th></tr>" + "<tr><td width='50%'>\n");
@@ -1548,7 +1588,8 @@ public class UnicodeUtilities {
             UnicodeProperty prop = getFactory().getProperty(properties.get(i));
             if (prop.getName().equals("confusable")) continue;
 
-            showPropertyValue(properties.get(i), cp, minVersion, maxVersion, out);
+            showPropertyValue(
+                    properties.get(i), cp, minVersion, maxVersion, originalParameters, out);
         }
         out.append("</table>\n");
 
@@ -1559,7 +1600,8 @@ public class UnicodeUtilities {
             UnicodeProperty prop = getFactory().getProperty(properties.get(i));
             if (prop.getName().equals("confusable")) continue;
 
-            showPropertyValue(properties.get(i), cp, minVersion, maxVersion, out);
+            showPropertyValue(
+                    properties.get(i), cp, minVersion, maxVersion, originalParameters, out);
         }
         out.append("</table>\n");
         out.append("</td></tr>\n");
@@ -1690,10 +1732,9 @@ public class UnicodeUtilities {
             int codePoint,
             VersionInfo minVersion,
             VersionInfo maxVersion,
+            List<String> originalParameters,
             Appendable out)
             throws IOException {
-        String defaultClass =
-                getFactory().getProperty(propName).isDefault(codePoint) ? " class='default'" : "";
         var indexedProperty = UcdProperty.forString(propName);
         final boolean provisional =
                 indexedProperty != null
@@ -1701,9 +1742,16 @@ public class UnicodeUtilities {
         class PropertyAssignment {
             VersionInfo first;
             VersionInfo last;
+            // The field `values` is null if the property does not exist in that range of versions.
+            // If the property has the value null (<none>), `values` is a one-element list whose
+            // sole element is null.
             ArrayList<String> values;
+            boolean isDefault;
+            int span;
         }
         final boolean isMultivalued = getFactory().getProperty(propName).isMultivalued();
+        final boolean isStringValued =
+                getFactory().getProperty(propName).isType(UnicodeProperty.STRING_MASK);
         List<PropertyAssignment> history = new ArrayList<>();
         if (getFactory().getProperty(propName)
                 instanceof IndexUnicodeProperties.IndexUnicodeProperty) {
@@ -1722,25 +1770,26 @@ public class UnicodeUtilities {
                     continue;
                 }
                 final var property = IndexUnicodeProperties.make(version).getProperty(propName);
-                // Skip properties prior to their creation, as well as properties that no longer
-                // exist on the range minVersion..maxVersion.
-                if (property.isTrivial()
-                        && !property.getName().equals("ISO_Comment")
-                        && history.isEmpty()) {
-                    continue;
+                ArrayList<String> values;
+                if (property.isTrivial() && !property.getName().equals("ISO_Comment")) {
+                    values = null;
+                } else {
+                    values = new ArrayList<>();
+                    property.getValues(codePoint).forEach(values::add);
                 }
-                ArrayList<String> values = new ArrayList<>();
-                property.getValues(codePoint).forEach(values::add);
                 PropertyAssignment lastAssignment =
                         history.isEmpty() ? null : history.get(history.size() - 1);
-                if (lastAssignment == null || (!values.equals(lastAssignment.values))) {
+                if (lastAssignment == null || (!Objects.equals(values, lastAssignment.values))) {
                     PropertyAssignment assignment = new PropertyAssignment();
                     assignment.first = version;
                     assignment.last = version;
                     assignment.values = values;
+                    assignment.isDefault = property.isDefault(codePoint);
+                    assignment.span = 1;
                     history.add(assignment);
                 } else {
                     lastAssignment.last = version;
+                    ++lastAssignment.span;
                 }
             }
         } else {
@@ -1751,15 +1800,11 @@ public class UnicodeUtilities {
             getFactory().getProperty(propName).getValues(codePoint).forEach(current.values::add);
             history.add(current);
         }
-        if (!history.isEmpty()) {
+        if (history.get(0).values != null || history.size() > 1) {
             out.append(
-                    "<tr><th width='50%'><a target='c' href='properties.jsp?a="
-                            + propName
-                            + "#"
-                            + propName
-                            + "'>"
+                    "<tr><th width='50%'>"
                             + (provisional ? "(" + propName + ")" : propName)
-                            + "</a></th>");
+                            + "</th>");
             for (PropertyAssignment assignment : history) {
                 String first =
                         assignment.first.getVersionString(2, 4)
@@ -1775,32 +1820,86 @@ public class UnicodeUtilities {
                         assignment.first.compareTo(Settings.LAST_VERSION_INFO) <= 0
                                 && Settings.LAST_VERSION_INFO.compareTo(assignment.last) <= 0;
                 boolean showVersion =
-                        minVersion.compareTo(Settings.LAST_VERSION_INFO) < 0 || history.size() > 1;
+                        indexedProperty != null
+                                && (minVersion.compareTo(Settings.LAST_VERSION_INFO) < 0
+                                        || history.size() > 1);
                 boolean isSingleVersion = assignment.first == assignment.last;
                 boolean isNew = assignment.first == Settings.LATEST_VERSION_INFO;
                 String versionRange =
                         (showVersion ? (isSingleVersion ? first : first + ".." + last) + ": " : "");
-                String htmlValue =
-                        assignment.values.stream()
-                                .map(v -> v == null ? "<i>null</i>" : toHTML.transliterate(v))
-                                .collect(Collectors.joining("<wbr>|"));
+                List<String> htmlValues =
+                        assignment.values == null
+                                ? null
+                                : assignment.values.stream()
+                                        .map(
+                                                v ->
+                                                        v == null
+                                                                ? "<i>null</i>"
+                                                                : toHTML.transliterate(v))
+                                        .collect(Collectors.toList());
+                String tdClass = "";
+                if (assignment.values == null) {
+                    tdClass = "class='nonexistent'";
+                } else if (assignment.isDefault) {
+                    tdClass = "class='default'";
+                }
+                String htmlEscapedPropertyPredicate = null;
+                if (!isMultivalued && htmlValues != null) {
+                    // The HTML value can contain a < even if it is not <i>null</i>, in the case of
+                    // control characters.  Since we do not yet support escapes in property
+                    // predicates, just don’t give a link in that case.
+                    if (!htmlValues.get(0).contains("<")) {
+                        htmlEscapedPropertyPredicate = htmlValues.get(0);
+                    } else if (assignment.values.get(0) == null) {
+                        htmlEscapedPropertyPredicate = "@none@";
+                    }
+                }
+                final String href =
+                        htmlEscapedPropertyPredicate == null
+                                ? null
+                                : "list-unicodeset.jsp?a=[:"
+                                        + (isCurrent ? "" : "U" + last + ":")
+                                        + propName
+                                        + "="
+                                        + htmlEscapedPropertyPredicate
+                                        + ":]";
+                final String aTag = href == null ? null : "<a target='u' href='" + href + "'>";
+                Stream<String> displayedValues = null;
+                if (assignment.values != null) {
+                    if (isStringValued && assignment.values.get(0) != null) {
+                        displayedValues =
+                                IntStream.range(0, assignment.values.size())
+                                        .mapToObj(
+                                                i ->
+                                                        (aTag == null ? "" : aTag)
+                                                                + htmlValues.get(i)
+                                                                + (aTag == null ? "" : "</a>")
+                                                                + "&nbsp;&lt;"
+                                                                + getHex(
+                                                                        assignment.values.get(i),
+                                                                        ", ",
+                                                                        false,
+                                                                        originalParameters)
+                                                                + "&gt;");
+                    } else {
+                        displayedValues =
+                                htmlValues.stream().map(x -> aTag == null ? x : aTag + x + "</a>");
+                    }
+                }
                 out.append(
-                        "<td"
-                                + defaultClass
+                        "<td "
+                                + tdClass
+                                + " colspan="
+                                + assignment.span
                                 + ">"
-                                + (isMultivalued || htmlValue.contains("<")
-                                        ? "<span" + (isNew ? " class='changed'" : "") + ">"
-                                        : ("<a target='u' "
-                                                + (isNew ? "class='changed' " : "")
-                                                + "href='list-unicodeset.jsp?a=[:"
-                                                + (isCurrent ? "" : "U" + last + ":")
-                                                + propName
-                                                + "="
-                                                + htmlValue
-                                                + ":]'>"))
-                                + versionRange
-                                + htmlValue
-                                + (isMultivalued || htmlValue.contains("<") ? "</span>" : "</a>")
+                                + (displayedValues != null
+                                        ? (isNew ? "<span class='changed'>" : "")
+                                                + versionRange
+                                                + (isStringValued && href != null ? "</a>" : "")
+                                                + displayedValues.collect(
+                                                        Collectors.joining("<wbr>|&#x2060;"))
+                                                + (isNew ? "</span>" : "")
+                                        : "")
                                 + "</td>");
             }
             out.append("</tr>");
@@ -1987,31 +2086,6 @@ public class UnicodeUtilities {
                             + "</a>)";
         }
         return result;
-    }
-
-    static Subheader getSubheader() {
-        if (subheader == null) {
-            // /home/users/jakarta/apache-tomcat-6.0.14/bin
-            // /home/users/jakarta/apache-tomcat-6.0.14/webapps/cldr/utility
-            subheader = new Subheader(UnicodeUtilities.class.getResourceAsStream("NamesList.txt"));
-            //      try {
-            //        final String unicodeDataDirectory = "../webapps/cldr/utility/";
-            //        //System.out.println(canonicalPath);
-            //        subheader = new Subheader(unicodeDataDirectory);
-            //      } catch (IOException e) {
-            //        try {
-            //          final String unicodeDataDirectory = "./jsp/";
-            //          subheader = new Subheader(unicodeDataDirectory);
-            //        } catch (IOException e2) {
-            //          final String[] list = new File("home").list();
-            //          String currentDirectory = list == null ? null : new
-            // TreeSet<String>(Arrays.asList(list)).toString();
-            //          throw (RuntimeException) new IllegalArgumentException("Can't find file
-            // starting from: <" + currentDirectory + ">").initCause(e);
-            //        }
-            //      }
-        }
-        return subheader;
     }
 
     // static IdnaLabelTester tester = null;
