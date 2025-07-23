@@ -15,7 +15,7 @@ with open("unikemet_diff.html", "w", encoding="utf-8") as f:
     <title>Changes to Unikemet properties between 17.0β and 17.0</title>
   </head>
   <body>
-    <p style=text-align:right>L2/25-XXX</p>
+    <p style=text-align:right>L2/25-178</p>
     <p>From: Robin Leroy</p>
     <p>Date: 2025-07-22</p>
   """, file=f)
