@@ -10,7 +10,7 @@
 white_space     [\x09-\x0D\x20]+
 literal_element [^\x09-\x0D\x20&\-\[\]\^\{\}$\\]
 
-escaped_element (?x:{ee1}|{ee2}|{ee3}|{ee4}|{ee5})
+escaped_element (?x:{ee1}|{ee2}|{ee3}|{ee4}|{ee5}|{ee6}|{ee7}|{ee8})
 ee1   \\x {up_to_two_hexadecimal_digits}
 ee2   \\u {four_hexadecimal_digits}
 ee3   \\U000 {five_hexadecimal_digits}
