@@ -1,0 +1,119 @@
+%ignore WHITE_SPACE
+
+unicode_set : factor | named_singleton
+factor : "[" union "]"
+       | complement
+       | PROPERTY_QUERY
+named_singleton : NAMED_ELEMENT
+complement : "[" "^" union "]"
+union : terms
+      | unescaped_hyphen_minus terms
+      | terms unescaped_hyphen_minus
+      | unescaped_hyphen_minus terms unescaped_hyphen_minus
+unescaped_hyphen_minus : "-"
+terms :
+      | terms term
+term : elements
+     | restriction
+
+restriction : factor
+            | intersection
+            | difference
+
+intersection : restriction "&" factor
+difference : restriction "-" unicode_set
+elements : element | range
+range : range_element "-" range_element
+range_element : LITERAL_ELEMENT
+              | ESCAPED_ELEMENT
+              | NAMED_ELEMENT
+              | BRACKETED_ELEMENT
+
+element : range_element | STRING_LITERAL
+
+WHITE_SPACE : /[\u200E\u200F\u0009-\u000D\u0085\u2028\u2029\u0020]/
+
+// https://www.unicode.org/reports/tr61/#literal-element
+LITERAL_ELEMENT : /[^\u200E\u200F\u0009-\u000D\u0085\u2028\u2029\u0020&\-\[\]\^{}$\\]/
+
+// https://www.unicode.org/reports/tr61/#escaped-element
+ESCAPED_ELEMENT : "\\x" UP_TO_TWO_HEXADECIMAL_DIGITS
+                | "\\u" FOUR_HEXADECIMAL_DIGITS
+                | "\\U000" FIVE_HEXADECIMAL_DIGITS
+                | "\\U0010" FOUR_HEXADECIMAL_DIGITS
+                | "\\x{" HEXADECIMAL_DIGITS "}"
+                | "\\" UP_TO_THREE_OCTAL_DIGITS
+                | "\\" ESCAPABLE_CHARACTER
+                | "\\a" | "\\b" | "\\t" | "\\n" | "\\v" | "\\f" | "\\r"
+UP_TO_THREE_OCTAL_DIGITS : OCTAL_DIGIT
+                         | OCTAL_DIGIT OCTAL_DIGIT
+                         | OCTAL_DIGIT OCTAL_DIGIT OCTAL_DIGIT
+UP_TO_TWO_HEXADECIMAL_DIGITS : HEXADECIMAL_DIGIT
+                             | HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT
+FOUR_HEXADECIMAL_DIGITS : HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT
+FIVE_HEXADECIMAL_DIGITS : HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT
+HEXADECIMAL_DIGITS : HEXADECIMAL_DIGIT+
+OCTAL_DIGIT : "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7"
+HEXADECIMAL_DIGIT : "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+                  | "A" | "B" | "C" | "D" | "E" | "F"
+                  | "a" | "b" | "c" | "d" | "e" | "f"
+
+// TODO(egg): Exclude pP
+ESCAPABLE_CHARACTER : /[^0-7uxUNabtnvfrpP]/
+
+// https://www.unicode.org/reports/tr61/#named-element
+NAMED_ELEMENT : "\\N{" UCD_IDENTIFIER "}"
+              | "\\xN{" HEXADECIMAL_DIGITS ":" UCD_IDENTIFIER "}"
+              | "\\xcN{" HEXADECIMAL_DIGITS ":" NAMED_LITERAL_ELEMENT ":" UCD_IDENTIFIER "}"
+UCD_IDENTIFIER : UCD_IDENTIFIER_CHARACTER+
+
+NAMED_LITERAL_ELEMENT : /[^:}]/
+UCD_IDENTIFIER_CHARACTER : /[A-Za-z0-9\ _-]/
+
+// https://www.unicode.org/reports/tr61/#Bracketed-Elements
+BRACKETED_ELEMENT : "{" STRING_ELEMENT "}"
+STRING_LITERAL : "{}"
+               | "{" STRING_ELEMENTS "}"
+STRING_ELEMENT : BRACKETED_LITERAL_ELEMENT | ESCAPED_ELEMENT | NAMED_ELEMENT
+STRING_ELEMENTS : STRING_ELEMENT STRING_ELEMENT+
+
+BRACKETED_LITERAL_ELEMENT : /[^\\}]/
+
+PROPERTY_QUERY : PERL_START QUERY_EXPRESSION PERL_END
+               | POSIX_START QUERY_EXPRESSION POSIX_END
+PERL_START : "\\p{" | "\\P{"
+PERL_END : "}"
+POSIX_START : "[:" | "[:^"
+POSIX_END : ":]"
+QUERY_EXPRESSION : UNARY_QUERY_EXPRESSION
+                 | BINARY_QUERY_EXPRESSION
+UNARY_QUERY_EXPRESSION : OPTIONAL_VERSION_QUALIFIER UCD_IDENTIFIER
+BINARY_QUERY_EXPRESSION : OPTIONAL_VERSION_QUALIFIER UCD_IDENTIFIER QUERY_OPERATOR PROPERTY_PREDICATE
+OPTIONAL_VERSION_QUALIFIER : VERSION_QUALIFIER?
+VERSION_QUALIFIER : "U" VERSION_NUMBER ":"
+                  | "U" VERSION_SUFFIX ":"
+                  | "U-1:"
+// TODO(egg): Grammar is wrong.
+VERSION_NUMBER : DIGITS OPTIONAL_SUFFIX
+               | DIGITS "." DIGITS OPTIONAL_SUFFIX
+               | DIGITS "." DIGITS "." DIGITS OPTIONAL_SUFFIX
+OPTIONAL_SUFFIX : VERSION_SUFFIX?
+VERSION_SUFFIX : "α" | "β" | "dev"
+DIGITS : DIGIT+
+DIGIT : "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+QUERY_OPERATOR : "=" | "≠"
+PROPERTY_PREDICATE : PROPERTY_VALUE
+                   | REGULAR_EXPRESSION_MATCH
+                   | PROPERTY_COMPARISON
+// TODO(egg): Grammar is wrong.
+PROPERTY_VALUE : PROPERTY_VALUE_ELEMENT+
+PROPERTY_VALUE_ELEMENT : LITERAL_VALUE_ELEMENT
+                       | ESCAPED_ELEMENT
+                       | NAMED_ELEMENT
+LITERAL_VALUE_ELEMENT : /[^\\:{}=≠\/@]/
+PROPERTY_COMPARISON : "@" UNARY_QUERY_EXPRESSION "@"
+REGULAR_EXPRESSION_MATCH : "/" REGULAR_EXPRESSION "/"
+REGULAR_EXPRESSION : REGULAR_EXPRESSION_CHARACTER*
+REGULAR_EXPRESSION_CHARACTER : REGEX_UNESCAPED | "\\" ANY
+REGEX_UNESCAPED : /[^\\]/
+ANY : /./
