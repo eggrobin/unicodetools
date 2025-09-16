@@ -14,3 +14,4 @@ for parser in (lalr_parser, early_parser):
   print(parser.parse("[ a - z ]").pretty("|"))
   print(parser.parse("[ [a - z] -       ]").pretty("|"))
   print(parser.parse("[ [a - z] - [c-x] ]").pretty("|"))
+  print(parser.parse("[:a-z]").pretty("|"))

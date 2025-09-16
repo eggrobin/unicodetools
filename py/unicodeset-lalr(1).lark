@@ -1,11 +1,11 @@
 %ignore WHITE_SPACE
 
 unicode_set : factor | named_singleton
-factor : "[" union "]"
+factor : OPENING_BRACKET union "]"
        | complement
        | PROPERTY_QUERY
 named_singleton : NAMED_ELEMENT
-complement : "[" "^" union "]"
+complement : OPENING_BRACKET "^" union "]"
 union : terms
       | unescaped_hyphen_minus terms
       | terms UNESCAPED_HYPHEN_MINUS_AT_END_OF_UNION
@@ -31,10 +31,21 @@ range_element : LITERAL_ELEMENT
 
 element : range_element | STRING_LITERAL
 
+ill_formed: ILL_FORMED
+
+ILL_FORMED: "[" IGNORABLE_FORMAT_CONTROL* ":"
+          | "\\" IGNORABLE_FORMAT_CONTROL
+          | "\\x" HEXADECIMAL_DIGIT IGNORABLE_FORMAT_CONTROL+ HEXADECIMAL_DIGIT
+          | "\\" OCTAL_DIGIT IGNORABLE_FORMAT_CONTROL+ OCTAL_DIGIT
+          | "\\" OCTAL_DIGIT OCTAL_DIGIT IGNORABLE_FORMAT_CONTROL+ OCTAL_DIGIT
+
+IGNORABLE_FORMAT_CONTROL : /[\u200E\u200F]/
 WHITE_SPACE : /[\u200E\u200F\u0009-\u000D\u0085\u2028\u2029\u0020]/
 
 // https://www.unicode.org/reports/tr61/#literal-element
 LITERAL_ELEMENT : /[^\u200E\u200F\u0009-\u000D\u0085\u2028\u2029\u0020&\-\[\]\^{}$\\]/
+
+OPENING_BRACKET : "[" /(?![\u200E\u200F]*:)/
 
 // https://www.unicode.org/reports/tr61/#escaped-element
 ESCAPED_ELEMENT : "\\x" UP_TO_TWO_HEXADECIMAL_DIGITS
@@ -45,10 +56,10 @@ ESCAPED_ELEMENT : "\\x" UP_TO_TWO_HEXADECIMAL_DIGITS
                 | "\\" UP_TO_THREE_OCTAL_DIGITS
                 | "\\" ESCAPABLE_CHARACTER
                 | "\\a" | "\\b" | "\\t" | "\\n" | "\\v" | "\\f" | "\\r"
-UP_TO_THREE_OCTAL_DIGITS : OCTAL_DIGIT
-                         | OCTAL_DIGIT OCTAL_DIGIT
+UP_TO_THREE_OCTAL_DIGITS : OCTAL_DIGIT /(?![\u200E\u200F]+[0-7])/
+                         | OCTAL_DIGIT OCTAL_DIGIT /(?![\u200E\u200F]+[0-7])/
                          | OCTAL_DIGIT OCTAL_DIGIT OCTAL_DIGIT
-UP_TO_TWO_HEXADECIMAL_DIGITS : HEXADECIMAL_DIGIT
+UP_TO_TWO_HEXADECIMAL_DIGITS : HEXADECIMAL_DIGIT /(?![\u200E\u200F]+[0-9A-Fa-f])/
                              | HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT
 FOUR_HEXADECIMAL_DIGITS : HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT
 FIVE_HEXADECIMAL_DIGITS : HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT
@@ -58,8 +69,7 @@ HEXADECIMAL_DIGIT : "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
                   | "A" | "B" | "C" | "D" | "E" | "F"
                   | "a" | "b" | "c" | "d" | "e" | "f"
 
-// TODO(egg): Exclude pP
-ESCAPABLE_CHARACTER : /[^0-7uxUNabtnvfrpP]/
+ESCAPABLE_CHARACTER : /[^0-7uxUNabtnvfrpP\u200E\u200F]/
 
 // https://www.unicode.org/reports/tr61/#named-element
 NAMED_ELEMENT : "\\N{" UCD_IDENTIFIER "}"
@@ -93,7 +103,6 @@ OPTIONAL_VERSION_QUALIFIER : VERSION_QUALIFIER?
 VERSION_QUALIFIER : "U" VERSION_NUMBER ":"
                   | "U" VERSION_SUFFIX ":"
                   | "U-1:"
-// TODO(egg): Grammar is wrong.
 VERSION_NUMBER : DIGITS OPTIONAL_SUFFIX
                | DIGITS "." DIGITS OPTIONAL_SUFFIX
                | DIGITS "." DIGITS "." DIGITS OPTIONAL_SUFFIX
