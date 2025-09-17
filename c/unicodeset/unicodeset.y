@@ -1,3 +1,8 @@
+%require "3.2"
+%language "c++"
+
+%define api.namespace {unicodeset}
+
 %{
 #include <stdio.h>
 

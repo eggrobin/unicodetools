@@ -2,9 +2,11 @@
 
 #include <stdio.h>
 
-#include "y.tab.h"
+#include "unicodeset.tab.hh"
 
 %}
+
+%option c++ noyywrap
 
 u8_0080_07FF     [\xC2-\xDF][\x80-\xBF]
 u8_0800_0FFF            \xE0[\xA0-\xBF][\x80-\xBF]
@@ -20,6 +22,10 @@ non_ascii {u8_0080_07FF}|{u8_0800_0FFF}|{u8_1000_CFFF}|{u8_D000_D7FF}|{u8_E000_F
 u8_1000_2259 \xE1[\x80-\xBF][\x80-\xBF]|\xE2[\x80-\x88][\x80-\xBF]|\xE2\x89[\x80-\x9F]
 u8_2261_CFFF \xE2\x89[\xA1-\xBF]|\xE2[\x90-\xBF][\x80-\xBF]|[\xE3-\xEC][\x80-\xBF][\x80-\xBF]
 non_ascii_except_2260 {u8_0080_07FF}|{u8_0800_0FFF}|{u8_1000_2259}|{u8_2261_CFFF}|{u8_D000_D7FF}|{u8_E000_FFFF}|{u8_10000_3FFFF}|{u8_40000_FFFFF}|{u8_100000_10FFFF}
+
+u8_1000_200D \xE1[\x80-\xBF][\x80-\xBF]|\xE2\x80[\x80-\x8D]
+u8_2010_CFFF \xE2\x80[\x90-\xBF]|\xE2[\x81-\xBF][\x80-\xBF]|[\xE3-\xEC][\x80-\xBF][\x80-\xBF]
+non_ascii_except_200E_200F {u8_0080_07FF}|{u8_0800_0FFF}|{u8_1000_200D}|{u8_2010_CFFF}|{u8_D000_D7FF}|{u8_E000_FFFF}|{u8_10000_3FFFF}|{u8_40000_FFFFF}|{u8_100000_10FFFF}
 
 white_space              {horizontal_white_space}|{vertical_white_space}|{ignorable_format_control}
 horizontal_white_space   [\x09\x20]
@@ -52,7 +58,7 @@ hexadecimal_digits {hexadecimal_digit}+
 hexadecimal_digit 0|1|2|3|4|5|6|7|8|9|A|B|C|D|E|F|a|b|c|d|e|f
 octal_digit 0|1|2|3|4|5|6|7
 
-escapable_character [^0-7uxUNabtnvfrpP\x80-\xFF]|{non_ascii}
+escapable_character [^0-7uxUNabtnvfrpP\x80-\xFF]|{non_ascii_except_200E_200F}
 
 named_element (?x:{ne1}|{ne2}|{ne3})
 ne1 \\N\{ {ucd_identifier} \}
@@ -116,41 +122,54 @@ any [^\x80-\xFF]|{non_ascii}
 }
 
 {literal_element} {
-  return literal_element;
+  return unicodeset::parser::token::literal_element;
 }
 
 {escaped_element} {
-  return escaped_element;
+  return unicodeset::parser::token::escaped_element;
 }
 
 {named_element} {
-  return named_element;
+  return unicodeset::parser::token::named_element;
 }
 
 {bracketed_element} {
-  return bracketed_element;
+  return unicodeset::parser::token::bracketed_element;
 }
 
 {string_literal} {
-  return string_literal;
+  return unicodeset::parser::token::string_literal;
 }
 
 {property_query} {
-  return property_query;
+  return unicodeset::parser::token::property_query;
 }
 
 -/{white_space}?\] {
-  return unescaped_hyphen_minus_at_end_of_union;
+  return unicodeset::parser::token::unescaped_hyphen_minus_at_end_of_union;
 }
 
-(?x:
- \\{ignorable_format_control}
-|\[{ignorable_format_control}*:
-|\\x{hexadecimal_digit}{ignorable_format_control}+{hexadecimal_digit}
-|\\x{octal_digit}{ignorable_format_control}+{octal_digit}
-|\\x{octal_digit}{octal_digit}{ignorable_format_control}+{octal_digit}
-|.) {
-  return lexical_error;
+\\{ignorable_format_control} {
+  LexerError("ignorable-format-control is not an escapable-character");
+}
+
+\[: {
+  LexerError("Ill-formed property-query");
+}
+
+\[{ignorable_format_control}+:                                        |
+\\x{hexadecimal_digit}{ignorable_format_control}+{hexadecimal_digit}  |
+\\x{octal_digit}{ignorable_format_control}+{octal_digit}              |
+\\x{octal_digit}{octal_digit}{ignorable_format_control}+{octal_digit} {
+  LexerError("ignorable-format-control within token");
+}
+
+[\x00-\x7F]|{non_ascii} {
+  LexerError("unrecognized token");
+}
+
+. {
+  LexerError("Ill-formed UTF-8");
 }
 
 <<EOF>> {
