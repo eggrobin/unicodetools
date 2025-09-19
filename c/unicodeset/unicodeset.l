@@ -2,11 +2,12 @@
 
 #include <stdio.h>
 
-#include "unicodeset.tab.hh"
+#include "unicodeset.h"
+#include "y.tab.h"
 
 %}
 
-%option c++ noyywrap
+%option noyywrap
 
 u8_0080_07FF     [\xC2-\xDF][\x80-\xBF]
 u8_0800_0FFF            \xE0[\xA0-\xBF][\x80-\xBF]
@@ -122,54 +123,60 @@ any [^\x80-\xFF]|{non_ascii}
 }
 
 {literal_element} {
-  return unicodeset::parser::token::literal_element;
+  yylval.code_point = unicodeset_GetOneCodePoint(&yytext);
+  return literal_element;
 }
 
 {escaped_element} {
-  return unicodeset::parser::token::escaped_element;
+  return escaped_element;
 }
 
 {named_element} {
-  return unicodeset::parser::token::named_element;
+  return named_element;
 }
 
 {bracketed_element} {
-  return unicodeset::parser::token::bracketed_element;
+  return bracketed_element;
 }
 
 {string_literal} {
-  return unicodeset::parser::token::string_literal;
+  return string_literal;
 }
 
 {property_query} {
-  return unicodeset::parser::token::property_query;
+  return property_query;
 }
 
 -/{white_space}?\] {
-  return unicodeset::parser::token::unescaped_hyphen_minus_at_end_of_union;
+  return unescaped_hyphen_minus_at_end_of_union;
 }
 
 \\{ignorable_format_control} {
-  LexerError("ignorable-format-control is not an escapable-character");
+  puts("ignorable-format-control is not an escapable-character");
+  return lexical_error;
 }
 
 \[: {
-  LexerError("Ill-formed property-query");
+  puts("Ill-formed property-query");
+  return lexical_error;
 }
 
 \[{ignorable_format_control}+:                                        |
 \\x{hexadecimal_digit}{ignorable_format_control}+{hexadecimal_digit}  |
-\\x{octal_digit}{ignorable_format_control}+{octal_digit}              |
-\\x{octal_digit}{octal_digit}{ignorable_format_control}+{octal_digit} {
-  LexerError("ignorable-format-control within token");
+\\{octal_digit}{ignorable_format_control}+{octal_digit}              |
+\\{octal_digit}{octal_digit}{ignorable_format_control}+{octal_digit} {
+  puts("ignorable-format-control within token");
+  return lexical_error;
 }
 
 [\x00-\x7F]|{non_ascii} {
-  LexerError("unrecognized token");
+  puts("unrecognized token");
+  return lexical_error;
 }
 
 . {
-  LexerError("Ill-formed UTF-8");
+  puts("Ill-formed UTF-8");
+  return lexical_error;
 }
 
 <<EOF>> {
@@ -177,7 +184,3 @@ any [^\x80-\xFF]|{non_ascii}
 }
 
 %%
-
-int yywrap(void) {
-  return 1;
-}

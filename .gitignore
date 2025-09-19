@@ -87,3 +87,8 @@ rules.mk
 .DS_Store
 /output
 /cldr
+
+# Lex/Yacc generated files
+lex.yy.c
+y.tab.h
+y.tab.c
