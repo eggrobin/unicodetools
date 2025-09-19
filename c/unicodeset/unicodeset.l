@@ -5,6 +5,9 @@
 #include "unicodeset.h"
 #include "y.tab.h"
 
+int string_element_count;
+UnicodeString* string = NULL;
+
 %}
 
 %option noyywrap
@@ -70,10 +73,12 @@ ucd_identifier {ucd_identifier_character}+
 named_literal_element [^:}]
 ucd_identifier_character [A-Za-z0-9\ _-]
 
+/*
 bracketed_element \{{string_element}\}
 string_literal \{\}|\{{string_elements}\}
 string_element {bracketed_literal_element}|{escaped_element}|{named_element}
 string_elements {string_element}{string_element}+
+*/
 
 bracketed_literal_element [^\\}\x80-\xFF]|{non_ascii}
 
@@ -89,7 +94,7 @@ optional_version_qualifier {version_qualifier}?
 version_qualifier (?x:{vq1}|{vq2}|{vq3})
 vq1  U {version_number} :
 vq2  U {version_suffix} :
-vq3  U_1:
+vq3  U-1:
 version_number (?x:{vn1}|{vn2}|{vn3})
 vn1 {digits} {optional_suffix}
 vn2 {digits} \. {digits} {optional_suffix}
@@ -100,6 +105,7 @@ digit 0|1|2|3|4|5|6|7|8|9
 digits {digit}+
 query_operator =|≠
 property_predicate {property_value}|{regular_expression_match}|{property_comparison}
+/* TODO(egg): property_value can be digits / digits */
 property_value {property_value_element}+
 property_value_element {literal_value_element}|{escaped_element}|{named_element}
 literal_value_element [^\\:{}=/@\x80-\xFF]|{non_ascii_except_2260}
@@ -110,6 +116,10 @@ regular_expression_character {regex_unescaped}|\\{any}
 
 regex_unescaped [^\\\x80-\xFF]|{non_ascii}
 any [^\x80-\xFF]|{non_ascii}
+
+%x bracketed
+%x property_query
+%x property_predicate
 
 %%
 
@@ -135,16 +145,84 @@ any [^\x80-\xFF]|{non_ascii}
   return named_element;
 }
 
-{bracketed_element} {
-  return bracketed_element;
+\{ {
+  BEGIN bracketed;
+  string_element_count = 0;
+  unicodeset_ClearString(&string);
 }
 
-{string_literal} {
-  return string_literal;
+<bracketed>{bracketed_literal_element} {
+  yylval.code_point = unicodeset_GetOneCodePoint(&yytext);
+  unicodeset_AppendToString(string, yylval.code_point);
+  ++string_element_count;
 }
 
-{property_query} {
-  return property_query;
+<bracketed>{escaped_element} {
+  
+}
+
+<bracketed>{named_element} {
+}
+
+<bracketed>\} {
+  BEGIN INITIAL;
+  if (string_element_count == 1) {
+    return bracketed_element;
+  } else {
+    yylval.set = unicodeset_SingletonString(string);
+    return string_literal;
+  }
+}
+
+{perl_start} {
+  BEGIN property_query;
+  yylval.negated = yytext[1] == 'P';
+  return perl_start;
+}
+
+{posix_start} {
+  BEGIN property_query;
+  yylval.negated = yyleng == 3;
+  return posix_start;
+}
+
+<property_query>{version_qualifier} {
+  return version_qualifier;
+}
+
+<property_query>{ucd_identifier} {
+  return ucd_identifier;
+}
+
+<property_query>{query_operator} {
+    BEGIN property_predicate;
+    return query_operator;
+}
+
+<property_query>@ {
+  return *yytext;
+}
+
+<property_query>{ucd_identifier} {
+  return ucd_identifier;
+}
+
+<property_query>{regular_expression_match} {
+  return regular_expression_match;
+}
+
+<property_query>{property_value} {
+  return property_value;
+}
+
+<property_query,property_predicate>{perl_end} {
+  BEGIN INITIAL;
+  return perl_end;
+}
+
+<property_query,property_predicate>{posix_end} {
+  BEGIN INITIAL;
+  return posix_end;
 }
 
 -/{white_space}?\] {
@@ -161,6 +239,11 @@ any [^\x80-\xFF]|{non_ascii}
   return lexical_error;
 }
 
+  /* These rules are only applicable to the INITIAL start condition:
+     Inside a string-literal or property-value, ignorable-format-control is not
+     ignored, and so it can separate tokens just like any other character,
+     including invisible characters.
+   */
 \[{ignorable_format_control}+:                                        |
 \\x{hexadecimal_digit}{ignorable_format_control}+{hexadecimal_digit}  |
 \\{octal_digit}{ignorable_format_control}+{octal_digit}              |
@@ -169,12 +252,13 @@ any [^\x80-\xFF]|{non_ascii}
   return lexical_error;
 }
 
-[\x00-\x7F]|{non_ascii} {
+<INITIAL,bracketed,property_query,property_predicate>[\x00-\x7F]|{non_ascii} {
   puts("unrecognized token");
+  ECHO;
   return lexical_error;
 }
 
-. {
+<INITIAL,bracketed,property_query,property_predicate>. {
   puts("Ill-formed UTF-8");
   return lexical_error;
 }

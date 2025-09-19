@@ -11,6 +11,7 @@ void yyerror(char* s);
 %union {
   char32_t code_point;
   UnicodeSet* set;
+  bool negated;
 }
 
 %token <code_point> literal_element
@@ -18,8 +19,17 @@ void yyerror(char* s);
 %token <code_point> named_element
 %token <code_point> bracketed_element
 %token <set> string_literal
-%token <set> property_query
 %token '&' '-' '[' ']' '^'
+
+%token <negated> perl_start
+%token <negated> posix_start
+%token perl_end
+%token posix_end
+%token version_qualifier
+%token ucd_identifier
+%token <negated> query_operator
+%token property_value
+%token regular_expression_match
 
 %token unescaped_hyphen_minus_at_end_of_union
 %token lexical_error
@@ -93,6 +103,25 @@ RangeElement : literal_element
 Element : RangeElement   { $$ = unicodeset_Range($1, $1); }
         | string_literal
         ;
+
+property_query : perl_start query_expression perl_end
+               | posix_start query_expression posix_end
+               ;
+
+query_expression : unary_query_expression
+                 | binary_query_expression
+                 ;
+unary_query_expression : optional_version_qualifier ucd_identifier;
+binary_query_expression : optional_version_qualifier ucd_identifier query_operator property_predicate;
+optional_version_qualifier :
+                           | version_qualifier
+                           ;
+property_predicate : property_value
+                   | regular_expression_match
+                   | property_comparison
+                   ;
+property_comparison : '@' unary_query_expression '@';
+
 
 %%
 

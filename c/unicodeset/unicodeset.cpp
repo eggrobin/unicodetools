@@ -6,6 +6,19 @@
 #include <string>
 
 using UnicodeSet = std::set<std::u32string>;
+using UnicodeString = std::u32string;
+
+extern "C" void unicodeset_ClearString(UnicodeString** s) {
+  if (*s == nullptr) {
+    *s = new UnicodeString;
+  } else {
+    (*s)->clear();
+  }
+}
+
+extern "C" void unicodeset_AppendToString(UnicodeString* string, char32_t code_point) {
+  string->push_back(code_point);
+}
 
 extern "C" UnicodeSet* unicodeset_Empty() {
   return new UnicodeSet;
@@ -39,12 +52,8 @@ extern "C" char32_t unicodeset_GetOneCodePoint(const char** const string) {
   return result;
 }
 
-extern "C" UnicodeSet* unicodeset_SingletonString(const char* string) {
-  std::u32string result;
-  while (*string != 0) {
-    result.push_back(unicodeset_GetOneCodePoint(&string));
-  }
-  return new UnicodeSet{result};
+extern "C" UnicodeSet* unicodeset_SingletonString(UnicodeString* string) {
+  return new UnicodeSet{*string};
 }
 
 extern "C" UnicodeSet* unicodeset_Range(char32_t first, char32_t last) {
