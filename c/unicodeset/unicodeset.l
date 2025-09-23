@@ -53,9 +53,9 @@ up_to_three_octal_digits (?x:{uo1}|{uo2}|{uo3})
 uo1   {octal_digit}
 uo2   {octal_digit} {octal_digit}
 uo3   {octal_digit} {octal_digit} {octal_digit}
-up_to_two_hexadecimal_digits (?x:{uh1}|{uh2})
+up_to_two_hexadecimal_digits {uh1}|{uh2}
 uh1 {hexadecimal_digit}
-uh2 {hexadecimal_digit} {hexadecimal_digit}
+uh2 {hexadecimal_digit}{hexadecimal_digit}
 four_hexadecimal_digits {hexadecimal_digit}{hexadecimal_digit}{hexadecimal_digit}{hexadecimal_digit}
 five_hexadecimal_digits {hexadecimal_digit}{hexadecimal_digit}{hexadecimal_digit}{hexadecimal_digit}{hexadecimal_digit}
 hexadecimal_digits {hexadecimal_digit}+
@@ -105,8 +105,10 @@ digit 0|1|2|3|4|5|6|7|8|9
 digits {digit}+
 query_operator =|≠
 property_predicate {property_value}|{regular_expression_match}|{property_comparison}
-/* TODO(egg): property_value can be digits / digits */
-property_value {property_value_element}+
+/* TODO(egg): Fix the grammar: property_value can be digits / digits */
+property_value {property_value_elements}|{rational}
+property_value_elements {property_value_element}+
+rational {digits}\/{digits}
 property_value_element {literal_value_element}|{escaped_element}|{named_element}
 literal_value_element [^\\:{}=/@\x80-\xFF]|{non_ascii_except_2260}
 property_comparison @{unary_query_expression}@
@@ -137,8 +139,28 @@ any [^\x80-\xFF]|{non_ascii}
   return literal_element;
 }
 
-{escaped_element} {
+\\x{up_to_two_hexadecimal_digits} |
+\\u{four_hexadecimal_digits}      |
+\\U000{five_hexadecimal_digits}   |
+\\U0010{four_hexadecimal_digits}  {
+  yylval.code_point = 0;
+  for (int i = 2; i < yyleng; ++i) {
+    yylval.code_point <<= 4;
+    yylval.code_point += yytext[i] >= 'a' ? yytext[i] - 'a' + 0xA
+                       : yytext[i] >= 'A' ? yytext[i] - 'A' + 0xA
+                       :                    yytext[i] - '0';
+  }
   return escaped_element;
+}
+
+\\{escapable_character} {
+  ++yytext;
+  yylval.code_point = unicodeset_GetOneCodePoint(&yytext);
+  return escaped_element;
+}
+
+\\a|\\b|\\t|\\n|\\v|\\f|\\r {
+
 }
 
 {named_element} {
@@ -196,23 +218,43 @@ any [^\x80-\xFF]|{non_ascii}
 
 <property_query>{query_operator} {
     BEGIN property_predicate;
+    unicodeset_ClearString(&string);
     return query_operator;
 }
 
-<property_query>@ {
+<property_predicate,property_query>@ {
+  BEGIN property_query;
   return *yytext;
 }
 
-<property_query>{ucd_identifier} {
-  return ucd_identifier;
-}
-
-<property_query>{regular_expression_match} {
+<property_predicate>{regular_expression_match} {
   return regular_expression_match;
 }
 
-<property_query>{property_value} {
-  return property_value;
+<property_predicate>{literal_value_element} {
+  unicodeset_AppendToString(string, unicodeset_GetOneCodePoint(&yytext));
+}
+
+<property_predicate>{escaped_element} {
+}
+
+<property_predicate>{named_element} {
+}
+
+<property_predicate>{literal_value_element}/{perl_end}|{posix_end} {
+  return property_value_elements;
+}
+
+<property_predicate>{escaped_element}/{perl_end}|{posix_end} {
+  return property_value_elements;
+}
+
+<property_predicate>{named_element}/{perl_end}|{posix_end} {
+  return property_value_elements;
+}
+
+<property_predicate>{rational} {
+  return rational;
 }
 
 <property_query,property_predicate>{perl_end} {
@@ -234,37 +276,31 @@ any [^\x80-\xFF]|{non_ascii}
   return lexical_error;
 }
 
-\[: {
-  puts("Ill-formed property-query");
-  return lexical_error;
-}
-
   /* These rules are only applicable to the INITIAL start condition:
      Inside a string-literal or property-value, ignorable-format-control is not
      ignored, and so it can separate tokens just like any other character,
      including invisible characters.
    */
-\[{ignorable_format_control}+:                                        |
-\\x{hexadecimal_digit}{ignorable_format_control}+{hexadecimal_digit}  |
+\[{ignorable_format_control}+:                                       |
+\\x{hexadecimal_digit}{ignorable_format_control}+{hexadecimal_digit} |
 \\{octal_digit}{ignorable_format_control}+{octal_digit}              |
 \\{octal_digit}{octal_digit}{ignorable_format_control}+{octal_digit} {
-  puts("ignorable-format-control within token");
+  printf("ignorable-format-control within token ");
+  ECHO;
+  printf("\n");
   return lexical_error;
 }
 
 <INITIAL,bracketed,property_query,property_predicate>[\x00-\x7F]|{non_ascii} {
-  puts("unrecognized token");
+  printf("unrecognized token ");
   ECHO;
+  printf("\n");
   return lexical_error;
 }
 
 <INITIAL,bracketed,property_query,property_predicate>. {
   puts("Ill-formed UTF-8");
   return lexical_error;
-}
-
-<<EOF>> {
-  return 0;
 }
 
 %%

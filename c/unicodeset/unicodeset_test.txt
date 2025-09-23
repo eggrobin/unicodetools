@@ -1,0 +1,20 @@
+<<<<<\p{XID_Continue}>>>>>
+<<<<<[\p{lb=OP}-[\p{ea=F}\p{ea=W}\p{ea=H}]]>>>>>
+<<<<<[
+  \p{Other_ID_Start}
+  \p{Other_ID_Continue}
+  \p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}
+  -\p{Pattern_Syntax}
+  -\p{Pattern_White_Space}
+]>>>>>
+<<<<<[\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}-[\u2E2F]]>>>>>
+<<<<<\p{Uppercase_Mapping≠@Simple_Uppercase_Mapping@}>>>>>
+<<<<<\p{U15.1:Simple_Case_Folding≠@U15.0:Simple_Case_Folding@}>>>>>
+<<<<<[\p{cjkDefinition=/\bcat\b/} \p{kEH_Desc=/\bcat\b/}]>>>>>
+<<<<<[\p{Case_Folding≠@code point@}-\p{Changes_When_Casefolded}]>>>>>
+<<<<<[\\\a]>>>>>
+<<<<<[\134\7]>>>>>
+<<<<<[\x5C\x7]>>>>>
+<<<<<[\u005C]>>>>>
+<<<<<[\x{05C}]>>>>>
+<<<<<[\U0000005C]>>>>>

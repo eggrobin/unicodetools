@@ -1,3 +1,4 @@
+%define parse.error verbose
 %{
 #include <stdio.h>
 
@@ -28,7 +29,8 @@ void yyerror(char* s);
 %token version_qualifier
 %token ucd_identifier
 %token <negated> query_operator
-%token property_value
+%token property_value_elements
+%token rational
 %token regular_expression_match
 
 %token unescaped_hyphen_minus_at_end_of_union
@@ -57,7 +59,7 @@ UnicodeSet : Factor         { unicodeset_ListCharacters($$); }
            ;
 Factor : '[' Union ']' { $$ = $2; }
        | Complement
-       | property_query
+       | property_query { $$ = unicodeset_Range('N', 'N'); }
        ;
 NamedSingleton : named_element {
   $$ = unicodeset_Range($1, $1);
@@ -116,7 +118,7 @@ binary_query_expression : optional_version_qualifier ucd_identifier query_operat
 optional_version_qualifier :
                            | version_qualifier
                            ;
-property_predicate : property_value
+property_predicate : property_value_elements
                    | regular_expression_match
                    | property_comparison
                    ;
@@ -127,8 +129,4 @@ property_comparison : '@' unary_query_expression '@';
 
 void yyerror(char* s) {
   puts(s);
-}
-
-int main(int argc, char** argv) {
-  return yyparse();
 }

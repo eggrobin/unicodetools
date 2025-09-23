@@ -16,7 +16,11 @@ bin/unicodeset.o : unicodeset.cpp | unicodeset.h
 	mkdir -p bin
 	clang++-20 -c -g --std=c++23 --stdlib=libc++ $^ -o $@
 
-bin/unicodeset_parser : bin/y.tab.o bin/lex.yy.o bin/unicodeset.o
+bin/unicodeset_test.o : unicodeset_test.cpp
+	mkdir -p bin
+	clang++-20 -c -g --std=c++23 --stdlib=libc++ $^ -o $@
+
+bin/unicodeset_test : bin/y.tab.o bin/lex.yy.o bin/unicodeset.o bin/unicodeset_test.o
 	mkdir -p bin
 	clang++-20 $^ --std=c++23 --stdlib=libc++ -o $@
 
