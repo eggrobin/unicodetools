@@ -7,6 +7,7 @@
 #include "unicodeset.h"
 
 extern "C" void unicodeset_Free();
+extern "C" int yylex();
 extern "C" int yyparse();
 extern "C" std::FILE* yyin;
 
@@ -27,8 +28,11 @@ int main(int argc, char** argv) {
       out.write(expression.data(), expression.size());
       out.close();
       yyin = fopen("unicodeset_temp.txt", "r");
-      const int result = yyparse();
-      std::println("Parsed {}: {}", expression, result);
+      const int error = yyparse();
+      if (error) {
+        while (yylex()) {}
+      }
+      std::println("{} Parsed {}: {}", error == 0 ? "---" : "***", expression, error);
     }
   }
 }

@@ -126,3 +126,48 @@ extern "C" void unicodeset_ListCharacters(UnicodeSet* set) {
   }
   std::println("]");
 }
+
+extern "C" char32_t unicodeset_GetEscapedElement(const char* string, int length) {
+  switch(string[1]) {
+    case 'u':
+    case 'U':
+    case 'x': {
+      char32_t result = 0;
+      const int bracket_offset = string[2] == '{' ? 1 : 0;
+      for (int i = 2 + bracket_offset; i < length - bracket_offset; ++i) {
+        result <<= 4;
+        result += string[i] >= 'a' ? string[i] - 'a' + 0xA
+                : string[i] >= 'A' ? string[i] - 'A' + 0xA
+                :                    string[i] - '0';
+        if (result > 0x10FFFF) {
+          return 0xFFFFFFFF;
+        }
+      }
+      return result;
+    }
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7': {
+      char32_t result = 0;
+      for (int i = 2; i < length; ++i) {
+        result <<= 2;
+        result += string[i] - '0';
+      }
+      return result;
+    }
+    case 'a': return 0x7;
+    case 'b': return 0x8;
+    case 't': return 0x9;
+    case 'n': return 0xA;
+    case 'v': return 0xB;
+    case 'f': return 0xC;
+    case 'r': return 0xD;
+    default:
+      return unicodeset_GetOneCodePoint(&string);
+  }
+}

@@ -139,28 +139,9 @@ any [^\x80-\xFF]|{non_ascii}
   return literal_element;
 }
 
-\\x{up_to_two_hexadecimal_digits} |
-\\u{four_hexadecimal_digits}      |
-\\U000{five_hexadecimal_digits}   |
-\\U0010{four_hexadecimal_digits}  {
-  yylval.code_point = 0;
-  for (int i = 2; i < yyleng; ++i) {
-    yylval.code_point <<= 4;
-    yylval.code_point += yytext[i] >= 'a' ? yytext[i] - 'a' + 0xA
-                       : yytext[i] >= 'A' ? yytext[i] - 'A' + 0xA
-                       :                    yytext[i] - '0';
-  }
-  return escaped_element;
-}
-
-\\{escapable_character} {
-  ++yytext;
-  yylval.code_point = unicodeset_GetOneCodePoint(&yytext);
-  return escaped_element;
-}
-
-\\a|\\b|\\t|\\n|\\v|\\f|\\r {
-
+{escaped_element} {
+  yylval.code_point = unicodeset_GetEscapedElement(yytext, yyleng);
+  return yylval.code_point > 0x10FFFF ? lexical_error : escaped_element;
 }
 
 {named_element} {

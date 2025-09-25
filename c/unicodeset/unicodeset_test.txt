@@ -1,20 +1,54 @@
-<<<<<\p{XID_Continue}>>>>>
-<<<<<[\p{lb=OP}-[\p{ea=F}\p{ea=W}\p{ea=H}]]>>>>>
+# Basic examples from the introduction.
+<<<<<\p{XID_Continue}>>>>>;;
+<<<<<[\p{lb=OP}-[\p{ea=F}\p{ea=W}\p{ea=H}]]>>>>>;;
 <<<<<[
   \p{Other_ID_Start}
   \p{Other_ID_Continue}
   \p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}
   -\p{Pattern_Syntax}
   -\p{Pattern_White_Space}
-]>>>>>
-<<<<<[\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}-[\u2E2F]]>>>>>
-<<<<<\p{Uppercase_Mapping≠@Simple_Uppercase_Mapping@}>>>>>
-<<<<<\p{U15.1:Simple_Case_Folding≠@U15.0:Simple_Case_Folding@}>>>>>
-<<<<<[\p{cjkDefinition=/\bcat\b/} \p{kEH_Desc=/\bcat\b/}]>>>>>
-<<<<<[\p{Case_Folding≠@code point@}-\p{Changes_When_Casefolded}]>>>>>
-<<<<<[\\\a]>>>>>
-<<<<<[\134\7]>>>>>
-<<<<<[\x5C\x7]>>>>>
-<<<<<[\u005C]>>>>>
-<<<<<[\x{05C}]>>>>>
-<<<<<[\U0000005C]>>>>>
+]>>>>>;;
+<<<<<[\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}-[\u2E2F]]>>>>>;;
+# Advanced examples from the introduction.
+<<<<<\p{Uppercase_Mapping≠@Simple_Uppercase_Mapping@}>>>>>;;
+<<<<<\p{U15.1:Simple_Case_Folding≠@U15.0:Simple_Case_Folding@}>>>>>;;
+<<<<<[\p{cjkDefinition=/\bcat\b/} \p{kEH_Desc=/\bcat\b/}]>>>>>;;
+<<<<<[\p{Case_Folding≠@code point@}-\p{Changes_When_Casefolded}]>>>>>;;
+# Example from the note on white-space.
+<<<<<[\00]>>>>>;;
+<<<<<[\0 0]>>>>>;;
+# Characters that are not escapable-characters.
+<<<<<[\u]>>>>>;u is not an escapable-character;
+<<<<<[\x]>>>>>;x is not an escapable-character;
+<<<<<[\U]>>>>>;U is not an escapable-character;
+<<<<<[\N]>>>>>;N is not an escapable-character;
+<<<<<[\p]>>>>>;p is not an escapable-character;
+<<<<<[\P]>>>>>;P is not an escapable-character;
+# Examples of escaped-element.
+<<<<<[\\\a]>>>>>;;
+<<<<<[\134\7]>>>>>;;
+<<<<<[\x5C\x7]>>>>>;;
+<<<<<[\u005C]>>>>>;;
+<<<<<[\x{05C}]>>>>>;;
+<<<<<[\U0000005C]>>>>>;;
+<<<<<[\x{110000}]>>>>>;0x110000 is not a code point;
+# Examples of named-element.
+<<<<<\N{SPACE}>>>>>;;
+<<<<<\xN{0020:SPACE}>>>>>;;
+<<<<<\xcN{20: :SPACE}>>>>>;;
+<<<<<\N{THIS IS NOT A CHARACTER}>>>>>;No character name matches THIS IS NOT A CHARACTER;
+<<<<<\xN{0A:LATIN CAPITAL LETTER A}>>>>>;U+000A is not LATIN CAPITAL LETTER A;
+<<<<<\xcN{41:a:LATIN CAPITAL LETTER A}>>>>>;U+0041 A is not a;
+<<<<<\N{PRESENTATION FORM FOR VERTICAL RIGHT WHITE LENTICULAR BRAKCET}>>>>>;;
+<<<<<\N{PRESENTATION FORM FOR VERTICAL RIGHT WHITE LENTICULAR BRACKET}>>>>>;;
+<<<<<\N{Latin small ligature o-e}>>>>>;;
+<<<<<\N{LATIN SMALL LIGATURE OE}>>>>>;;
+<<<<<\N{Hangul jungseong O-E}>>>>>;;
+<<<<<\N{Hangul jungseong OE}>>>>>;;
+# Some bracketed-literals and string-literals using the escapes above.
+<<<<<[{}]>>>>>;;
+<<<<<[{string}]>>>>>;;
+<<<<<[{a string}]>>>>>;;
+<<<<<[{\\\a\134\7\x5C\x7\u005C\x{05C}\U0000005C}]>>>>>;;
+<<<<<[{\x{110000}}]>>>>>;0x110000 is not a code point;
+<<<<<[{\N{SPACE}\xN{0020:SPACE}\xcN{20: :SPACE}}]>>>>>;;

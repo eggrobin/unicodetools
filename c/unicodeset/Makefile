@@ -24,6 +24,9 @@ bin/unicodeset_test : bin/y.tab.o bin/lex.yy.o bin/unicodeset.o bin/unicodeset_t
 	mkdir -p bin
 	clang++-20 $^ --std=c++23 --stdlib=libc++ -o $@
 
+test : bin/unicodeset_test
+	$^
+
 clean:
 	rm lex.yy.c
 	rm y.tab.*

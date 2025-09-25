@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 int yylex(void);
-void yyerror(char* s);
+void yyerror(const char* s);
 
 #include "unicodeset.h"
 
@@ -54,15 +54,15 @@ void yyerror(char* s);
 
 %%
 
-UnicodeSet : Factor         { unicodeset_ListCharacters($$); }
-           | NamedSingleton { unicodeset_ListCharacters($$); }
+UnicodeSet : Factor         {}
+           | NamedSingleton {}
            ;
 Factor : '[' Union ']' { $$ = $2; }
        | Complement
        | property_query { $$ = unicodeset_Range('N', 'N'); }
        ;
 NamedSingleton : named_element {
-  $$ = unicodeset_Range($1, $1);
+  $$ = unicodeset_Range('N', 'N');
 };
 Complement : '[' '^' Union ']' {
   $$ = unicodeset_Difference(unicodeset_Range(0, 0x10FFFF), $3);
@@ -127,6 +127,6 @@ property_comparison : '@' unary_query_expression '@';
 
 %%
 
-void yyerror(char* s) {
+void yyerror(const char* s) {
   puts(s);
 }

@@ -5,6 +5,7 @@ typedef struct String String;
 typedef struct UnicodeSet UnicodeSet;
 typedef struct UnicodeString UnicodeString;
 
+char32_t unicodeset_GetEscapedElement(const char* const string, int length);
 char32_t unicodeset_GetOneCodePoint(char** string);
 void unicodeset_ClearString(UnicodeString**);
 void unicodeset_AppendToString(UnicodeString* string, char32_t code_point);
