@@ -106,11 +106,11 @@ digits {digit}+
 query_operator =|≠
 property_predicate {property_value}|{regular_expression_match}|{property_comparison}
 /* TODO(egg): Fix the grammar: property_value can be digits / digits */
-property_value {property_value_elements}|{rational}
-property_value_elements {property_value_element}+
-rational {digits}\/{digits}
+property_value {initial_property_value_element}{property_value_element}*
+initial_property_value_element {initial_literal_value_element}|{escaped_element}|{named_element}
 property_value_element {literal_value_element}|{escaped_element}|{named_element}
-literal_value_element [^\\:{}=/@\x80-\xFF]|{non_ascii_except_2260}
+literal_value_element {initial_literal_value_element}|\/
+initial_literal_value_element [^\\:{}=/@\x80-\xFF]|{non_ascii_except_2260}
 property_comparison @{unary_query_expression}@
 regular_expression_match \/{regular_expression}\/
 regular_expression {regular_expression_character}+
@@ -218,7 +218,7 @@ any [^\x80-\xFF]|{non_ascii}
     return query_operator;
 }
 
-<property_predicate,property_query>@ {
+<property_predicate>@ {
   BEGIN property_query;
   return *yytext;
 }
@@ -227,30 +227,39 @@ any [^\x80-\xFF]|{non_ascii}
   return regular_expression_match;
 }
 
-<property_predicate>{literal_value_element} {
+<property_predicate,property_value>{initial_literal_value_element} {
+  BEGIN property_value;
   unicodeset_AppendToString(string, unicodeset_GetOneCodePoint(&yytext));
 }
 
-<property_predicate>{escaped_element} {
+<property_predicate,property_value>{escaped_element} {
+  BEGIN property_value;
+  unicodeset_AppendToString(string, unicodeset_GetEscapedElement(yytext, yyleng));
 }
 
-<property_predicate>{named_element} {
+<property_predicate,property_value>{named_element} {
+  BEGIN property_value;
+  unicodeset_AppendToString(string, unicodeset_GetNamedElement(yytext, yyleng));
+}
+
+<property_value>\/ {
+  BEGIN property_value
+  unicodeset_AppendToString(string, '/');
 }
 
 <property_predicate>{literal_value_element}/{perl_end}|{posix_end} {
-  return property_value_elements;
+  unicodeset_AppendToString(string, unicodeset_GetOneCodePoint(&yytext));
+  return property_value;
 }
 
 <property_predicate>{escaped_element}/{perl_end}|{posix_end} {
-  return property_value_elements;
+  unicodeset_AppendToString(string, unicodeset_GetEscapedElement(yytext, yyleng));
+  return property_value;
 }
 
 <property_predicate>{named_element}/{perl_end}|{posix_end} {
-  return property_value_elements;
-}
-
-<property_predicate>{rational} {
-  return rational;
+  unicodeset_AppendToString(string, unicodeset_GetOneCodePoint(&yytext));
+  return property_value;
 }
 
 <property_query,property_predicate>{perl_end} {

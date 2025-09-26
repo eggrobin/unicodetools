@@ -31,8 +31,7 @@ UnicodeSet* unicodeset_parse_result;
 %token version_qualifier
 %token ucd_identifier
 %token <negated> query_operator
-%token property_value_elements
-%token rational
+%token property_value
 %token regular_expression_match
 
 %token unescaped_hyphen_minus_at_end_of_union
@@ -120,7 +119,7 @@ binary_query_expression : optional_version_qualifier ucd_identifier query_operat
 optional_version_qualifier :
                            | version_qualifier
                            ;
-property_predicate : property_value_elements
+property_predicate : property_value
                    | regular_expression_match
                    | property_comparison
                    ;
