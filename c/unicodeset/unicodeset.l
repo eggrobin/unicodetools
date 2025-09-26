@@ -145,6 +145,10 @@ any [^\x80-\xFF]|{non_ascii}
 }
 
 {named_element} {
+  yylval.code_point = unicodeset_GetNamedElement(yytext, yyleng);
+  if (yylval.code_point > 0x10FFFF) {
+    return lexical_error;
+  }
   return named_element;
 }
 
@@ -161,10 +165,21 @@ any [^\x80-\xFF]|{non_ascii}
 }
 
 <bracketed>{escaped_element} {
-  
+  yylval.code_point = unicodeset_GetEscapedElement(yytext, yyleng);
+  if (yylval.code_point > 0x10FFFF) {
+    return lexical_error;
+  }
+  unicodeset_AppendToString(string, yylval.code_point);
+  ++string_element_count;
 }
 
 <bracketed>{named_element} {
+  yylval.code_point = unicodeset_GetNamedElement(yytext, yyleng);
+  if (yylval.code_point > 0x10FFFF) {
+    return lexical_error;
+  }
+  unicodeset_AppendToString(string, yylval.code_point);
+  ++string_element_count;
 }
 
 <bracketed>\} {

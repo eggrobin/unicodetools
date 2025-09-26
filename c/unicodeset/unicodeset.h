@@ -6,6 +6,7 @@ typedef struct UnicodeSet UnicodeSet;
 typedef struct UnicodeString UnicodeString;
 
 char32_t unicodeset_GetEscapedElement(const char* const string, int length);
+char32_t unicodeset_GetNamedElement(const char* const string, int length);
 char32_t unicodeset_GetOneCodePoint(char** string);
 void unicodeset_ClearString(UnicodeString**);
 void unicodeset_AppendToString(UnicodeString* string, char32_t code_point);
@@ -15,4 +16,3 @@ UnicodeSet* unicodeset_Range(char32_t first, char32_t last);
 UnicodeSet* unicodeset_Union(UnicodeSet* left, UnicodeSet* right);
 UnicodeSet* unicodeset_Intersection(UnicodeSet* left, UnicodeSet* right);
 UnicodeSet* unicodeset_Difference(UnicodeSet* left, UnicodeSet* right);
-void unicodeset_ListCharacters(UnicodeSet* set);

@@ -7,6 +7,8 @@ void yyerror(const char* s);
 
 #include "unicodeset.h"
 
+UnicodeSet* unicodeset_parse_result;
+
 %}
 
 %union {
@@ -54,15 +56,15 @@ void yyerror(const char* s);
 
 %%
 
-UnicodeSet : Factor         {}
-           | NamedSingleton {}
+UnicodeSet : Factor         { unicodeset_parse_result = $$ = $1; }
+           | NamedSingleton { unicodeset_parse_result = $$ = $1; }
            ;
 Factor : '[' Union ']' { $$ = $2; }
        | Complement
        | property_query { $$ = unicodeset_Range('N', 'N'); }
        ;
 NamedSingleton : named_element {
-  $$ = unicodeset_Range('N', 'N');
+  $$ = unicodeset_Range($1, $1);
 };
 Complement : '[' '^' Union ']' {
   $$ = unicodeset_Difference(unicodeset_Range(0, 0x10FFFF), $3);

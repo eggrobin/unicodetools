@@ -6,6 +6,8 @@
 #include <set>
 #include <string>
 
+#include "names.hpp"
+
 using UnicodeSet = std::set<std::u32string>;
 using UnicodeString = std::u32string;
 
@@ -48,26 +50,24 @@ extern "C" UnicodeSet* unicodeset_Empty() {
 extern "C" char32_t unicodeset_GetOneCodePoint(const char** const string) {
   const std::uint8_t* s = reinterpret_cast<const std::uint8_t*>(*string);
   char32_t result;
-  while (*s != 0) {
-    if (s[0] < 0b01111111) {
-      result = s[0];
-      ++s;
-    } else if(s[0] < 0b11100000) {
-      result = ((s[0] & 0b00011111) << 6) |
-               (s[1] & 0b00111111);
-      s += 2;
-    } else if(s[0] < 0b11110000) {
-      result = ((s[0] & 0b00001111) << 12) |
-               ((s[1] & 0b00111111) << 6) |
-                (s[2] & 0b00111111);
-      s += 3;
-    } else {
-      result = ((s[0] & 0b00000111) << 18) |
-               ((s[1] & 0b00111111) << 12) |
-               ((s[2] & 0b00111111) << 6)  |
-                (s[3] & 0b00111111);
-      s += 4;
-    }
+  if (s[0] < 0b01111111) {
+    result = s[0];
+    ++s;
+  } else if(s[0] < 0b11100000) {
+    result = ((s[0] & 0b00011111) << 6) |
+              (s[1] & 0b00111111);
+    s += 2;
+  } else if(s[0] < 0b11110000) {
+    result = ((s[0] & 0b00001111) << 12) |
+              ((s[1] & 0b00111111) << 6) |
+              (s[2] & 0b00111111);
+    s += 3;
+  } else {
+    result = ((s[0] & 0b00000111) << 18) |
+              ((s[1] & 0b00111111) << 12) |
+              ((s[2] & 0b00111111) << 6)  |
+              (s[3] & 0b00111111);
+    s += 4;
   }
   *string = reinterpret_cast<const char*>(s);
   return result;
@@ -110,21 +110,51 @@ extern "C" UnicodeSet* unicodeset_Difference(UnicodeSet* left,
   return result;
 }
 
-extern "C" void unicodeset_ListCharacters(UnicodeSet* set) {
-  std::println();
-  std::print("[");
-  for (const std::u32string& s : *set) {
-    if (s.size() != 1) {
-      std::print("{{");
-    }
-    for (const char32_t c : s) {
-      std::print(R"(\x{{{:04x}}})", static_cast<std::uint32_t>(c));
-    }
-    if (s.size() != 1) {
-      std::print("}}");
+namespace {
+char32_t hexToCodePoint(std::string_view hex) {
+  char32_t result = 0;
+  for (const char c : hex) {
+    result <<= 4;
+    result += c >= 'a' ? c - 'a' + 0xA
+            : c >= 'A' ? c - 'A' + 0xA
+            :            c - '0';
+    if (result > 0x10FFFF) {
+      return 0xFFFF'FFFF;
     }
   }
-  std::println("]");
+  return result;
+}
+}
+
+extern "C" char32_t unicodeset_GetNamedElement(const char* string, int length) {
+  if (string[1] == 'x') {
+    const char* nameStart;
+    char32_t codePoint;
+    if (string[2] == 'c') {
+      const char* const hexStart = string + 5;
+      const char* const hexEnd = strchr(hexStart, ':');
+      codePoint = hexToCodePoint({hexStart, hexEnd});
+      nameStart = hexEnd + 1;
+      const char32_t literal = unicodeset_GetOneCodePoint(&nameStart); 
+      if (literal != codePoint) {
+        return 0xFFFF'FFFF;
+      }
+      ++nameStart;
+    } else {
+      const char* hexStart = string + 4;
+      const char* hexEnd = strchr(hexStart, ':');
+      codePoint = hexToCodePoint({hexStart, hexEnd});
+      nameStart = hexEnd + 1;
+    }
+    const auto byName = unicode::lookupByName({nameStart, string + length - 1});
+    if (codePoint != byName) {
+      return 0xFFFF'FFFF;
+    }
+    return codePoint;
+  } else {
+    const auto byName = unicode::lookupByName({string + 3, string + length - 1});
+    return byName.value_or(0xFFFF'FFFF);
+  }
 }
 
 extern "C" char32_t unicodeset_GetEscapedElement(const char* string, int length) {
@@ -132,18 +162,8 @@ extern "C" char32_t unicodeset_GetEscapedElement(const char* string, int length)
     case 'u':
     case 'U':
     case 'x': {
-      char32_t result = 0;
       const int bracket_offset = string[2] == '{' ? 1 : 0;
-      for (int i = 2 + bracket_offset; i < length - bracket_offset; ++i) {
-        result <<= 4;
-        result += string[i] >= 'a' ? string[i] - 'a' + 0xA
-                : string[i] >= 'A' ? string[i] - 'A' + 0xA
-                :                    string[i] - '0';
-        if (result > 0x10FFFF) {
-          return 0xFFFFFFFF;
-        }
-      }
-      return result;
+      return hexToCodePoint({string + 2 + bracket_offset, string + length - bracket_offset});
     }
     case '0':
     case '1':

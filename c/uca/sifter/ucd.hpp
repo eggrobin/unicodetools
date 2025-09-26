@@ -3,6 +3,8 @@
 #pragma once
 #include <algorithm>
 #include <array>
+#include <charconv>
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
