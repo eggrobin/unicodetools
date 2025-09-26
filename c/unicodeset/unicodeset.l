@@ -122,6 +122,7 @@ any [^\x80-\xFF]|{non_ascii}
 %x bracketed
 %x property_query
 %x property_predicate
+%x property_value_elements
 
 %%
 
@@ -218,48 +219,53 @@ any [^\x80-\xFF]|{non_ascii}
     return query_operator;
 }
 
-<property_predicate>@ {
+<property_predicate,property_query>@ {
   BEGIN property_query;
   return *yytext;
 }
 
-<property_predicate>{regular_expression_match} {
+<property_predicate>{regular_expression_match}/{perl_end}|{posix_end} {
   return regular_expression_match;
 }
 
-<property_predicate,property_value>{initial_literal_value_element} {
-  BEGIN property_value;
+<property_predicate,property_value_elements>{initial_literal_value_element}/{perl_end}|{posix_end} {
+  BEGIN property_query;
   unicodeset_AppendToString(string, unicodeset_GetOneCodePoint(&yytext));
 }
 
-<property_predicate,property_value>{escaped_element} {
-  BEGIN property_value;
+<property_predicate,property_value_elements>{escaped_element}/{perl_end}|{posix_end} {
+  BEGIN property_query;
   unicodeset_AppendToString(string, unicodeset_GetEscapedElement(yytext, yyleng));
 }
 
-<property_predicate,property_value>{named_element} {
-  BEGIN property_value;
+<property_predicate,property_value_elements>{named_element}/{perl_end}|{posix_end} {
+  BEGIN property_query;
   unicodeset_AppendToString(string, unicodeset_GetNamedElement(yytext, yyleng));
 }
 
-<property_value>\/ {
-  BEGIN property_value
+<property_value_elements>\//{perl_end}|{posix_end} {
+  BEGIN property_value_elements;
   unicodeset_AppendToString(string, '/');
 }
 
-<property_predicate>{literal_value_element}/{perl_end}|{posix_end} {
+<property_predicate,property_value_elements>{initial_literal_value_element} {
+  BEGIN property_value_elements;
   unicodeset_AppendToString(string, unicodeset_GetOneCodePoint(&yytext));
-  return property_value;
 }
 
-<property_predicate>{escaped_element}/{perl_end}|{posix_end} {
+<property_predicate,property_value_elements>{escaped_element} {
+  BEGIN property_value_elements;
   unicodeset_AppendToString(string, unicodeset_GetEscapedElement(yytext, yyleng));
-  return property_value;
 }
 
-<property_predicate>{named_element}/{perl_end}|{posix_end} {
-  unicodeset_AppendToString(string, unicodeset_GetOneCodePoint(&yytext));
-  return property_value;
+<property_predicate,property_value_elements>{named_element} {
+  BEGIN property_value_elements;
+  unicodeset_AppendToString(string, unicodeset_GetNamedElement(yytext, yyleng));
+}
+
+<property_value_elements>\/ {
+  BEGIN property_value_elements;
+  unicodeset_AppendToString(string, '/');
 }
 
 <property_query,property_predicate>{perl_end} {
@@ -296,14 +302,14 @@ any [^\x80-\xFF]|{non_ascii}
   return lexical_error;
 }
 
-<INITIAL,bracketed,property_query,property_predicate>[\x00-\x7F]|{non_ascii} {
+<INITIAL,bracketed,property_query,property_predicate,property_value_elements>[\x00-\x7F]|{non_ascii} {
   printf("unrecognized token ");
   ECHO;
   printf("\n");
   return lexical_error;
 }
 
-<INITIAL,bracketed,property_query,property_predicate>. {
+<INITIAL,bracketed,property_query,property_predicate,property_value_elements>. {
   puts("Ill-formed UTF-8");
   return lexical_error;
 }
