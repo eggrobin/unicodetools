@@ -21,10 +21,13 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import org.unicode.idna.Idna.IdnaType;
 import org.unicode.idna.Idna2003;
@@ -36,6 +39,9 @@ import org.unicode.props.UnicodeProperty;
 import org.unicode.props.UnicodeProperty.AliasAddAction;
 import org.unicode.props.UnicodeProperty.BaseProperty;
 import org.unicode.props.UnicodeProperty.SimpleProperty;
+import org.unicode.text.UCA.CEList;
+import org.unicode.text.UCA.UCA;
+import org.unicode.text.UCA.UCA.UCAContents;
 import org.unicode.text.UCD.VersionedProperty;
 import org.unicode.text.utility.Settings;
 import org.unicode.text.utility.Utility;
@@ -272,99 +278,67 @@ public class XPropertyFactory extends UnicodeProperty.Factory {
     }
 
     private void addCollationProperty() {
-        RuleBasedCollator c = UnicodeSetUtilities.RAW_COLLATOR;
-        // (RuleBasedCollator) Collator.getInstance(ULocale.ROOT);
-        // c.setCaseLevel(true);
-
-        UnicodeMap<String> collationMap0 = new UnicodeMap<String>();
-        UnicodeMap<String> collationMap1 = new UnicodeMap<String>();
-        UnicodeMap<String> collationMap2 = new UnicodeMap<String>();
-        UnicodeMap<String> collationMap3 = new UnicodeMap<String>();
-        RawCollationKey key = new RawCollationKey();
-        StringBuilder[] builder = {
-            new StringBuilder(), new StringBuilder(), new StringBuilder(), new StringBuilder()
-        };
-        UnicodeSet contractions = new UnicodeSet();
-        UnicodeSet expansions = new UnicodeSet();
-        try {
-            c.getContractionsAndExpansions(contractions, expansions, true);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(e);
-        }
-        UnicodeSet stuff =
-                new UnicodeSet(ALL)
-                        .addAll(contractions)
-                        .addAll(expansions)
-                        .removeAll(new UnicodeSet("[:unified_ideograph:]"));
-        for (String s : stuff) {
-            // c.getRawCollationKey(s, key);
-            builder[0].setLength(0);
-            builder[1].setLength(0);
-            builder[2].setLength(0);
-            builder[3].setLength(0);
-            CollationElementIterator it = c.getCollationElementIterator(s);
-            int primary = 0;
-            int secondary = 0;
-            int tertiary = 0;
-            int caseLevel = 0;
-
-            int nextCe = it.next();
-            while (true) {
-                // we need to peek
-                int ce = nextCe;
-                if (ce == CollationElementIterator.NULLORDER) {
-                    break;
+        final UCA uca = UCA.buildDucetCollator();
+        final UCAContents ucaContents = uca.getContents(null);
+        final UnicodeMap<Integer> primaryWeights = new UnicodeMap<>();
+        final UnicodeMap<List<Integer>> primaryExpansions = new UnicodeMap<>();
+        final TreeSet<Integer> allPrimaries = new TreeSet<>();
+        for (String s = ucaContents.next(); s != null; s = ucaContents.next()) {
+            CEList collationElements = ucaContents.getCEs();
+            List<Integer> pSequence = new ArrayList<>();
+            for (int i = 0; i < collationElements.length(); ++i) {
+                int p = CEList.getPrimary(collationElements.at(i));
+                if (p != 0) {
+                    pSequence.add(p);
                 }
-                nextCe = it.next();
-                if (ce == 0) {
-                    continue;
-                }
-                primary = CollationElementIterator.primaryOrder(ce);
-                secondary = CollationElementIterator.secondaryOrder(ce);
-                tertiary = CollationElementIterator.tertiaryOrder(ce);
-                caseLevel = tertiary & (0x80 + 0x40);
-                tertiary ^= caseLevel;
-                caseLevel |= 1; // fake 1 bit
-
-                while (nextCe != CollationElementIterator.NULLORDER
-                        && (nextCe & 0xC0) == 0xC0) { // Continuation!!
-                    ce = nextCe;
-                    nextCe = it.next();
-                    primary = (primary << 16) | CollationElementIterator.primaryOrder(ce);
-                    secondary = (secondary << 8) | CollationElementIterator.secondaryOrder(ce);
-                    tertiary =
-                            (tertiary << 8) | (CollationElementIterator.tertiaryOrder(ce) & 0x3F);
-                }
-                addBytes(builder[0], primary);
-                addBytes(builder[1], secondary);
-                addBytes(builder[2], caseLevel);
-                addBytes(builder[3], tertiary);
             }
-            collationMap0.put(s, builder[0].toString());
-            collationMap1.put(s, builder[1].toString());
-            collationMap2.put(s, builder[2].toString());
-            collationMap3.put(s, builder[3].toString());
+            if (pSequence.size() == 0) {
+                primaryWeights.put(s, 0);
+                allPrimaries.add(0);
+            } else if (pSequence.size() == 1) {
+                primaryWeights.put(s, pSequence.get(0));
+                allPrimaries.add(pSequence.get(0));
+            } else {
+                primaryExpansions.put(s, pSequence);
+            }
         }
-        //        System.out.println(collationMap0.values().size());
-        //        System.out.println(collationMap1.values().size());
-        //        System.out.println(collationMap2.values().size());
-        //        System.out.println(collationMap3.values().size());
+        final Map<Integer, String> representatives = new TreeMap<>();
+        for (int primary : allPrimaries) {
+            representatives.put(primary, primaryWeights.keySet(primary).stream().min(uca).get());
+        }
+        Integer previousPrimary = null;
+        final UnicodeMap<String> primaryRepresentatives = new UnicodeMap<>();
+        final UnicodeMap<String> previousPrimaryRepresentatives = new UnicodeMap<>();
+        final UnicodeMap<String> nextPrimaryRepresentatives = new UnicodeMap<>();
+        for (int primary : allPrimaries) {
+            final UnicodeSet equivalenceClass = primaryWeights.keySet(primary);
+            primaryRepresentatives.putAll(equivalenceClass, representatives.get(primary));
+            if (previousPrimary != null) {
+                previousPrimaryRepresentatives.putAll(equivalenceClass, representatives.get(previousPrimary));
+                nextPrimaryRepresentatives.putAll(primaryWeights.keySet(previousPrimary), representatives.get(primary));
+            }
+            previousPrimary = primary;
+        }
+        for (String s : primaryExpansions) {
+            StringBuilder representativeSequence = new StringBuilder();
+            for (int primary : primaryExpansions.get(s)) {
+                representativeSequence.append(
+                    representatives.get(primary));
+            }
+            primaryRepresentatives.put(s, representativeSequence.toString());
+        }
         add(
                 new UnicodeProperty.UnicodeMapProperty()
-                        .set(collationMap0)
-                        .setMain("uca", "uca1", UnicodeProperty.ENUMERATED, "1.1"));
+                        .set(previousPrimaryRepresentatives)
+                        .setMain("uca_1_previous", "uca_1_previous", UnicodeProperty.STRING, "1.1"));
         add(
                 new UnicodeProperty.UnicodeMapProperty()
-                        .set(collationMap1)
-                        .setMain("uca2", "uca2", UnicodeProperty.ENUMERATED, "1.1"));
+                        .set(nextPrimaryRepresentatives)
+                        .setMain("uca_1_next", "uca_1_next", UnicodeProperty.STRING, "1.1"));
         add(
                 new UnicodeProperty.UnicodeMapProperty()
-                        .set(collationMap2)
-                        .setMain("uca2.5", "uca2.5", UnicodeProperty.ENUMERATED, "1.1"));
-        add(
-                new UnicodeProperty.UnicodeMapProperty()
-                        .set(collationMap3)
-                        .setMain("uca3", "uca3", UnicodeProperty.ENUMERATED, "1.1"));
+                        .set(primaryRepresentatives)
+                        .setMain("uca_1", "uca_1", UnicodeProperty.STRING, "1.1"));
     }
 
     private void addBytes(StringBuilder builder, int bytes) {
