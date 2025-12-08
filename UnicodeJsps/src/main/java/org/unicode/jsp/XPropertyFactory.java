@@ -5,10 +5,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
 import com.ibm.icu.impl.UnicodeMap;
 import com.ibm.icu.lang.UProperty.NameChoice;
-import com.ibm.icu.text.CollationElementIterator;
 import com.ibm.icu.text.Normalizer;
-import com.ibm.icu.text.RawCollationKey;
-import com.ibm.icu.text.RuleBasedCollator;
 import com.ibm.icu.text.StringTransform;
 import com.ibm.icu.text.Transform;
 import com.ibm.icu.text.UTF16;
@@ -21,7 +18,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -280,65 +276,93 @@ public class XPropertyFactory extends UnicodeProperty.Factory {
     private void addCollationProperty() {
         final UCA uca = UCA.buildDucetCollator();
         final UCAContents ucaContents = uca.getContents(null);
-        final UnicodeMap<Integer> primaryWeights = new UnicodeMap<>();
-        final UnicodeMap<List<Integer>> primaryExpansions = new UnicodeMap<>();
-        final TreeSet<Integer> allPrimaries = new TreeSet<>();
+        final List<UnicodeMap<Integer>> stringsToMaskedCollationElements =
+                List.of(new UnicodeMap<>(), new UnicodeMap<>(), new UnicodeMap<>());
+        final List<UnicodeMap<List<Integer>>> expansions =
+                List.of(new UnicodeMap<>(), new UnicodeMap<>(), new UnicodeMap<>());
+        final List<TreeSet<Integer>> allMaskedElements =
+                List.of(new TreeSet<>(), new TreeSet<>(), new TreeSet<>());
+        final int[] masks = {0xFFFF_0000, 0xFFFF_FF80, 0xFFFF_FFFF};
         for (String s = ucaContents.next(); s != null; s = ucaContents.next()) {
             CEList collationElements = ucaContents.getCEs();
-            List<Integer> pSequence = new ArrayList<>();
-            for (int i = 0; i < collationElements.length(); ++i) {
-                int p = CEList.getPrimary(collationElements.at(i));
-                if (p != 0) {
-                    pSequence.add(p);
+            for (int level = 0; level < 3; ++level) {
+                List<Integer> maskedElements = new ArrayList<>();
+                for (int i = 0; i < collationElements.length(); ++i) {
+                    int masked = masks[level] & collationElements.at(i);
+                    if (masked != 0) {
+                        maskedElements.add(masked);
+                    }
+                }
+                if (maskedElements.size() == 0) {
+                    stringsToMaskedCollationElements.get(level).put(s, 0);
+                    allMaskedElements.get(level).add(0);
+                } else if (maskedElements.size() == 1) {
+                    stringsToMaskedCollationElements.get(level).put(s, maskedElements.get(0));
+                    allMaskedElements.get(level).add(maskedElements.get(0));
+                } else {
+                    expansions.get(level).put(s, maskedElements);
                 }
             }
-            if (pSequence.size() == 0) {
-                primaryWeights.put(s, 0);
-                allPrimaries.add(0);
-            } else if (pSequence.size() == 1) {
-                primaryWeights.put(s, pSequence.get(0));
-                allPrimaries.add(pSequence.get(0));
-            } else {
-                primaryExpansions.put(s, pSequence);
+        }
+        for (int level = 0; level < 3; ++level) {
+            final Map<Integer, String> representatives = new TreeMap<>();
+            for (int primary : allMaskedElements.get(level)) {
+                representatives.put(
+                        primary,
+                        stringsToMaskedCollationElements.get(level).keySet(primary).stream()
+                                .min(uca)
+                                .get());
             }
-        }
-        final Map<Integer, String> representatives = new TreeMap<>();
-        for (int primary : allPrimaries) {
-            representatives.put(primary, primaryWeights.keySet(primary).stream().min(uca).get());
-        }
-        Integer previousPrimary = null;
-        final UnicodeMap<String> primaryRepresentatives = new UnicodeMap<>();
-        final UnicodeMap<String> previousPrimaryRepresentatives = new UnicodeMap<>();
-        final UnicodeMap<String> nextPrimaryRepresentatives = new UnicodeMap<>();
-        for (int primary : allPrimaries) {
-            final UnicodeSet equivalenceClass = primaryWeights.keySet(primary);
-            primaryRepresentatives.putAll(equivalenceClass, representatives.get(primary));
-            if (previousPrimary != null) {
-                previousPrimaryRepresentatives.putAll(equivalenceClass, representatives.get(previousPrimary));
-                nextPrimaryRepresentatives.putAll(primaryWeights.keySet(previousPrimary), representatives.get(primary));
+            Integer previousElement = null;
+            final UnicodeMap<String> folding = new UnicodeMap<>();
+            final UnicodeMap<String> previousElementFolded = new UnicodeMap<>();
+            final UnicodeMap<String> nextElementFolded = new UnicodeMap<>();
+            for (int element : allMaskedElements.get(level)) {
+                final UnicodeSet equivalenceClass =
+                        stringsToMaskedCollationElements.get(level).keySet(element);
+                folding.putAll(equivalenceClass, representatives.get(element));
+                if (previousElement != null) {
+                    previousElementFolded.putAll(
+                            equivalenceClass, representatives.get(previousElement));
+                    nextElementFolded.putAll(
+                            stringsToMaskedCollationElements.get(level).keySet(previousElement),
+                            representatives.get(element));
+                }
+                previousElement = element;
             }
-            previousPrimary = primary;
-        }
-        for (String s : primaryExpansions) {
-            StringBuilder representativeSequence = new StringBuilder();
-            for (int primary : primaryExpansions.get(s)) {
-                representativeSequence.append(
-                    representatives.get(primary));
+            for (String s : expansions.get(level)) {
+                StringBuilder representativeSequence = new StringBuilder();
+                for (int primary : expansions.get(level).get(s)) {
+                    representativeSequence.append(representatives.get(primary));
+                }
+                folding.put(s, representativeSequence.toString());
             }
-            primaryRepresentatives.put(s, representativeSequence.toString());
+            String prefix = "uca_" + (level + 1);
+            add(
+                    new UnicodeProperty.UnicodeMapProperty()
+                            .set(previousElementFolded)
+                            .setMain(
+                                    prefix + "_previous",
+                                    prefix + "_previous",
+                                    UnicodeProperty.STRING,
+                                    "1.1"));
+            add(
+                    new UnicodeProperty.UnicodeMapProperty()
+                            .set(nextElementFolded)
+                            .setMain(
+                                    prefix + "_next",
+                                    prefix + "_next",
+                                    UnicodeProperty.STRING,
+                                    "1.1"));
+            add(
+                    new UnicodeProperty.UnicodeMapProperty()
+                            .set(folding)
+                            .setMain(
+                                    prefix + "_fold",
+                                    prefix + "_fold",
+                                    UnicodeProperty.STRING,
+                                    "1.1"));
         }
-        add(
-                new UnicodeProperty.UnicodeMapProperty()
-                        .set(previousPrimaryRepresentatives)
-                        .setMain("uca_1_previous", "uca_1_previous", UnicodeProperty.STRING, "1.1"));
-        add(
-                new UnicodeProperty.UnicodeMapProperty()
-                        .set(nextPrimaryRepresentatives)
-                        .setMain("uca_1_next", "uca_1_next", UnicodeProperty.STRING, "1.1"));
-        add(
-                new UnicodeProperty.UnicodeMapProperty()
-                        .set(primaryRepresentatives)
-                        .setMain("uca_1", "uca_1", UnicodeProperty.STRING, "1.1"));
     }
 
     private void addBytes(StringBuilder builder, int bytes) {
