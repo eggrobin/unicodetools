@@ -307,42 +307,48 @@ public class XPropertyFactory extends UnicodeProperty.Factory {
                                 .get());
 
             }
+            CEList previousElements = null;
+            final UnicodeMap<String> nextCodePoint = new UnicodeMap<>();
+            final UnicodeMap<String> previousCodePoint = new UnicodeMap<>();
+            for (CEList elements : allElementListsByLevel.get(level)) {
+                final UnicodeSet equivalenceClass =
+                        stringToElementsByLevel.get(level).keySet(elements);
+                if (previousElements != null) {
+                    nextCodePoint.putAll(
+                            equivalenceClass, representatives.get(previousElements));
+                    previousCodePoint.putAll(
+                            stringToElementsByLevel.get(level).keySet(previousElements),
+                            representatives.get(elements));
+                }
+                previousElements = elements;
+            }
+            final UnicodeMap<String> collationFolding = new UnicodeMap<>();
             foldExpansions: for (CEList elements : allElementListsByLevel.get(level)) {
                 if (elements.length() > 1) {
                     final var folding = new StringBuilder();
                     for (int i = 0; i < elements.length(); ++i) {
                         String representative = representatives.get(new CEList(new int[] {elements.at(i)}));
                         if (representative == null) {
+                            collationFolding.putAll(
+                                stringToElementsByLevel.get(level).keySet(),
+                                representatives.get(elements));
                             continue foldExpansions;
                         }
                         folding.append(representative);
                     }
-                    representatives.put(
-                        elements,
+                    collationFolding.putAll(
+                        stringToElementsByLevel.get(level).keySet(),
                         folding.toString());
-                } 
-            }
-            CEList previousElements = null;
-            final UnicodeMap<String> folding = new UnicodeMap<>();
-            final UnicodeMap<String> previousElementFolded = new UnicodeMap<>();
-            final UnicodeMap<String> nextElementFolded = new UnicodeMap<>();
-            for (CEList elements : allElementListsByLevel.get(level)) {
-                final UnicodeSet equivalenceClass =
-                        stringToElementsByLevel.get(level).keySet(elements);
-                folding.putAll(equivalenceClass, representatives.get(elements));
-                if (previousElements != null) {
-                    previousElementFolded.putAll(
-                            equivalenceClass, representatives.get(previousElements));
-                    nextElementFolded.putAll(
-                            stringToElementsByLevel.get(level).keySet(previousElements),
-                            representatives.get(elements));
+                } else {
+                    collationFolding.putAll(
+                        stringToElementsByLevel.get(level).keySet(),
+                        representatives.get(elements));
                 }
-                previousElements = elements;
             }
             String prefix = "uca_" + (level + 1);
             add(
                     new UnicodeProperty.UnicodeMapProperty()
-                            .set(previousElementFolded)
+                            .set(nextCodePoint)
                             .setMain(
                                     prefix + "_previous",
                                     prefix + "_previous",
@@ -350,7 +356,7 @@ public class XPropertyFactory extends UnicodeProperty.Factory {
                                     "1.1"));
             add(
                     new UnicodeProperty.UnicodeMapProperty()
-                            .set(nextElementFolded)
+                            .set(previousCodePoint)
                             .setMain(
                                     prefix + "_next",
                                     prefix + "_next",
@@ -358,7 +364,7 @@ public class XPropertyFactory extends UnicodeProperty.Factory {
                                     "1.1"));
             add(
                     new UnicodeProperty.UnicodeMapProperty()
-                            .set(folding)
+                            .set(collationFolding)
                             .setMain(
                                     prefix + "_fold",
                                     prefix + "_fold",
