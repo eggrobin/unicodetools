@@ -307,21 +307,6 @@ public class XPropertyFactory extends UnicodeProperty.Factory {
                                 .get());
 
             }
-            CEList previousElements = null;
-            final UnicodeMap<String> nextCodePoint = new UnicodeMap<>();
-            final UnicodeMap<String> previousCodePoint = new UnicodeMap<>();
-            for (CEList elements : allElementListsByLevel.get(level)) {
-                final UnicodeSet equivalenceClass =
-                        stringToElementsByLevel.get(level).keySet(elements);
-                if (previousElements != null) {
-                    nextCodePoint.putAll(
-                            equivalenceClass, representatives.get(previousElements));
-                    previousCodePoint.putAll(
-                            stringToElementsByLevel.get(level).keySet(previousElements),
-                            representatives.get(elements));
-                }
-                previousElements = elements;
-            }
             final UnicodeMap<String> collationFolding = new UnicodeMap<>();
             foldExpansions: for (CEList elements : allElementListsByLevel.get(level)) {
                 if (elements.length() > 1) {
@@ -344,6 +329,21 @@ public class XPropertyFactory extends UnicodeProperty.Factory {
                         stringToElementsByLevel.get(level).keySet(),
                         representatives.get(elements));
                 }
+            }
+            CEList previousElements = null;
+            final UnicodeMap<String> nextCodePoint = new UnicodeMap<>();
+            final UnicodeMap<String> previousCodePoint = new UnicodeMap<>();
+            for (CEList elements : allElementListsByLevel.get(level)) {
+                final UnicodeSet equivalenceClass =
+                        stringToElementsByLevel.get(level).keySet(elements);
+                if (previousElements != null) {
+                    nextCodePoint.putAll(
+                            equivalenceClass, representatives.get(previousElements));
+                    previousCodePoint.putAll(
+                            stringToElementsByLevel.get(level).keySet(previousElements),
+                            representatives.get(elements));
+                }
+                previousElements = elements;
             }
             String prefix = "uca_" + (level + 1);
             add(
