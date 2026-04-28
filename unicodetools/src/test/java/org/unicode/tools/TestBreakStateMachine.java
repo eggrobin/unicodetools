@@ -22,7 +22,7 @@ public class TestBreakStateMachine extends TestFmwkMinusMinus {
 
     @Test
     public void testLine() throws IOException {
-        final VersionInfo version = UCharacter.getUnicodeVersion();
+        final VersionInfo version = VersionInfo.UNICODE_15_1;
         final var symbolTable = VersionedSymbolTable.frozenAt(version);
         UnicodeMap<String> classes = new UnicodeMap<>();
         class State {
@@ -97,11 +97,7 @@ public class TestBreakStateMachine extends TestFmwkMinusMinus {
         }
         try (var file =
                 new BufferedReader(
-                        new FileReader(
-                                Settings.UnicodeTools.getDataPath(
-                                                "ucd", version.getVersionString(3, 3))
-                                        .resolve("auxiliary/LineBreakTest.txt")
-                                        .toFile()))) {
+                        new FileReader("C:\\Users\\robin\\Projects\\Unicode\\icu4x\\components\\segmenter\\tests\\testdata\\LineBreakTest.txt"))) {
             int errors = 0;
             int testCases = 0;
             for (; ; ) {

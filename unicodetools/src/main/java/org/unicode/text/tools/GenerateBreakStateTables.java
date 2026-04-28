@@ -4,6 +4,8 @@ import com.ibm.icu.impl.RBBIDataWrapper;
 import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.text.RuleBasedBreakIterator;
 import com.ibm.icu.text.UnicodeSet;
+import com.ibm.icu.util.VersionInfo;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,15 +29,15 @@ public class GenerateBreakStateTables {
         try (var f =
                 new FileInputStream(
                         new File(
-                                "..\\icu\\icu4c\\source\\data\\out\\build\\icudt79l\\brkitr\\line.brk"))) {
+                                "..\\icu\\icu4c\\source\\data\\out\\build\\icudt75l\\brkitr\\line.brk"))) {
             rbbi = RuleBasedBreakIterator.getInstanceFromCompiledRules(f);
         }
-        final var iup = IndexUnicodeProperties.make(UCharacter.getUnicodeVersion());
+        final var iup = IndexUnicodeProperties.make(VersionInfo.UNICODE_15_1);
         final var unassigned = iup.getProperty("gc").getSet("Unassigned");
         final var pua = iup.getProperty("gc").getSet("Private Use");
         var segmenter =
                 Segmenter.make(
-                                VersionedSymbolTable.frozenAt(UCharacter.getUnicodeVersion()),
+                                VersionedSymbolTable.frozenAt(VersionInfo.UNICODE_15_1),
                                 "LineBreak")
                         .make();
         List<NamedRefinedSet> namedPartition = segmenter.getPartitionDefinition();
