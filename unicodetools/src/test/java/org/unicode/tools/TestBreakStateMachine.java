@@ -97,7 +97,7 @@ public class TestBreakStateMachine extends TestFmwkMinusMinus {
         }
         try (var file =
                 new BufferedReader(
-                        new FileReader("C:\\Users\\robin\\Projects\\Unicode\\icu4x\\components\\segmenter\\tests\\testdata\\LineBreakTest.txt"))) {
+                        new FileReader("C:\\Users\\robin\\Projects\\Unicode\\icu4x\\components\\segmenter\\tests\\testdata\\LineBreakRandomTest.txt"))) {
             int errors = 0;
             int testCases = 0;
             for (; ; ) {
@@ -160,6 +160,7 @@ public class TestBreakStateMachine extends TestFmwkMinusMinus {
                     }
                     computedBreaks.add(lastBreak);
                 }
+                computedBreaks.add(0);
                 if (!computedBreaks.equals(expectedBreaks)) {
                     ++errors;
                     System.err.println("Error on test case " + line);
