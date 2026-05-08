@@ -63,8 +63,8 @@ RI ZWJ ; Yes ;  ;
 CM QU_Pf eot ; Yes ;  ; 
 RI RI ZWJ ; Yes ;  ; 
 RI ZWJ RI ZWJ ; Yes ;  ; 
-LF ; Yes ;  ; 
-CR ; Yes ;  ; 
+LF ; Yes ;  ; Mandatory
+CR ; Yes ;  ; Mandatory
 ZW ; Yes ; ZW / CM ; 
 ZW SP ; Yes ; ZW / CM ; 
 ZW CM ; ZW / CM ;  ; 
