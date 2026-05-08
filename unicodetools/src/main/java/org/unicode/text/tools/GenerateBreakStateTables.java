@@ -280,7 +280,7 @@ public class GenerateBreakStateTables {
                 final int tag =
                         rbbi.fRData.fStatusTable[tagIndex + rbbi.fRData.fStatusTable[tagIndex]];
                 if (tag != 0) {
-                    // file.print(tagNames.get(tag));
+                    file.print(tagNames.get(tag));
                 }
                 file.println();
             }
