@@ -4,7 +4,8 @@ START ; LF ; Control
 START ; CR ; CR
 START ; XXmLinkingConsonantmExtPict ; XXmLinkingConsonantmExtPict
 START ; ExtPict ; ExtPict
-START ; Extend_ConjunctExtendermConjunctLinker ; XXmLinkingConsonantmExtPict
+START ; UNIDENTIFIED-8 ; XXmLinkingConsonantmExtPict
+START ; UNIDENTIFIED-9 ; XXmLinkingConsonantmExtPict
 START ; Prepend ; Prepend
 START ; SpacingMark ; XXmLinkingConsonantmExtPict
 START ; LinkingConsonant ; LinkingConsonant
@@ -12,30 +13,30 @@ START ; Extend_ConjunctLinker ; XXmLinkingConsonantmExtPict
 START ; L ; L
 START ; V ; V
 START ; T ; T
-START ; ExtendmConjunctLinkermConjunctExtender ; XXmLinkingConsonantmExtPict
 START ; ZWJ ; XXmLinkingConsonantmExtPict
 START ; LV ; V
 START ; LVT ; T
 START ; RI ; RI
 CR ; LF ; Control
-XXmLinkingConsonantmExtPict ; Extend_ConjunctExtendermConjunctLinker ; XXmLinkingConsonantmExtPict
+XXmLinkingConsonantmExtPict ; UNIDENTIFIED-8 ; XXmLinkingConsonantmExtPict
+XXmLinkingConsonantmExtPict ; UNIDENTIFIED-9 ; XXmLinkingConsonantmExtPict
 XXmLinkingConsonantmExtPict ; SpacingMark ; XXmLinkingConsonantmExtPict
 XXmLinkingConsonantmExtPict ; Extend_ConjunctLinker ; XXmLinkingConsonantmExtPict
-XXmLinkingConsonantmExtPict ; ExtendmConjunctLinkermConjunctExtender ; XXmLinkingConsonantmExtPict
 XXmLinkingConsonantmExtPict ; ZWJ ; XXmLinkingConsonantmExtPict
-ExtPict ; Extend_ConjunctExtendermConjunctLinker ; ExtPict
+ExtPict ; UNIDENTIFIED-8 ; ExtPict
+ExtPict ; UNIDENTIFIED-9 ; ExtPict
 ExtPict ; SpacingMark ; XXmLinkingConsonantmExtPict
 ExtPict ; Extend_ConjunctLinker ; ExtPict
-ExtPict ; ExtendmConjunctLinkermConjunctExtender ; ExtPict
 ExtPict ; ZWJ ; ExtPict ZWJ
-LinkingConsonant ; Extend_ConjunctExtendermConjunctLinker ; LinkingConsonant
+LinkingConsonant ; UNIDENTIFIED-8 ; LinkingConsonant
+LinkingConsonant ; UNIDENTIFIED-9 ; XXmLinkingConsonantmExtPict
 LinkingConsonant ; SpacingMark ; XXmLinkingConsonantmExtPict
 LinkingConsonant ; Extend_ConjunctLinker ; LinkingConsonant Extend_ConjunctLinker
-LinkingConsonant ; ExtendmConjunctLinkermConjunctExtender ; XXmLinkingConsonantmExtPict
 LinkingConsonant ; ZWJ ; LinkingConsonant
 Prepend ; XXmLinkingConsonantmExtPict ; XXmLinkingConsonantmExtPict
 Prepend ; ExtPict ; ExtPict
-Prepend ; Extend_ConjunctExtendermConjunctLinker ; XXmLinkingConsonantmExtPict
+Prepend ; UNIDENTIFIED-8 ; XXmLinkingConsonantmExtPict
+Prepend ; UNIDENTIFIED-9 ; XXmLinkingConsonantmExtPict
 Prepend ; Prepend ; Prepend
 Prepend ; SpacingMark ; XXmLinkingConsonantmExtPict
 Prepend ; LinkingConsonant ; LinkingConsonant
@@ -43,54 +44,53 @@ Prepend ; Extend_ConjunctLinker ; XXmLinkingConsonantmExtPict
 Prepend ; L ; L
 Prepend ; V ; V
 Prepend ; T ; T
-Prepend ; ExtendmConjunctLinkermConjunctExtender ; XXmLinkingConsonantmExtPict
 Prepend ; ZWJ ; XXmLinkingConsonantmExtPict
 Prepend ; LV ; V
 Prepend ; LVT ; T
 Prepend ; RI ; RI
-L ; Extend_ConjunctExtendermConjunctLinker ; XXmLinkingConsonantmExtPict
+L ; UNIDENTIFIED-8 ; XXmLinkingConsonantmExtPict
+L ; UNIDENTIFIED-9 ; XXmLinkingConsonantmExtPict
 L ; SpacingMark ; XXmLinkingConsonantmExtPict
 L ; Extend_ConjunctLinker ; XXmLinkingConsonantmExtPict
 L ; L ; L
 L ; V ; V
-L ; ExtendmConjunctLinkermConjunctExtender ; XXmLinkingConsonantmExtPict
 L ; ZWJ ; XXmLinkingConsonantmExtPict
 L ; LV ; V
 L ; LVT ; T
-V ; Extend_ConjunctExtendermConjunctLinker ; XXmLinkingConsonantmExtPict
+V ; UNIDENTIFIED-8 ; XXmLinkingConsonantmExtPict
+V ; UNIDENTIFIED-9 ; XXmLinkingConsonantmExtPict
 V ; SpacingMark ; XXmLinkingConsonantmExtPict
 V ; Extend_ConjunctLinker ; XXmLinkingConsonantmExtPict
 V ; V ; V
 V ; T ; T
-V ; ExtendmConjunctLinkermConjunctExtender ; XXmLinkingConsonantmExtPict
 V ; ZWJ ; XXmLinkingConsonantmExtPict
-T ; Extend_ConjunctExtendermConjunctLinker ; XXmLinkingConsonantmExtPict
+T ; UNIDENTIFIED-8 ; XXmLinkingConsonantmExtPict
+T ; UNIDENTIFIED-9 ; XXmLinkingConsonantmExtPict
 T ; SpacingMark ; XXmLinkingConsonantmExtPict
 T ; Extend_ConjunctLinker ; XXmLinkingConsonantmExtPict
 T ; T ; T
-T ; ExtendmConjunctLinkermConjunctExtender ; XXmLinkingConsonantmExtPict
 T ; ZWJ ; XXmLinkingConsonantmExtPict
-RI ; Extend_ConjunctExtendermConjunctLinker ; XXmLinkingConsonantmExtPict
+RI ; UNIDENTIFIED-8 ; XXmLinkingConsonantmExtPict
+RI ; UNIDENTIFIED-9 ; XXmLinkingConsonantmExtPict
 RI ; SpacingMark ; XXmLinkingConsonantmExtPict
 RI ; Extend_ConjunctLinker ; XXmLinkingConsonantmExtPict
-RI ; ExtendmConjunctLinkermConjunctExtender ; XXmLinkingConsonantmExtPict
 RI ; ZWJ ; XXmLinkingConsonantmExtPict
 RI ; RI ; RI RI
 ExtPict ZWJ ; ExtPict ; ExtPict
-ExtPict ZWJ ; Extend_ConjunctExtendermConjunctLinker ; XXmLinkingConsonantmExtPict
+ExtPict ZWJ ; UNIDENTIFIED-8 ; XXmLinkingConsonantmExtPict
+ExtPict ZWJ ; UNIDENTIFIED-9 ; XXmLinkingConsonantmExtPict
 ExtPict ZWJ ; SpacingMark ; XXmLinkingConsonantmExtPict
 ExtPict ZWJ ; Extend_ConjunctLinker ; XXmLinkingConsonantmExtPict
-ExtPict ZWJ ; ExtendmConjunctLinkermConjunctExtender ; XXmLinkingConsonantmExtPict
 ExtPict ZWJ ; ZWJ ; XXmLinkingConsonantmExtPict
-LinkingConsonant Extend_ConjunctLinker ; Extend_ConjunctExtendermConjunctLinker ; LinkingConsonant Extend_ConjunctLinker
+LinkingConsonant Extend_ConjunctLinker ; UNIDENTIFIED-8 ; LinkingConsonant Extend_ConjunctLinker
+LinkingConsonant Extend_ConjunctLinker ; UNIDENTIFIED-9 ; XXmLinkingConsonantmExtPict
 LinkingConsonant Extend_ConjunctLinker ; SpacingMark ; XXmLinkingConsonantmExtPict
 LinkingConsonant Extend_ConjunctLinker ; LinkingConsonant ; LinkingConsonant
 LinkingConsonant Extend_ConjunctLinker ; Extend_ConjunctLinker ; LinkingConsonant Extend_ConjunctLinker
-LinkingConsonant Extend_ConjunctLinker ; ExtendmConjunctLinkermConjunctExtender ; XXmLinkingConsonantmExtPict
 LinkingConsonant Extend_ConjunctLinker ; ZWJ ; LinkingConsonant Extend_ConjunctLinker
-RI RI ; Extend_ConjunctExtendermConjunctLinker ; XXmLinkingConsonantmExtPict
+RI RI ; UNIDENTIFIED-8 ; XXmLinkingConsonantmExtPict
+RI RI ; UNIDENTIFIED-9 ; XXmLinkingConsonantmExtPict
 RI RI ; SpacingMark ; XXmLinkingConsonantmExtPict
 RI RI ; Extend_ConjunctLinker ; XXmLinkingConsonantmExtPict
-RI RI ; ExtendmConjunctLinkermConjunctExtender ; XXmLinkingConsonantmExtPict
 RI RI ; ZWJ ; XXmLinkingConsonantmExtPict
 RI RI ; RI ; RI RI RI

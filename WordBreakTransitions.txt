@@ -1,182 +1,431 @@
 # From state ; class name or eot ; to state
-START ; XXmExtPict ; XXmExtPict
+START ; UNIDENTIFIED-3 ; UNIDENTIFIED-3
 START ; LF ; LF
 START ; Newline ; LF
 START ; CR ; CR
 START ; WSegSpace ; WSegSpace
-START ; Double_Quote ; XXmExtPict
-START ; Single_Quote ; XXmExtPict
-START ; MidNum ; XXmExtPict
-START ; MidNumLet ; XXmExtPict
+START ; Double_Quote ; UNIDENTIFIED-3
+START ; Single_Quote ; UNIDENTIFIED-3
+START ; MidNum ; UNIDENTIFIED-3
+START ; MidNumLet ; UNIDENTIFIED-3
 START ; Numeric ; Numeric
-START ; MidLetter ; XXmExtPict
-START ; ALettermExtPict ; ALettermExtPict
+START ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
 START ; ExtendNumLet ; ExtendNumLet
-START ; ExtPictmALetter ; XXmExtPict
-START ; Extend|Format ; XXmExtPict
+START ; ExtPictmALetter ; UNIDENTIFIED-3
+START ; UNIDENTIFIED-16 ; UNIDENTIFIED-3
+START ; UNIDENTIFIED-17 ; UNIDENTIFIED-3
 START ; Hebrew_Letter ; Hebrew_Letter
 START ; ZWJ ; ZWJ
-START ; ALetter_ExtPict ; ALettermExtPict
-START ; Katakana ; Katakana
+START ; ALetter_ExtPict ; UNIDENTIFIED-13
+START ; UNIDENTIFIED-21 ; UNIDENTIFIED-21
+START ; UNIDENTIFIED-22 ; UNIDENTIFIED-21
 START ; RI ; RI
+START ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+START ; UNIDENTIFIED-25 ; UNIDENTIFIED-3
+START ; UNIDENTIFIED-26 ; UNIDENTIFIED-26
+START ; UNIDENTIFIED-27 ; UNIDENTIFIED-27
+START ; Katakana ; Katakana
+START ; UNIDENTIFIED-29 ; UNIDENTIFIED-29
 Numeric Single_Quote ; Numeric ; Numeric
-Numeric Single_Quote ; Extend|Format ; Numeric Single_Quote
+Numeric Single_Quote ; UNIDENTIFIED-16 ; Numeric Single_Quote
 Numeric Single_Quote ; ZWJ ; Numeric Single_Quote
-ALettermExtPict Single_Quote ; ALettermExtPict ; ALettermExtPict
-ALettermExtPict Single_Quote ; Extend|Format ; ALettermExtPict Single_Quote
-ALettermExtPict Single_Quote ; Hebrew_Letter ; Hebrew_Letter
-ALettermExtPict Single_Quote ; ZWJ ; ALettermExtPict Single_Quote
-ALettermExtPict Single_Quote ; ALetter_ExtPict ; ALettermExtPict
-Hebrew_Letter Double_Quote ; Extend|Format ; Hebrew_Letter Double_Quote
+Numeric Single_Quote ; UNIDENTIFIED-22 ; Numeric Single_Quote
+Numeric Single_Quote ; UNIDENTIFIED-25 ; Numeric Single_Quote
+UNIDENTIFIED-13 Single_Quote ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+UNIDENTIFIED-13 Single_Quote ; UNIDENTIFIED-16 ; UNIDENTIFIED-13 Single_Quote
+UNIDENTIFIED-13 Single_Quote ; Hebrew_Letter ; Hebrew_Letter
+UNIDENTIFIED-13 Single_Quote ; ZWJ ; UNIDENTIFIED-13 Single_Quote
+UNIDENTIFIED-13 Single_Quote ; ALetter_ExtPict ; UNIDENTIFIED-13
+UNIDENTIFIED-13 Single_Quote ; UNIDENTIFIED-22 ; UNIDENTIFIED-13 Single_Quote
+UNIDENTIFIED-13 Single_Quote ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+UNIDENTIFIED-13 Single_Quote ; UNIDENTIFIED-25 ; UNIDENTIFIED-13 Single_Quote
+Hebrew_Letter Double_Quote ; UNIDENTIFIED-16 ; Hebrew_Letter Double_Quote
 Hebrew_Letter Double_Quote ; Hebrew_Letter ; Hebrew_Letter
 Hebrew_Letter Double_Quote ; ZWJ ; Hebrew_Letter Double_Quote
-XXmExtPict ; Extend|Format ; XXmExtPict
-XXmExtPict ; ZWJ ; ZWJ
+Hebrew_Letter Double_Quote ; UNIDENTIFIED-22 ; Hebrew_Letter Double_Quote
+Hebrew_Letter Double_Quote ; UNIDENTIFIED-25 ; Hebrew_Letter Double_Quote
+UNIDENTIFIED-3 ; UNIDENTIFIED-16 ; UNIDENTIFIED-3
+UNIDENTIFIED-3 ; ZWJ ; ZWJ
+UNIDENTIFIED-3 ; UNIDENTIFIED-22 ; UNIDENTIFIED-21
+UNIDENTIFIED-3 ; UNIDENTIFIED-25 ; UNIDENTIFIED-3
 CR ; LF ; LF
 WSegSpace ; WSegSpace ; WSegSpace
-WSegSpace ; Extend|Format ; XXmExtPict
+WSegSpace ; UNIDENTIFIED-16 ; UNIDENTIFIED-3
 WSegSpace ; ZWJ ; ZWJ
+WSegSpace ; UNIDENTIFIED-22 ; UNIDENTIFIED-21
+WSegSpace ; UNIDENTIFIED-25 ; UNIDENTIFIED-3
 ExtendNumLet ; Numeric ; Numeric
-ExtendNumLet ; ALettermExtPict ; ALettermExtPict
-ExtendNumLet ; ExtendNumLet ; ALettermExtPict ExtendNumLet
-ExtendNumLet ; Extend|Format ; ExtendNumLet
+ExtendNumLet ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+ExtendNumLet ; ExtendNumLet ; UNIDENTIFIED-13 ExtendNumLet
+ExtendNumLet ; UNIDENTIFIED-16 ; ExtendNumLet
 ExtendNumLet ; Hebrew_Letter ; Hebrew_Letter
 ExtendNumLet ; ZWJ ; ExtendNumLet ZWJ
-ExtendNumLet ; ALetter_ExtPict ; ALettermExtPict
+ExtendNumLet ; ALetter_ExtPict ; UNIDENTIFIED-13
+ExtendNumLet ; UNIDENTIFIED-22 ; ExtendNumLet UNIDENTIFIED-22
+ExtendNumLet ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+ExtendNumLet ; UNIDENTIFIED-25 ; ExtendNumLet
 ExtendNumLet ; Katakana ; Katakana
-ZWJ ; ExtPictmALetter ; XXmExtPict
-ZWJ ; Extend|Format ; XXmExtPict
+ZWJ ; ExtPictmALetter ; UNIDENTIFIED-3
+ZWJ ; UNIDENTIFIED-16 ; UNIDENTIFIED-3
 ZWJ ; ZWJ ; ZWJ
-ZWJ ; ALetter_ExtPict ; ALettermExtPict
-RI ; Extend|Format ; RI
+ZWJ ; ALetter_ExtPict ; UNIDENTIFIED-13
+ZWJ ; UNIDENTIFIED-22 ; UNIDENTIFIED-21
+ZWJ ; UNIDENTIFIED-25 ; UNIDENTIFIED-3
+RI ; UNIDENTIFIED-16 ; RI
 RI ; ZWJ ; RI ZWJ
-RI ; RI ; XXmExtPict
+RI ; UNIDENTIFIED-22 ; RI UNIDENTIFIED-22
+RI ; RI ; UNIDENTIFIED-3
+RI ; UNIDENTIFIED-25 ; RI
+UNIDENTIFIED-26 ; UNIDENTIFIED-16 ; UNIDENTIFIED-3
+UNIDENTIFIED-26 ; ZWJ ; ZWJ
+UNIDENTIFIED-26 ; UNIDENTIFIED-22 ; UNIDENTIFIED-21
+UNIDENTIFIED-26 ; UNIDENTIFIED-25 ; UNIDENTIFIED-3
+UNIDENTIFIED-26 ; UNIDENTIFIED-26 ; UNIDENTIFIED-26 UNIDENTIFIED-26
+UNIDENTIFIED-26 ; UNIDENTIFIED-27 ; UNIDENTIFIED-27
+UNIDENTIFIED-26 ; Katakana ; Katakana
 ExtendNumLet ZWJ ; Numeric ; Numeric
-ExtendNumLet ZWJ ; ALettermExtPict ; ALettermExtPict
-ExtendNumLet ZWJ ; ExtendNumLet ; ALettermExtPict ExtendNumLet
-ExtendNumLet ZWJ ; ExtPictmALetter ; XXmExtPict
-ExtendNumLet ZWJ ; Extend|Format ; ExtendNumLet
+ExtendNumLet ZWJ ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+ExtendNumLet ZWJ ; ExtendNumLet ; UNIDENTIFIED-13 ExtendNumLet
+ExtendNumLet ZWJ ; ExtPictmALetter ; UNIDENTIFIED-3
+ExtendNumLet ZWJ ; UNIDENTIFIED-16 ; ExtendNumLet
 ExtendNumLet ZWJ ; Hebrew_Letter ; Hebrew_Letter
 ExtendNumLet ZWJ ; ZWJ ; ExtendNumLet ZWJ
-ExtendNumLet ZWJ ; ALetter_ExtPict ; ALettermExtPict
+ExtendNumLet ZWJ ; ALetter_ExtPict ; UNIDENTIFIED-13
+ExtendNumLet ZWJ ; UNIDENTIFIED-22 ; ExtendNumLet UNIDENTIFIED-22
+ExtendNumLet ZWJ ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+ExtendNumLet ZWJ ; UNIDENTIFIED-25 ; ExtendNumLet
 ExtendNumLet ZWJ ; Katakana ; Katakana
-RI ZWJ ; ExtPictmALetter ; XXmExtPict
-RI ZWJ ; Extend|Format ; RI
+RI ZWJ ; ExtPictmALetter ; UNIDENTIFIED-3
+RI ZWJ ; UNIDENTIFIED-16 ; RI
 RI ZWJ ; ZWJ ; RI ZWJ
-RI ZWJ ; ALetter_ExtPict ; ALettermExtPict
-RI ZWJ ; RI ; XXmExtPict
-Hebrew_Letter Single_Quote Extend ; ALettermExtPict ; ALettermExtPict
-Hebrew_Letter Single_Quote Extend ; Extend|Format ; Hebrew_Letter Single_Quote Extend
-Hebrew_Letter Single_Quote Extend ; Hebrew_Letter ; Hebrew_Letter
-Hebrew_Letter Single_Quote Extend ; ZWJ ; Hebrew_Letter Single_Quote ZWJ
-Hebrew_Letter Single_Quote Extend ; ALetter_ExtPict ; ALettermExtPict
-Hebrew_Letter Single_Quote ZWJ ; ALettermExtPict ; ALettermExtPict
-Hebrew_Letter Single_Quote ZWJ ; ExtPictmALetter ; XXmExtPict
-Hebrew_Letter Single_Quote ZWJ ; Extend|Format ; Hebrew_Letter Single_Quote Extend
+RI ZWJ ; ALetter_ExtPict ; UNIDENTIFIED-13
+RI ZWJ ; UNIDENTIFIED-22 ; RI UNIDENTIFIED-22
+RI ZWJ ; RI ; UNIDENTIFIED-3
+RI ZWJ ; UNIDENTIFIED-25 ; RI
+Hebrew_Letter Single_Quote UNIDENTIFIED-16 ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+Hebrew_Letter Single_Quote UNIDENTIFIED-16 ; UNIDENTIFIED-16 ; Hebrew_Letter Single_Quote UNIDENTIFIED-16
+Hebrew_Letter Single_Quote UNIDENTIFIED-16 ; Hebrew_Letter ; Hebrew_Letter
+Hebrew_Letter Single_Quote UNIDENTIFIED-16 ; ZWJ ; Hebrew_Letter Single_Quote ZWJ
+Hebrew_Letter Single_Quote UNIDENTIFIED-16 ; ALetter_ExtPict ; UNIDENTIFIED-13
+Hebrew_Letter Single_Quote UNIDENTIFIED-16 ; UNIDENTIFIED-22 ; Hebrew_Letter Single_Quote UNIDENTIFIED-22
+Hebrew_Letter Single_Quote UNIDENTIFIED-16 ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+Hebrew_Letter Single_Quote UNIDENTIFIED-16 ; UNIDENTIFIED-25 ; Hebrew_Letter Single_Quote UNIDENTIFIED-16
+Hebrew_Letter Single_Quote ZWJ ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+Hebrew_Letter Single_Quote ZWJ ; ExtPictmALetter ; UNIDENTIFIED-3
+Hebrew_Letter Single_Quote ZWJ ; UNIDENTIFIED-16 ; Hebrew_Letter Single_Quote UNIDENTIFIED-16
 Hebrew_Letter Single_Quote ZWJ ; Hebrew_Letter ; Hebrew_Letter
 Hebrew_Letter Single_Quote ZWJ ; ZWJ ; Hebrew_Letter Single_Quote ZWJ
-Hebrew_Letter Single_Quote ZWJ ; ALetter_ExtPict ; ALettermExtPict
+Hebrew_Letter Single_Quote ZWJ ; ALetter_ExtPict ; UNIDENTIFIED-13
+Hebrew_Letter Single_Quote ZWJ ; UNIDENTIFIED-22 ; Hebrew_Letter Single_Quote UNIDENTIFIED-22
+Hebrew_Letter Single_Quote ZWJ ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+Hebrew_Letter Single_Quote ZWJ ; UNIDENTIFIED-25 ; Hebrew_Letter Single_Quote UNIDENTIFIED-16
 Numeric ; Single_Quote ; Numeric Single_Quote
 Numeric ; MidNum ; Numeric Single_Quote
 Numeric ; MidNumLet ; Numeric Single_Quote
 Numeric ; Numeric ; Numeric
-Numeric ; ALettermExtPict ; ALettermExtPict
+Numeric ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
 Numeric ; ExtendNumLet ; Numeric ExtendNumLet
-Numeric ; Extend|Format ; Numeric
+Numeric ; UNIDENTIFIED-16 ; Numeric
 Numeric ; Hebrew_Letter ; Hebrew_Letter
 Numeric ; ZWJ ; Numeric ZWJ
-Numeric ; ALetter_ExtPict ; ALettermExtPict
+Numeric ; ALetter_ExtPict ; UNIDENTIFIED-13
+Numeric ; UNIDENTIFIED-22 ; Numeric UNIDENTIFIED-22
+Numeric ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+Numeric ; UNIDENTIFIED-25 ; Numeric
 Numeric ExtendNumLet ; Numeric ; Numeric
-Numeric ExtendNumLet ; ALettermExtPict ; ALettermExtPict
-Numeric ExtendNumLet ; ExtendNumLet ; ALettermExtPict ExtendNumLet
-Numeric ExtendNumLet ; Extend|Format ; ExtendNumLet
+Numeric ExtendNumLet ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+Numeric ExtendNumLet ; ExtendNumLet ; UNIDENTIFIED-13 ExtendNumLet
+Numeric ExtendNumLet ; UNIDENTIFIED-16 ; ExtendNumLet
 Numeric ExtendNumLet ; Hebrew_Letter ; Hebrew_Letter
 Numeric ExtendNumLet ; ZWJ ; ExtendNumLet ZWJ
-Numeric ExtendNumLet ; ALetter_ExtPict ; ALettermExtPict
+Numeric ExtendNumLet ; ALetter_ExtPict ; UNIDENTIFIED-13
+Numeric ExtendNumLet ; UNIDENTIFIED-22 ; ExtendNumLet UNIDENTIFIED-22
+Numeric ExtendNumLet ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+Numeric ExtendNumLet ; UNIDENTIFIED-25 ; ExtendNumLet
 Numeric ExtendNumLet ; Katakana ; Katakana
 Numeric ZWJ ; Single_Quote ; Numeric Single_Quote
 Numeric ZWJ ; MidNum ; Numeric Single_Quote
 Numeric ZWJ ; MidNumLet ; Numeric Single_Quote
 Numeric ZWJ ; Numeric ; Numeric
-Numeric ZWJ ; ALettermExtPict ; ALettermExtPict
+Numeric ZWJ ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
 Numeric ZWJ ; ExtendNumLet ; Numeric ExtendNumLet
-Numeric ZWJ ; ExtPictmALetter ; XXmExtPict
-Numeric ZWJ ; Extend|Format ; Numeric
+Numeric ZWJ ; ExtPictmALetter ; UNIDENTIFIED-3
+Numeric ZWJ ; UNIDENTIFIED-16 ; Numeric
 Numeric ZWJ ; Hebrew_Letter ; Hebrew_Letter
 Numeric ZWJ ; ZWJ ; Numeric ZWJ
-Numeric ZWJ ; ALetter_ExtPict ; ALettermExtPict
-ALettermExtPict ; Single_Quote ; ALettermExtPict Single_Quote
-ALettermExtPict ; MidNumLet ; ALettermExtPict Single_Quote
-ALettermExtPict ; Numeric ; Numeric
-ALettermExtPict ; MidLetter ; ALettermExtPict Single_Quote
-ALettermExtPict ; ALettermExtPict ; ALettermExtPict
-ALettermExtPict ; ExtendNumLet ; ALettermExtPict ExtendNumLet
-ALettermExtPict ; Extend|Format ; ALettermExtPict
-ALettermExtPict ; Hebrew_Letter ; Hebrew_Letter
-ALettermExtPict ; ZWJ ; ALettermExtPict ZWJ
-ALettermExtPict ; ALetter_ExtPict ; ALettermExtPict
+Numeric ZWJ ; ALetter_ExtPict ; UNIDENTIFIED-13
+Numeric ZWJ ; UNIDENTIFIED-22 ; Numeric UNIDENTIFIED-22
+Numeric ZWJ ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+Numeric ZWJ ; UNIDENTIFIED-25 ; Numeric
+UNIDENTIFIED-13 ; Single_Quote ; UNIDENTIFIED-13 Single_Quote
+UNIDENTIFIED-13 ; MidNumLet ; UNIDENTIFIED-13 Single_Quote
+UNIDENTIFIED-13 ; Numeric ; Numeric
+UNIDENTIFIED-13 ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+UNIDENTIFIED-13 ; ExtendNumLet ; UNIDENTIFIED-13 ExtendNumLet
+UNIDENTIFIED-13 ; UNIDENTIFIED-16 ; UNIDENTIFIED-13
+UNIDENTIFIED-13 ; UNIDENTIFIED-17 ; UNIDENTIFIED-13 Single_Quote
+UNIDENTIFIED-13 ; Hebrew_Letter ; Hebrew_Letter
+UNIDENTIFIED-13 ; ZWJ ; UNIDENTIFIED-13 ZWJ
+UNIDENTIFIED-13 ; ALetter_ExtPict ; UNIDENTIFIED-13
+UNIDENTIFIED-13 ; UNIDENTIFIED-22 ; UNIDENTIFIED-13 UNIDENTIFIED-22
+UNIDENTIFIED-13 ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+UNIDENTIFIED-13 ; UNIDENTIFIED-25 ; UNIDENTIFIED-13
 Hebrew_Letter ; Double_Quote ; Hebrew_Letter Double_Quote
 Hebrew_Letter ; Single_Quote ; Hebrew_Letter Single_Quote
-Hebrew_Letter ; MidNumLet ; ALettermExtPict Single_Quote
+Hebrew_Letter ; MidNumLet ; UNIDENTIFIED-13 Single_Quote
 Hebrew_Letter ; Numeric ; Numeric
-Hebrew_Letter ; MidLetter ; ALettermExtPict Single_Quote
-Hebrew_Letter ; ALettermExtPict ; ALettermExtPict
-Hebrew_Letter ; ExtendNumLet ; ALettermExtPict ExtendNumLet
-Hebrew_Letter ; Extend|Format ; Hebrew_Letter
+Hebrew_Letter ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+Hebrew_Letter ; ExtendNumLet ; UNIDENTIFIED-13 ExtendNumLet
+Hebrew_Letter ; UNIDENTIFIED-16 ; Hebrew_Letter
+Hebrew_Letter ; UNIDENTIFIED-17 ; UNIDENTIFIED-13 Single_Quote
 Hebrew_Letter ; Hebrew_Letter ; Hebrew_Letter
 Hebrew_Letter ; ZWJ ; Hebrew_Letter ZWJ
-Hebrew_Letter ; ALetter_ExtPict ; ALettermExtPict
-ALettermExtPict ExtendNumLet ; Numeric ; Numeric
-ALettermExtPict ExtendNumLet ; ALettermExtPict ; ALettermExtPict
-ALettermExtPict ExtendNumLet ; ExtendNumLet ; ALettermExtPict ExtendNumLet
-ALettermExtPict ExtendNumLet ; Extend|Format ; ExtendNumLet
-ALettermExtPict ExtendNumLet ; Hebrew_Letter ; Hebrew_Letter
-ALettermExtPict ExtendNumLet ; ZWJ ; ExtendNumLet ZWJ
-ALettermExtPict ExtendNumLet ; ALetter_ExtPict ; ALettermExtPict
-ALettermExtPict ExtendNumLet ; Katakana ; Katakana
-ALettermExtPict ZWJ ; Single_Quote ; ALettermExtPict Single_Quote
-ALettermExtPict ZWJ ; MidNumLet ; ALettermExtPict Single_Quote
-ALettermExtPict ZWJ ; Numeric ; Numeric
-ALettermExtPict ZWJ ; MidLetter ; ALettermExtPict Single_Quote
-ALettermExtPict ZWJ ; ALettermExtPict ; ALettermExtPict
-ALettermExtPict ZWJ ; ExtendNumLet ; ALettermExtPict ExtendNumLet
-ALettermExtPict ZWJ ; ExtPictmALetter ; XXmExtPict
-ALettermExtPict ZWJ ; Extend|Format ; ALettermExtPict
-ALettermExtPict ZWJ ; Hebrew_Letter ; Hebrew_Letter
-ALettermExtPict ZWJ ; ZWJ ; ALettermExtPict ZWJ
-ALettermExtPict ZWJ ; ALetter_ExtPict ; ALettermExtPict
-Hebrew_Letter Single_Quote ; ALettermExtPict ; ALettermExtPict
-Hebrew_Letter Single_Quote ; Extend|Format ; Hebrew_Letter Single_Quote Extend
+Hebrew_Letter ; ALetter_ExtPict ; UNIDENTIFIED-13
+Hebrew_Letter ; UNIDENTIFIED-22 ; Hebrew_Letter UNIDENTIFIED-22
+Hebrew_Letter ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+Hebrew_Letter ; UNIDENTIFIED-25 ; Hebrew_Letter
+UNIDENTIFIED-29 ; UNIDENTIFIED-16 ; UNIDENTIFIED-3
+UNIDENTIFIED-29 ; ZWJ ; ZWJ
+UNIDENTIFIED-29 ; UNIDENTIFIED-22 ; UNIDENTIFIED-21
+UNIDENTIFIED-29 ; UNIDENTIFIED-25 ; UNIDENTIFIED-3
+UNIDENTIFIED-29 ; UNIDENTIFIED-29 ; UNIDENTIFIED-29
+UNIDENTIFIED-13 ExtendNumLet ; Numeric ; Numeric
+UNIDENTIFIED-13 ExtendNumLet ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+UNIDENTIFIED-13 ExtendNumLet ; ExtendNumLet ; UNIDENTIFIED-13 ExtendNumLet
+UNIDENTIFIED-13 ExtendNumLet ; UNIDENTIFIED-16 ; ExtendNumLet
+UNIDENTIFIED-13 ExtendNumLet ; Hebrew_Letter ; Hebrew_Letter
+UNIDENTIFIED-13 ExtendNumLet ; ZWJ ; ExtendNumLet ZWJ
+UNIDENTIFIED-13 ExtendNumLet ; ALetter_ExtPict ; UNIDENTIFIED-13
+UNIDENTIFIED-13 ExtendNumLet ; UNIDENTIFIED-22 ; ExtendNumLet UNIDENTIFIED-22
+UNIDENTIFIED-13 ExtendNumLet ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+UNIDENTIFIED-13 ExtendNumLet ; UNIDENTIFIED-25 ; ExtendNumLet
+UNIDENTIFIED-13 ExtendNumLet ; Katakana ; Katakana
+UNIDENTIFIED-13 ZWJ ; Single_Quote ; UNIDENTIFIED-13 Single_Quote
+UNIDENTIFIED-13 ZWJ ; MidNumLet ; UNIDENTIFIED-13 Single_Quote
+UNIDENTIFIED-13 ZWJ ; Numeric ; Numeric
+UNIDENTIFIED-13 ZWJ ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+UNIDENTIFIED-13 ZWJ ; ExtendNumLet ; UNIDENTIFIED-13 ExtendNumLet
+UNIDENTIFIED-13 ZWJ ; ExtPictmALetter ; UNIDENTIFIED-3
+UNIDENTIFIED-13 ZWJ ; UNIDENTIFIED-16 ; UNIDENTIFIED-13
+UNIDENTIFIED-13 ZWJ ; UNIDENTIFIED-17 ; UNIDENTIFIED-13 Single_Quote
+UNIDENTIFIED-13 ZWJ ; Hebrew_Letter ; Hebrew_Letter
+UNIDENTIFIED-13 ZWJ ; ZWJ ; UNIDENTIFIED-13 ZWJ
+UNIDENTIFIED-13 ZWJ ; ALetter_ExtPict ; UNIDENTIFIED-13
+UNIDENTIFIED-13 ZWJ ; UNIDENTIFIED-22 ; UNIDENTIFIED-13 UNIDENTIFIED-22
+UNIDENTIFIED-13 ZWJ ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+UNIDENTIFIED-13 ZWJ ; UNIDENTIFIED-25 ; UNIDENTIFIED-13
+Hebrew_Letter Single_Quote ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+Hebrew_Letter Single_Quote ; UNIDENTIFIED-16 ; Hebrew_Letter Single_Quote UNIDENTIFIED-16
 Hebrew_Letter Single_Quote ; Hebrew_Letter ; Hebrew_Letter
 Hebrew_Letter Single_Quote ; ZWJ ; Hebrew_Letter Single_Quote ZWJ
-Hebrew_Letter Single_Quote ; ALetter_ExtPict ; ALettermExtPict
+Hebrew_Letter Single_Quote ; ALetter_ExtPict ; UNIDENTIFIED-13
+Hebrew_Letter Single_Quote ; UNIDENTIFIED-22 ; Hebrew_Letter Single_Quote UNIDENTIFIED-22
+Hebrew_Letter Single_Quote ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+Hebrew_Letter Single_Quote ; UNIDENTIFIED-25 ; Hebrew_Letter Single_Quote UNIDENTIFIED-16
 Hebrew_Letter ZWJ ; Double_Quote ; Hebrew_Letter Double_Quote
 Hebrew_Letter ZWJ ; Single_Quote ; Hebrew_Letter Single_Quote
-Hebrew_Letter ZWJ ; MidNumLet ; ALettermExtPict Single_Quote
+Hebrew_Letter ZWJ ; MidNumLet ; UNIDENTIFIED-13 Single_Quote
 Hebrew_Letter ZWJ ; Numeric ; Numeric
-Hebrew_Letter ZWJ ; MidLetter ; ALettermExtPict Single_Quote
-Hebrew_Letter ZWJ ; ALettermExtPict ; ALettermExtPict
-Hebrew_Letter ZWJ ; ExtendNumLet ; ALettermExtPict ExtendNumLet
-Hebrew_Letter ZWJ ; ExtPictmALetter ; XXmExtPict
-Hebrew_Letter ZWJ ; Extend|Format ; Hebrew_Letter
+Hebrew_Letter ZWJ ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+Hebrew_Letter ZWJ ; ExtendNumLet ; UNIDENTIFIED-13 ExtendNumLet
+Hebrew_Letter ZWJ ; ExtPictmALetter ; UNIDENTIFIED-3
+Hebrew_Letter ZWJ ; UNIDENTIFIED-16 ; Hebrew_Letter
+Hebrew_Letter ZWJ ; UNIDENTIFIED-17 ; UNIDENTIFIED-13 Single_Quote
 Hebrew_Letter ZWJ ; Hebrew_Letter ; Hebrew_Letter
 Hebrew_Letter ZWJ ; ZWJ ; Hebrew_Letter ZWJ
-Hebrew_Letter ZWJ ; ALetter_ExtPict ; ALettermExtPict
+Hebrew_Letter ZWJ ; ALetter_ExtPict ; UNIDENTIFIED-13
+Hebrew_Letter ZWJ ; UNIDENTIFIED-22 ; Hebrew_Letter UNIDENTIFIED-22
+Hebrew_Letter ZWJ ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+Hebrew_Letter ZWJ ; UNIDENTIFIED-25 ; Hebrew_Letter
+UNIDENTIFIED-21 ; UNIDENTIFIED-16 ; UNIDENTIFIED-21
+UNIDENTIFIED-21 ; ZWJ ; UNIDENTIFIED-21 ZWJ
+UNIDENTIFIED-21 ; UNIDENTIFIED-22 ; UNIDENTIFIED-21
+UNIDENTIFIED-21 ; UNIDENTIFIED-25 ; UNIDENTIFIED-21
+UNIDENTIFIED-27 ; UNIDENTIFIED-16 ; UNIDENTIFIED-21
+UNIDENTIFIED-27 ; ZWJ ; UNIDENTIFIED-21 ZWJ
+UNIDENTIFIED-27 ; UNIDENTIFIED-22 ; UNIDENTIFIED-21
+UNIDENTIFIED-27 ; UNIDENTIFIED-25 ; UNIDENTIFIED-21
+UNIDENTIFIED-27 ; UNIDENTIFIED-26 ; UNIDENTIFIED-26 UNIDENTIFIED-26
+UNIDENTIFIED-27 ; UNIDENTIFIED-27 ; UNIDENTIFIED-27
+UNIDENTIFIED-27 ; Katakana ; Katakana
 Katakana ; ExtendNumLet ; Katakana ExtendNumLet
-Katakana ; Extend|Format ; Katakana
+Katakana ; UNIDENTIFIED-16 ; Katakana UNIDENTIFIED-16
 Katakana ; ZWJ ; Katakana ZWJ
+Katakana ; UNIDENTIFIED-22 ; Katakana UNIDENTIFIED-16
+Katakana ; UNIDENTIFIED-25 ; Katakana UNIDENTIFIED-16
+Katakana ; UNIDENTIFIED-26 ; UNIDENTIFIED-26 UNIDENTIFIED-26
+Katakana ; UNIDENTIFIED-27 ; UNIDENTIFIED-27
 Katakana ; Katakana ; Katakana
+ExtendNumLet UNIDENTIFIED-22 ; Numeric ; Numeric
+ExtendNumLet UNIDENTIFIED-22 ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+ExtendNumLet UNIDENTIFIED-22 ; ExtendNumLet ; UNIDENTIFIED-13 ExtendNumLet
+ExtendNumLet UNIDENTIFIED-22 ; UNIDENTIFIED-16 ; ExtendNumLet UNIDENTIFIED-22
+ExtendNumLet UNIDENTIFIED-22 ; Hebrew_Letter ; Hebrew_Letter
+ExtendNumLet UNIDENTIFIED-22 ; ZWJ ; ExtendNumLet UNIDENTIFIED-22 ZWJ
+ExtendNumLet UNIDENTIFIED-22 ; ALetter_ExtPict ; UNIDENTIFIED-13
+ExtendNumLet UNIDENTIFIED-22 ; UNIDENTIFIED-22 ; ExtendNumLet UNIDENTIFIED-22
+ExtendNumLet UNIDENTIFIED-22 ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+ExtendNumLet UNIDENTIFIED-22 ; UNIDENTIFIED-25 ; ExtendNumLet UNIDENTIFIED-22
+ExtendNumLet UNIDENTIFIED-22 ; Katakana ; Katakana
+UNIDENTIFIED-21 ZWJ ; ExtPictmALetter ; UNIDENTIFIED-3
+UNIDENTIFIED-21 ZWJ ; UNIDENTIFIED-16 ; UNIDENTIFIED-21
+UNIDENTIFIED-21 ZWJ ; ZWJ ; UNIDENTIFIED-21 ZWJ
+UNIDENTIFIED-21 ZWJ ; ALetter_ExtPict ; UNIDENTIFIED-13
+UNIDENTIFIED-21 ZWJ ; UNIDENTIFIED-22 ; UNIDENTIFIED-21
+UNIDENTIFIED-21 ZWJ ; UNIDENTIFIED-25 ; UNIDENTIFIED-21
+RI UNIDENTIFIED-22 ; UNIDENTIFIED-16 ; RI UNIDENTIFIED-22
+RI UNIDENTIFIED-22 ; ZWJ ; RI UNIDENTIFIED-22 ZWJ
+RI UNIDENTIFIED-22 ; UNIDENTIFIED-22 ; RI UNIDENTIFIED-22
+RI UNIDENTIFIED-22 ; RI ; UNIDENTIFIED-3
+RI UNIDENTIFIED-22 ; UNIDENTIFIED-25 ; RI UNIDENTIFIED-22
+UNIDENTIFIED-26 UNIDENTIFIED-26 ; UNIDENTIFIED-16 ; UNIDENTIFIED-3
+UNIDENTIFIED-26 UNIDENTIFIED-26 ; ZWJ ; ZWJ
+UNIDENTIFIED-26 UNIDENTIFIED-26 ; UNIDENTIFIED-22 ; UNIDENTIFIED-21
+UNIDENTIFIED-26 UNIDENTIFIED-26 ; UNIDENTIFIED-25 ; UNIDENTIFIED-3
+UNIDENTIFIED-26 UNIDENTIFIED-26 ; UNIDENTIFIED-26 ; UNIDENTIFIED-26 UNIDENTIFIED-26
+UNIDENTIFIED-26 UNIDENTIFIED-26 ; UNIDENTIFIED-27 ; UNIDENTIFIED-27
+UNIDENTIFIED-26 UNIDENTIFIED-26 ; Katakana ; Katakana
 Katakana ExtendNumLet ; Numeric ; Numeric
-Katakana ExtendNumLet ; ALettermExtPict ; ALettermExtPict
-Katakana ExtendNumLet ; ExtendNumLet ; ALettermExtPict ExtendNumLet
-Katakana ExtendNumLet ; Extend|Format ; ExtendNumLet
+Katakana ExtendNumLet ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+Katakana ExtendNumLet ; ExtendNumLet ; UNIDENTIFIED-13 ExtendNumLet
+Katakana ExtendNumLet ; UNIDENTIFIED-16 ; ExtendNumLet
 Katakana ExtendNumLet ; Hebrew_Letter ; Hebrew_Letter
 Katakana ExtendNumLet ; ZWJ ; ExtendNumLet ZWJ
-Katakana ExtendNumLet ; ALetter_ExtPict ; ALettermExtPict
+Katakana ExtendNumLet ; ALetter_ExtPict ; UNIDENTIFIED-13
+Katakana ExtendNumLet ; UNIDENTIFIED-22 ; ExtendNumLet UNIDENTIFIED-22
+Katakana ExtendNumLet ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+Katakana ExtendNumLet ; UNIDENTIFIED-25 ; ExtendNumLet
 Katakana ExtendNumLet ; Katakana ; Katakana
+Katakana UNIDENTIFIED-16 ; ExtendNumLet ; Katakana ExtendNumLet
+Katakana UNIDENTIFIED-16 ; UNIDENTIFIED-16 ; Katakana UNIDENTIFIED-16
+Katakana UNIDENTIFIED-16 ; ZWJ ; Katakana ZWJ
+Katakana UNIDENTIFIED-16 ; UNIDENTIFIED-22 ; Katakana UNIDENTIFIED-16
+Katakana UNIDENTIFIED-16 ; UNIDENTIFIED-25 ; Katakana UNIDENTIFIED-16
+Katakana UNIDENTIFIED-16 ; Katakana ; Katakana
 Katakana ZWJ ; ExtendNumLet ; Katakana ExtendNumLet
-Katakana ZWJ ; ExtPictmALetter ; XXmExtPict
-Katakana ZWJ ; Extend|Format ; Katakana
+Katakana ZWJ ; ExtPictmALetter ; UNIDENTIFIED-3
+Katakana ZWJ ; UNIDENTIFIED-16 ; Katakana UNIDENTIFIED-16
 Katakana ZWJ ; ZWJ ; Katakana ZWJ
-Katakana ZWJ ; ALetter_ExtPict ; ALettermExtPict
+Katakana ZWJ ; ALetter_ExtPict ; UNIDENTIFIED-13
+Katakana ZWJ ; UNIDENTIFIED-22 ; Katakana UNIDENTIFIED-16
+Katakana ZWJ ; UNIDENTIFIED-25 ; Katakana UNIDENTIFIED-16
 Katakana ZWJ ; Katakana ; Katakana
+ExtendNumLet UNIDENTIFIED-22 ZWJ ; Numeric ; Numeric
+ExtendNumLet UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+ExtendNumLet UNIDENTIFIED-22 ZWJ ; ExtendNumLet ; UNIDENTIFIED-13 ExtendNumLet
+ExtendNumLet UNIDENTIFIED-22 ZWJ ; ExtPictmALetter ; UNIDENTIFIED-3
+ExtendNumLet UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-16 ; ExtendNumLet UNIDENTIFIED-22
+ExtendNumLet UNIDENTIFIED-22 ZWJ ; Hebrew_Letter ; Hebrew_Letter
+ExtendNumLet UNIDENTIFIED-22 ZWJ ; ZWJ ; ExtendNumLet UNIDENTIFIED-22 ZWJ
+ExtendNumLet UNIDENTIFIED-22 ZWJ ; ALetter_ExtPict ; UNIDENTIFIED-13
+ExtendNumLet UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-22 ; ExtendNumLet UNIDENTIFIED-22
+ExtendNumLet UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+ExtendNumLet UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-25 ; ExtendNumLet UNIDENTIFIED-22
+ExtendNumLet UNIDENTIFIED-22 ZWJ ; Katakana ; Katakana
+Hebrew_Letter Single_Quote UNIDENTIFIED-22 ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+Hebrew_Letter Single_Quote UNIDENTIFIED-22 ; UNIDENTIFIED-16 ; Hebrew_Letter Single_Quote UNIDENTIFIED-22
+Hebrew_Letter Single_Quote UNIDENTIFIED-22 ; Hebrew_Letter ; Hebrew_Letter
+Hebrew_Letter Single_Quote UNIDENTIFIED-22 ; ZWJ ; Hebrew_Letter Single_Quote UNIDENTIFIED-22 ZWJ
+Hebrew_Letter Single_Quote UNIDENTIFIED-22 ; ALetter_ExtPict ; UNIDENTIFIED-13
+Hebrew_Letter Single_Quote UNIDENTIFIED-22 ; UNIDENTIFIED-22 ; Hebrew_Letter Single_Quote UNIDENTIFIED-22
+Hebrew_Letter Single_Quote UNIDENTIFIED-22 ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+Hebrew_Letter Single_Quote UNIDENTIFIED-22 ; UNIDENTIFIED-25 ; Hebrew_Letter Single_Quote UNIDENTIFIED-22
+RI UNIDENTIFIED-22 ZWJ ; ExtPictmALetter ; UNIDENTIFIED-3
+RI UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-16 ; RI UNIDENTIFIED-22
+RI UNIDENTIFIED-22 ZWJ ; ZWJ ; RI UNIDENTIFIED-22 ZWJ
+RI UNIDENTIFIED-22 ZWJ ; ALetter_ExtPict ; UNIDENTIFIED-13
+RI UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-22 ; RI UNIDENTIFIED-22
+RI UNIDENTIFIED-22 ZWJ ; RI ; UNIDENTIFIED-3
+RI UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-25 ; RI UNIDENTIFIED-22
+Hebrew_Letter Single_Quote UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+Hebrew_Letter Single_Quote UNIDENTIFIED-22 ZWJ ; ExtPictmALetter ; UNIDENTIFIED-3
+Hebrew_Letter Single_Quote UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-16 ; Hebrew_Letter Single_Quote UNIDENTIFIED-22
+Hebrew_Letter Single_Quote UNIDENTIFIED-22 ZWJ ; Hebrew_Letter ; Hebrew_Letter
+Hebrew_Letter Single_Quote UNIDENTIFIED-22 ZWJ ; ZWJ ; Hebrew_Letter Single_Quote UNIDENTIFIED-22 ZWJ
+Hebrew_Letter Single_Quote UNIDENTIFIED-22 ZWJ ; ALetter_ExtPict ; UNIDENTIFIED-13
+Hebrew_Letter Single_Quote UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-22 ; Hebrew_Letter Single_Quote UNIDENTIFIED-22
+Hebrew_Letter Single_Quote UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+Hebrew_Letter Single_Quote UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-25 ; Hebrew_Letter Single_Quote UNIDENTIFIED-22
+Numeric UNIDENTIFIED-22 ; Single_Quote ; Numeric Single_Quote
+Numeric UNIDENTIFIED-22 ; MidNum ; Numeric Single_Quote
+Numeric UNIDENTIFIED-22 ; MidNumLet ; Numeric Single_Quote
+Numeric UNIDENTIFIED-22 ; Numeric ; Numeric
+Numeric UNIDENTIFIED-22 ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+Numeric UNIDENTIFIED-22 ; ExtendNumLet ; Numeric ExtendNumLet
+Numeric UNIDENTIFIED-22 ; UNIDENTIFIED-16 ; Numeric UNIDENTIFIED-22
+Numeric UNIDENTIFIED-22 ; Hebrew_Letter ; Hebrew_Letter
+Numeric UNIDENTIFIED-22 ; ZWJ ; Numeric UNIDENTIFIED-22 ZWJ
+Numeric UNIDENTIFIED-22 ; ALetter_ExtPict ; UNIDENTIFIED-13
+Numeric UNIDENTIFIED-22 ; UNIDENTIFIED-22 ; Numeric UNIDENTIFIED-22
+Numeric UNIDENTIFIED-22 ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+Numeric UNIDENTIFIED-22 ; UNIDENTIFIED-25 ; Numeric UNIDENTIFIED-22
+Numeric UNIDENTIFIED-22 ZWJ ; Single_Quote ; Numeric Single_Quote
+Numeric UNIDENTIFIED-22 ZWJ ; MidNum ; Numeric Single_Quote
+Numeric UNIDENTIFIED-22 ZWJ ; MidNumLet ; Numeric Single_Quote
+Numeric UNIDENTIFIED-22 ZWJ ; Numeric ; Numeric
+Numeric UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+Numeric UNIDENTIFIED-22 ZWJ ; ExtendNumLet ; Numeric ExtendNumLet
+Numeric UNIDENTIFIED-22 ZWJ ; ExtPictmALetter ; UNIDENTIFIED-3
+Numeric UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-16 ; Numeric UNIDENTIFIED-22
+Numeric UNIDENTIFIED-22 ZWJ ; Hebrew_Letter ; Hebrew_Letter
+Numeric UNIDENTIFIED-22 ZWJ ; ZWJ ; Numeric UNIDENTIFIED-22 ZWJ
+Numeric UNIDENTIFIED-22 ZWJ ; ALetter_ExtPict ; UNIDENTIFIED-13
+Numeric UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-22 ; Numeric UNIDENTIFIED-22
+Numeric UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+Numeric UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-25 ; Numeric UNIDENTIFIED-22
+UNIDENTIFIED-13 UNIDENTIFIED-22 ; Single_Quote ; UNIDENTIFIED-13 Single_Quote
+UNIDENTIFIED-13 UNIDENTIFIED-22 ; MidNumLet ; UNIDENTIFIED-13 Single_Quote
+UNIDENTIFIED-13 UNIDENTIFIED-22 ; Numeric ; Numeric
+UNIDENTIFIED-13 UNIDENTIFIED-22 ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+UNIDENTIFIED-13 UNIDENTIFIED-22 ; ExtendNumLet ; UNIDENTIFIED-13 ExtendNumLet
+UNIDENTIFIED-13 UNIDENTIFIED-22 ; UNIDENTIFIED-16 ; UNIDENTIFIED-13 UNIDENTIFIED-22
+UNIDENTIFIED-13 UNIDENTIFIED-22 ; UNIDENTIFIED-17 ; UNIDENTIFIED-13 Single_Quote
+UNIDENTIFIED-13 UNIDENTIFIED-22 ; Hebrew_Letter ; Hebrew_Letter
+UNIDENTIFIED-13 UNIDENTIFIED-22 ; ZWJ ; UNIDENTIFIED-13 UNIDENTIFIED-22 ZWJ
+UNIDENTIFIED-13 UNIDENTIFIED-22 ; ALetter_ExtPict ; UNIDENTIFIED-13
+UNIDENTIFIED-13 UNIDENTIFIED-22 ; UNIDENTIFIED-22 ; UNIDENTIFIED-13 UNIDENTIFIED-22
+UNIDENTIFIED-13 UNIDENTIFIED-22 ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+UNIDENTIFIED-13 UNIDENTIFIED-22 ; UNIDENTIFIED-25 ; UNIDENTIFIED-13 UNIDENTIFIED-22
+Hebrew_Letter UNIDENTIFIED-22 ; Double_Quote ; Hebrew_Letter Double_Quote
+Hebrew_Letter UNIDENTIFIED-22 ; Single_Quote ; Hebrew_Letter Single_Quote
+Hebrew_Letter UNIDENTIFIED-22 ; MidNumLet ; UNIDENTIFIED-13 Single_Quote
+Hebrew_Letter UNIDENTIFIED-22 ; Numeric ; Numeric
+Hebrew_Letter UNIDENTIFIED-22 ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+Hebrew_Letter UNIDENTIFIED-22 ; ExtendNumLet ; UNIDENTIFIED-13 ExtendNumLet
+Hebrew_Letter UNIDENTIFIED-22 ; UNIDENTIFIED-16 ; Hebrew_Letter UNIDENTIFIED-22
+Hebrew_Letter UNIDENTIFIED-22 ; UNIDENTIFIED-17 ; UNIDENTIFIED-13 Single_Quote
+Hebrew_Letter UNIDENTIFIED-22 ; Hebrew_Letter ; Hebrew_Letter
+Hebrew_Letter UNIDENTIFIED-22 ; ZWJ ; Hebrew_Letter UNIDENTIFIED-22 ZWJ
+Hebrew_Letter UNIDENTIFIED-22 ; ALetter_ExtPict ; UNIDENTIFIED-13
+Hebrew_Letter UNIDENTIFIED-22 ; UNIDENTIFIED-22 ; Hebrew_Letter UNIDENTIFIED-22
+Hebrew_Letter UNIDENTIFIED-22 ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+Hebrew_Letter UNIDENTIFIED-22 ; UNIDENTIFIED-25 ; Hebrew_Letter UNIDENTIFIED-22
+UNIDENTIFIED-13 UNIDENTIFIED-22 ZWJ ; Single_Quote ; UNIDENTIFIED-13 Single_Quote
+UNIDENTIFIED-13 UNIDENTIFIED-22 ZWJ ; MidNumLet ; UNIDENTIFIED-13 Single_Quote
+UNIDENTIFIED-13 UNIDENTIFIED-22 ZWJ ; Numeric ; Numeric
+UNIDENTIFIED-13 UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+UNIDENTIFIED-13 UNIDENTIFIED-22 ZWJ ; ExtendNumLet ; UNIDENTIFIED-13 ExtendNumLet
+UNIDENTIFIED-13 UNIDENTIFIED-22 ZWJ ; ExtPictmALetter ; UNIDENTIFIED-3
+UNIDENTIFIED-13 UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-16 ; UNIDENTIFIED-13 UNIDENTIFIED-22
+UNIDENTIFIED-13 UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-17 ; UNIDENTIFIED-13 Single_Quote
+UNIDENTIFIED-13 UNIDENTIFIED-22 ZWJ ; Hebrew_Letter ; Hebrew_Letter
+UNIDENTIFIED-13 UNIDENTIFIED-22 ZWJ ; ZWJ ; UNIDENTIFIED-13 UNIDENTIFIED-22 ZWJ
+UNIDENTIFIED-13 UNIDENTIFIED-22 ZWJ ; ALetter_ExtPict ; UNIDENTIFIED-13
+UNIDENTIFIED-13 UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-22 ; UNIDENTIFIED-13 UNIDENTIFIED-22
+UNIDENTIFIED-13 UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+UNIDENTIFIED-13 UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-25 ; UNIDENTIFIED-13 UNIDENTIFIED-22
+Hebrew_Letter UNIDENTIFIED-22 ZWJ ; Double_Quote ; Hebrew_Letter Double_Quote
+Hebrew_Letter UNIDENTIFIED-22 ZWJ ; Single_Quote ; Hebrew_Letter Single_Quote
+Hebrew_Letter UNIDENTIFIED-22 ZWJ ; MidNumLet ; UNIDENTIFIED-13 Single_Quote
+Hebrew_Letter UNIDENTIFIED-22 ZWJ ; Numeric ; Numeric
+Hebrew_Letter UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-13 ; UNIDENTIFIED-13
+Hebrew_Letter UNIDENTIFIED-22 ZWJ ; ExtendNumLet ; UNIDENTIFIED-13 ExtendNumLet
+Hebrew_Letter UNIDENTIFIED-22 ZWJ ; ExtPictmALetter ; UNIDENTIFIED-3
+Hebrew_Letter UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-16 ; Hebrew_Letter UNIDENTIFIED-22
+Hebrew_Letter UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-17 ; UNIDENTIFIED-13 Single_Quote
+Hebrew_Letter UNIDENTIFIED-22 ZWJ ; Hebrew_Letter ; Hebrew_Letter
+Hebrew_Letter UNIDENTIFIED-22 ZWJ ; ZWJ ; Hebrew_Letter UNIDENTIFIED-22 ZWJ
+Hebrew_Letter UNIDENTIFIED-22 ZWJ ; ALetter_ExtPict ; UNIDENTIFIED-13
+Hebrew_Letter UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-22 ; Hebrew_Letter UNIDENTIFIED-22
+Hebrew_Letter UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-24 ; UNIDENTIFIED-13
+Hebrew_Letter UNIDENTIFIED-22 ZWJ ; UNIDENTIFIED-25 ; Hebrew_Letter UNIDENTIFIED-22
