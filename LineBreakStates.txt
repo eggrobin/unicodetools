@@ -6,7 +6,6 @@ eot ; Yes ;  ; Mandatory
 CR ; Yes ;  ; Mandatory
 CM ; Yes ;  ; 
 HL ; Yes ;  ; 
-OPmEastAsian SP CM ; Yes ;  ; 
 BAmEastAsian ; Yes ;  ; 
 SP ; Yes ;  ; 
 EXmEastAsian ; Yes ;  ; 
@@ -36,7 +35,6 @@ AL_DottedCircle ZWJ ; Yes ;  ;
 EB_EastAsian ZWJ ; Yes ;  ; 
 CB ZWJ ; Yes ;  ; 
 AP ZWJ ; Yes ;  ; 
-OPmEastAsian SP ZWJ ; Yes ;  ; 
 AK VI ZWJ ; Yes ;  ; 
 PRmEastAsian ; Yes ;  ; 
 POmEastAsian ; Yes ;  ; 
@@ -57,7 +55,6 @@ EB_EastAsian ; Yes ;  ;
 CB ; Yes ;  ; 
 AP ; Yes ;  ; 
 RI ; Yes ;  ; 
-CM QU_Pf ; Yes ;  ; 
 CP SP ; Yes ;  ; 
 AK VI ; Yes ;  ; 
 B2 SP ; Yes ;  ; 
