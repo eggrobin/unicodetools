@@ -1,5 +1,5 @@
-# Based on Segmenter-15.1.0.txt, undoing the changes in
-# https://www.unicode.org/notes/tn54/alba-3.html?v=15.1.0&base=15.0.0.
+# Identical to Segmenter-15.0.0.txt, as there are no changes to the rules in
+# https://www.unicode.org/notes/tn54/alba-3.html?v=15.0.0&base=14.0.0.
 # GCB not yet adjusted (still 15.1 rules).
 
 @GraphemeClusterBreak
