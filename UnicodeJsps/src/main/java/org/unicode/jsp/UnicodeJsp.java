@@ -125,7 +125,7 @@ public class UnicodeJsp {
 
         List<Integer> breaks = new ArrayList<>();
 
-        if (version.equals("ICU")) {
+        if (version.equals("Current ICU")) {
             // TODO(egg): We should show statuses somehow.
             RuleBasedBreakIterator b;
             if (type.equals("Word")) {
@@ -134,12 +134,13 @@ public class UnicodeJsp {
                 b = (RuleBasedBreakIterator) BreakIterator.getLineInstance();
             } else if (type.equals("Sentence")) {
                 b = (RuleBasedBreakIterator) BreakIterator.getSentenceInstance();
-            } else if (type.equals("Grapheme")) {
+            } else if (type.equals("GraphemeCluster")) {
                 b = (RuleBasedBreakIterator) BreakIterator.getCharacterInstance();
             } else {
                 throw new IllegalArgumentException(type);
             }
-            for (int nextBreak = b.next(); nextBreak != BreakIterator.DONE; nextBreak = b.next()) {
+            b.setText(text);
+            for (int nextBreak = b.first(); nextBreak != BreakIterator.DONE; nextBreak = b.next()) {
                 breaks.add(nextBreak);
             }
         } else {

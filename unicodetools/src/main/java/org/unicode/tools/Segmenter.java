@@ -279,9 +279,11 @@ public class Segmenter {
     /** A « treat as » rule. */
     public static class RemapRule extends SegmentationRule {
 
-        public RemapRule(String leftHandSide, String replacement, String line, VersionInfo version) {
+        public RemapRule(
+                String leftHandSide, String replacement, String line, VersionInfo version) {
             patternDefinition = leftHandSide;
-            pattern = Pattern.compile(Builder.expandUnicodeSets(leftHandSide, version), REGEX_FLAGS);
+            pattern =
+                    Pattern.compile(Builder.expandUnicodeSets(leftHandSide, version), REGEX_FLAGS);
             this.replacement = replacement;
             name = line;
         }
@@ -402,7 +404,8 @@ public class Segmenter {
          * @param after pattern for the text before the offset. All variables must be resolved.
          * @param line
          */
-        public RegexRule(String before, Breaks result, String after, String line, VersionInfo version) {
+        public RegexRule(
+                String before, Breaks result, String after, String line, VersionInfo version) {
             beforeDefinition = before;
             afterDefinition = after;
             before = Builder.expandUnicodeSets(before, version);
@@ -678,7 +681,8 @@ public class Segmenter {
             if (line.startsWith("show")) {
                 line = line.substring(4).trim();
                 System.out.println("# " + line + ": ");
-                System.out.println("\t" + expandUnicodeSets(replaceVariables(line, variables), version));
+                System.out.println(
+                        "\t" + expandUnicodeSets(replaceVariables(line, variables), version));
                 return false;
             }
             // dumb parsing for now
@@ -788,9 +792,6 @@ public class Segmenter {
 
             if (SHOW_VAR_CONTENTS) System.out.println(name + "=" + value);
             // verify that the value is a valid REGEX
-            if (value.equals("[]")) {
-                value = "(?!a)[a]"; // HACK to match nothing.
-            }
             Pattern.compile(expandUnicodeSets(value, version), REGEX_FLAGS).matcher("");
             // if (false && name.equals("$AL")) {
             // findRegexProblem(value);
@@ -854,7 +855,8 @@ public class Segmenter {
                             + " </rule>");
             rules.put(
                     order,
-                    new Segmenter.RemapRule(replaceVariables(before, variables), after, line, version));
+                    new Segmenter.RemapRule(
+                            replaceVariables(before, variables), after, line, version));
             return this;
         }
 
@@ -991,7 +993,8 @@ public class Segmenter {
                     UnicodeSet temp =
                             new UnicodeSet(
                                     result, parsePosition, VersionedSymbolTable.frozenAt(version));
-                    String insert = getInsertablePattern(temp);
+                    // The empty class is not supported, insert an impossible expression instead.
+                    String insert = temp.isEmpty() ? "(?:(?!a)a)" : getInsertablePattern(temp);
                     result =
                             result.substring(0, i)
                                     + insert

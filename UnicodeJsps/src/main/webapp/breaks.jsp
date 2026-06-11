@@ -34,13 +34,13 @@ span.break   { border-right: 1px solid red;}
       <td style="width:50%"><b>Input </b></td>
       <td style="width:50%">
       <select size="1" name="type" onchange="document.myform.submit();">
-      <option <%= (type.equals("Grapheme") ? "selected" : "")%>>Grapheme</option>
+      <option <%= (type.equals("GraphemeCluster") ? "selected" : "")%>>GraphemeCluster</option>
       <option <%= (type.equals("Word") ? "selected" : "")%>>Word</option>
       <option <%= (type.equals("Line") ? "selected" : "")%>>Line</option>
       <option <%= (type.equals("Sentence") ? "selected" : "")%>>Sentence</option>
       </select>
       <select size="1" name="version" onchange="document.myform.submit();">
-      <option <%= (version.equals("ICU") ? "selected" : "")%>>Current ICU</option>
+      <option <%= (version.equals("Current ICU") ? "selected" : "")%>>Current ICU</option>
 <%
         for (String v : versions) {
 %>
