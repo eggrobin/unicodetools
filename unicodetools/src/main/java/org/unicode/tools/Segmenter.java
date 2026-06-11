@@ -76,7 +76,7 @@ public class Segmenter {
                                 ? "Default"
                                 : version.getVersionString(3, 3))
                         + ".txt";
-        Builder b = new Builder(version, target);
+        Builder b = new Builder(version);
 
         // quick and dirty cache of file lines, so we don't hit file multiple times.
         Multimap<String, String> data = FILE_CACHE.get(sourceFileName);
