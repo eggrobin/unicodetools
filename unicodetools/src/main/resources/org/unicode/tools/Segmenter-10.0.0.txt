@@ -1,5 +1,5 @@
-# Based on Segmenter-13.0.0.txt, undoing the changes in
-# https://www.unicode.org/notes/tn54/alba-3.html?v=13.0.0&base=12.0.0.
+# Based on Segmenter-11.0.0.txt, undoing the changes in
+# https://www.unicode.org/notes/tn54/alba-3.html?v=11.0.0&base=10.0.0.
 # GCB not yet adjusted (still 15.1 rules).
 
 @GraphemeClusterBreak
@@ -163,8 +163,8 @@ $NS=[$NSorig $CJ]
 7.02) × $ZW
 # LB 8  Break before any character following a zero-width space, even if one or more spaces intervene.
 8) $ZW $SP* ÷
-# LB 8a  Don't break between ZWJ and IDs (for use in Emoji ZWJ sequences)
-8.1) $ZWJ ×
+# LB 8a  Do not break between a zero width joiner and an ideograph, emoji base or emoji modifier.
+8.1) $ZWJ × ($ID | $EB | $EM)
 # LB 9  Do not break a combining character sequence; treat it as if it has the line breaking class
 # of the base character in all of the following rules. Treat ZWJ as if it were CM.
 9) (?<X>[^$BK $CR $LF $NL $SP $ZW]) ( $CM | $ZWJ )* → ${X}
