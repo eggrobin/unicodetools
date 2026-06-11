@@ -95,7 +95,7 @@ public class UnicodeJsp {
         // See https://github.com/unicode-org/unicodetools/issues/100 for the filter.
         // Line breaking was standardized in Unicode Version 3.0.
         return Utility.UNICODE_VERSIONS.stream()
-                .filter(v -> v == VersionInfo.getInstance(13, 1))
+                .filter(v -> v != VersionInfo.getInstance(13, 1))
                 .takeWhile(v -> v.getMajor() > 2)
                 .map(v -> v.getVersionString(3, 3))
                 .toArray(String[]::new);
