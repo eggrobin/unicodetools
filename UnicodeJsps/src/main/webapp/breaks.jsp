@@ -19,8 +19,11 @@ span.break   { border-right: 1px solid red;}
 
 		String text = request.getParameter("a");
 		if (text == null) text = "Sample Text.";
-		String choice = request.getParameter("D1");
-		if (choice == null) choice = "Word";
+		String type = request.getParameter("type");
+		if (type == null) type = "Word";
+		String version = request.getParameter("version");
+		String[] versions = UnicodeJsp.getSegmentationVersions();
+		if (version == null) version = versions[0];
 %>
 <h1>Unicode Utilities: Breaks (Segmentation)</h1>
 <%@ include file="subtitle.jsp" %>
@@ -30,18 +33,28 @@ span.break   { border-right: 1px solid red;}
     <tr>
       <td style="width:50%"><b>Input </b></td>
       <td style="width:50%">
-      <select size="1" name="D1" onchange="document.myform.submit();">
-      <option <%= (choice.equals("User Character") ? "selected" : "")%>>User Character</option>
-      <option <%= (choice.equals("Word") ? "selected" : "")%>>Word</option>
-      <option <%= (choice.equals("Line") ? "selected" : "")%>>Line</option>
-      <option <%= (choice.equals("Sentence") ? "selected" : "")%>>Sentence</option>
+      <select size="1" name="type" onchange="document.myform.submit();">
+      <option <%= (type.equals("Grapheme") ? "selected" : "")%>>Grapheme Cluster</option>
+      <option <%= (type.equals("Word") ? "selected" : "")%>>Word</option>
+      <option <%= (type.equals("Line") ? "selected" : "")%>>Line</option>
+      <option <%= (type.equals("Sentence") ? "selected" : "")%>>Sentence</option>
+      </select>
+      <select size="1" name="version" onchange="document.myform.submit();">
+      <option <%= (version.equals("ICU") ? "selected" : "")%>>Current ICU</option>
+<%
+        for (String v : versions) {
+%>
+      <option <%= (version.equals(v) ? "selected" : "")%>>v</option>
+<%
+        }
+%>
       </select>
       <input type="submit" value="Test" /></td>
     </tr>
     <tr>
       <td><textarea name="a" rows="30" cols="30" style="width:100%; height:100%"><%=Encode.forHtmlContent(text)%></textarea></td>
       <td>
-      <%=UnicodeJsp.showBreaks(text, choice)%>&nbsp;</td>
+      <%=UnicodeJsp.showBreaks(text, type, version)%>&nbsp;</td>
     </tr>
   </table>
 </form>

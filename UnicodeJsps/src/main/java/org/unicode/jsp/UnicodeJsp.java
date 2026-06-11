@@ -15,7 +15,9 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.jar.Manifest;
@@ -29,6 +31,8 @@ import org.unicode.idna.Uts46;
 import org.unicode.jsp.UnicodeUtilities.CodePointShower;
 import org.unicode.text.utility.Settings;
 import org.unicode.text.utility.Settings.ReleasePhase;
+import org.unicode.text.utility.Utility;
+import org.unicode.tools.Segmenter;
 
 public class UnicodeJsp {
 
@@ -87,16 +91,19 @@ public class UnicodeJsp {
         return output.toString();
     }
 
-    public static String showBreaks(String text, String choice) {
+    public static String[] getSegmentationVersions() {
+        // See https://github.com/unicode-org/unicodetools/issues/100 for the filter.
+        // Line breaking was standardized in Unicode Version 3.0.
+        return Utility.UNICODE_VERSIONS.stream()
+                .filter(v -> v == VersionInfo.getInstance(13, 1))
+                .takeWhile(v -> v.getMajor() > 2)
+                .map(v -> v.getVersionString(3, 3))
+                .toArray(String[]::new);
+    }
 
-        RuleBasedBreakIterator b;
-        if (choice.equals("Word")) b = (RuleBasedBreakIterator) BreakIterator.getWordInstance();
-        else if (choice.equals("Line"))
-            b = (RuleBasedBreakIterator) BreakIterator.getLineInstance();
-        else if (choice.equals("Sentence"))
-            b = (RuleBasedBreakIterator) BreakIterator.getSentenceInstance();
-        else b = (RuleBasedBreakIterator) BreakIterator.getCharacterInstance();
+    private static final Map<VersionInfo, Map<String, Segmenter>> SEGMENTER_CACHE = new HashMap<>();
 
+    public static String showBreaks(String text, String type, String version) {
         Matcher decimalEscapes = Pattern.compile("&#(x)?([0-9]+);").matcher(text);
         // quick hack, since hex-any doesn't do decimal escapes
         int start = 0;
@@ -111,24 +118,57 @@ public class UnicodeJsp {
         result2.append(text.substring(start));
         text = UNESCAPER.transform(result2.toString());
 
-        int lastBreak = 0;
-        StringBuffer result = new StringBuffer();
-        b.setText(text);
-        b.first();
-        for (int nextBreak = b.next(); nextBreak != BreakIterator.DONE; nextBreak = b.next()) {
-            int status = b.getRuleStatus();
-            String piece = text.substring(lastBreak, nextBreak);
-            // piece = toHTML.transliterate(piece);
-            piece = UnicodeUtilities.toHTML(piece);
+        List<Integer> breaks = new ArrayList<>();
 
+        if (version.equals("ICU")) {
+            // TODO(egg): We should show statuses somehow.
+            RuleBasedBreakIterator b;
+            if (type.equals("Word")) {
+                b = (RuleBasedBreakIterator) BreakIterator.getWordInstance();
+            } else if (type.equals("Line")) {
+                b = (RuleBasedBreakIterator) BreakIterator.getLineInstance();
+            } else if (type.equals("Sentence")) {
+                b = (RuleBasedBreakIterator) BreakIterator.getSentenceInstance();
+            } else if (type.equals("Grapheme")) {
+                b = (RuleBasedBreakIterator) BreakIterator.getCharacterInstance();
+            } else {
+                throw new IllegalArgumentException(type);
+            }
+            for (int nextBreak = b.next(); nextBreak != BreakIterator.DONE; nextBreak = b.next()) {
+                breaks.add(nextBreak);
+            }
+        } else {
+            // TODO(egg): We should show rule information somehow.
+            final var versionInfo = VersionInfo.getInstance(version);
+            final var segmenter =
+                    SEGMENTER_CACHE
+                            .computeIfAbsent(versionInfo, v -> new HashMap<>())
+                            .computeIfAbsent(
+                                    type, t -> Segmenter.make(versionInfo, type + "Break").make());
+            for (int i = 0; i <= text.length(); ) {
+                if (segmenter.breaksAt(text, i)) {
+                    breaks.add(i);
+                }
+                if (text.codePointAt(i) > 0xFFFF) {
+                    i += 2;
+                } else {
+                    ++i;
+                }
+            }
+        }
+
+        int lastBreak = 0;
+        final var result = new StringBuilder();
+        for (final int position : breaks) {
+            String piece = text.substring(lastBreak, position);
+            piece = UnicodeUtilities.toHTML(piece);
             piece =
                     piece.replaceAll("&#xA;", "<br>")
                             .replaceAll("\r\n", "<br>")
                             .replaceAll("\n", "<br>");
             result.append("<span class='break'>").append(piece).append("</span>");
-            lastBreak = nextBreak;
+            lastBreak = position;
         }
-
         return result.toString();
     }
 
