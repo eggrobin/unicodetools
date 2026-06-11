@@ -279,9 +279,9 @@ public class Segmenter {
     /** A « treat as » rule. */
     public static class RemapRule extends SegmentationRule {
 
-        public RemapRule(String leftHandSide, String replacement, String line) {
+        public RemapRule(String leftHandSide, String replacement, String line, VersionInfo version) {
             patternDefinition = leftHandSide;
-            pattern = Pattern.compile(Builder.expandUnicodeSets(leftHandSide), REGEX_FLAGS);
+            pattern = Pattern.compile(Builder.expandUnicodeSets(leftHandSide, version), REGEX_FLAGS);
             this.replacement = replacement;
             name = line;
         }
@@ -402,11 +402,11 @@ public class Segmenter {
          * @param after pattern for the text before the offset. All variables must be resolved.
          * @param line
          */
-        public RegexRule(String before, Breaks result, String after, String line) {
+        public RegexRule(String before, Breaks result, String after, String line, VersionInfo version) {
             beforeDefinition = before;
             afterDefinition = after;
-            before = Builder.expandUnicodeSets(before);
-            after = Builder.expandUnicodeSets(after);
+            before = Builder.expandUnicodeSets(before, version);
+            after = Builder.expandUnicodeSets(after, version);
             breaks = result;
             before = ".*(" + before + ")";
             String parsing = null;
@@ -678,7 +678,7 @@ public class Segmenter {
             if (line.startsWith("show")) {
                 line = line.substring(4).trim();
                 System.out.println("# " + line + ": ");
-                System.out.println("\t" + expandUnicodeSets(replaceVariables(line, variables)));
+                System.out.println("\t" + expandUnicodeSets(replaceVariables(line, variables), version));
                 return false;
             }
             // dumb parsing for now
@@ -758,7 +758,7 @@ public class Segmenter {
                     parsePosition.setIndex(0);
                     UnicodeSet valueSet =
                             new UnicodeSet(
-                                    value, parsePosition, VersionedSymbolTable.forDevelopment());
+                                    value, parsePosition, VersionedSymbolTable.frozenAt(version));
                     if (parsePosition.getIndex() != value.length()) {
                         if (SHOW_SAMPLES)
                             System.out.println(
@@ -791,12 +791,12 @@ public class Segmenter {
             if (value.equals("[]")) {
                 value = "(?!a)[a]"; // HACK to match nothing.
             }
-            Pattern.compile(expandUnicodeSets(value), REGEX_FLAGS).matcher("");
+            Pattern.compile(expandUnicodeSets(value, version), REGEX_FLAGS).matcher("");
             // if (false && name.equals("$AL")) {
             // findRegexProblem(value);
             // }
             variables.put(name, value);
-            expandedVariables.put(name, expandUnicodeSets(value));
+            expandedVariables.put(name, expandUnicodeSets(value, version));
             return this;
         }
 
@@ -854,7 +854,7 @@ public class Segmenter {
                             + " </rule>");
             rules.put(
                     order,
-                    new Segmenter.RemapRule(replaceVariables(before, variables), after, line));
+                    new Segmenter.RemapRule(replaceVariables(before, variables), after, line, version));
             return this;
         }
 
@@ -918,7 +918,8 @@ public class Segmenter {
                             replaceVariables(before, variables),
                             breaks,
                             replaceVariables(after, variables),
-                            line));
+                            line,
+                            version));
             return this;
         }
 
@@ -979,7 +980,7 @@ public class Segmenter {
         }
 
         /** Replaces Unicode Sets with literals. */
-        public static String expandUnicodeSets(String input) {
+        public static String expandUnicodeSets(String input, VersionInfo version) {
             String result = input;
             var parsePosition = new ParsePosition(0);
             // replace properties
@@ -989,7 +990,7 @@ public class Segmenter {
                     parsePosition.setIndex(i);
                     UnicodeSet temp =
                             new UnicodeSet(
-                                    result, parsePosition, VersionedSymbolTable.forDevelopment());
+                                    result, parsePosition, VersionedSymbolTable.frozenAt(version));
                     String insert = getInsertablePattern(temp);
                     result =
                             result.substring(0, i)

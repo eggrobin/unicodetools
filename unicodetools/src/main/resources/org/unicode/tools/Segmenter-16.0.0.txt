@@ -1,7 +1,7 @@
-# SegmenterDefault from 27875cb669668c0e42ea6866080f78c1566fe6e5.
-# This is a 16.0 implementation but it is not what we used in
-# final-16.0-20240912 since the syntax changed to become closer to
-# the rules (and in particular to support remap rules).
+## SegmenterDefault from 27875cb669668c0e42ea6866080f78c1566fe6e5.
+## This is a 16.0 implementation but it is not what we used in
+## final-16.0-20240912 since the syntax changed to become closer to
+## the rules (and in particular to support remap rules).
 
 @GraphemeClusterBreak
 ## double ## at the start of a line doesn't show up

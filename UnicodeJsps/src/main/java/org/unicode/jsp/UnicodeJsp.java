@@ -97,7 +97,12 @@ public class UnicodeJsp {
         return Utility.UNICODE_VERSIONS.stream()
                 .filter(v -> v != VersionInfo.getInstance(13, 1))
                 .takeWhile(v -> v.getMajor() > 2)
-                .map(v -> v.getVersionString(3, 3))
+                .map(
+                        v ->
+                                v.getVersionString(3, 3)
+                                        + (v == Settings.LATEST_VERSION_INFO
+                                                ? Settings.latestVersionPhase
+                                                : ""))
                 .toArray(String[]::new);
     }
 
@@ -139,7 +144,9 @@ public class UnicodeJsp {
             }
         } else {
             // TODO(egg): We should show rule information somehow.
-            final var versionInfo = VersionInfo.getInstance(version);
+            final var versionInfo =
+                    VersionInfo.getInstance(
+                            version.replace(Settings.latestVersionPhase.toString(), ""));
             final var segmenter =
                     SEGMENTER_CACHE
                             .computeIfAbsent(versionInfo, v -> new HashMap<>())
@@ -149,7 +156,7 @@ public class UnicodeJsp {
                 if (segmenter.breaksAt(text, i)) {
                     breaks.add(i);
                 }
-                if (text.codePointAt(i) > 0xFFFF) {
+                if (i < text.length() && text.codePointAt(i) > 0xFFFF) {
                     i += 2;
                 } else {
                     ++i;

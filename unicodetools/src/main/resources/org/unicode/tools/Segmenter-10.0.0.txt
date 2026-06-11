@@ -1,6 +1,6 @@
-# Based on Segmenter-11.0.0.txt, undoing the changes in
-# https://www.unicode.org/notes/tn54/alba-3.html?v=11.0.0&base=10.0.0.
-# GCB not yet adjusted (still 15.1 rules).
+## Based on Segmenter-11.0.0.txt, undoing the changes in
+## https://www.unicode.org/notes/tn54/alba-3.html?v=11.0.0&base=10.0.0.
+## GCB not yet adjusted (still 15.1 rules).
 
 @GraphemeClusterBreak
 ## double ## at the start of a line doesn't show up

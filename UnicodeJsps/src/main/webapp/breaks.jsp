@@ -34,7 +34,7 @@ span.break   { border-right: 1px solid red;}
       <td style="width:50%"><b>Input </b></td>
       <td style="width:50%">
       <select size="1" name="type" onchange="document.myform.submit();">
-      <option <%= (type.equals("Grapheme") ? "selected" : "")%>>Grapheme Cluster</option>
+      <option <%= (type.equals("Grapheme") ? "selected" : "")%>>Grapheme</option>
       <option <%= (type.equals("Word") ? "selected" : "")%>>Word</option>
       <option <%= (type.equals("Line") ? "selected" : "")%>>Line</option>
       <option <%= (type.equals("Sentence") ? "selected" : "")%>>Sentence</option>
@@ -44,7 +44,7 @@ span.break   { border-right: 1px solid red;}
 <%
         for (String v : versions) {
 %>
-      <option <%= (version.equals(v) ? "selected" : "")%>>v</option>
+      <option <%= (version.equals(v) ? "selected" : "")%>><%=v%></option>
 <%
         }
 %>
