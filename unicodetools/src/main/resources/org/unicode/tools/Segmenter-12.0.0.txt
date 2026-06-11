@@ -208,9 +208,12 @@ $NS=[$NSorig $CJ]
 21.1) $HL ($HY | $BA) ×
 # LB 21b Don’t break between Solidus and Hebrew letters.
 21.2) $SY × $HL
-# LB 22  Do not break before ellipses.
-##	show $AL
-22) × $IN
+# LB 22  Do not break between two ellipses, or between letters, numbers or exclamations and ellipsis.
+22.01) ($AL | $HL) × $IN
+22.02) $EX × $IN
+22.03) ($ID | $EB | $EM) × $IN
+22.04) $IN × $IN
+22.05) $NU × $IN
 # LB 23  Do not break between digits and letters.
 ##	23.01) ($ID | $EB | $EM) × $PO
 23.02) ($AL | $HL) × $NU
@@ -248,8 +251,8 @@ $NS=[$NSorig $CJ]
 # LB 29  Do not break between numeric punctuation and alphabetics (\"e.g.\").
 29) $IS × ($AL | $HL)
 # LB 30  Do not break between letters, numbers or ordinary symbols and opening or closing punctuation.
-30.01) ($AL | $HL | $NU) × $OPmEastAsian
-30.02) $CPmEastAsian × ($AL | $HL | $NU)
+30.01) ($AL | $HL | $NU) × $OP
+30.02) $CP × ($AL | $HL | $NU)
 # LB 30a  Break between two Regional Indicators if and only if there is an even number of them before the point being considered.
 30.11) $sot ($RI $RI)* $RI × $RI
 30.12) [^$RI] ($RI $RI)* $RI × $RI
