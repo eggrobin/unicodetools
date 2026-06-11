@@ -18,6 +18,7 @@ import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.text.UnicodeSet.SpanCondition;
 import com.ibm.icu.text.UnicodeSetIterator;
 import com.ibm.icu.util.ULocale;
+import com.ibm.icu.util.VersionInfo;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,19 +35,14 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import org.unicode.cldr.draft.FileUtilities;
 import org.unicode.cldr.util.TransliteratorUtilities;
-import org.unicode.props.UnicodeProperty;
 import org.unicode.text.UCD.VersionedSymbolTable;
+import org.unicode.text.utility.Settings;
 import org.unicode.text.utility.UTF16Plus;
 import org.unicode.tools.Segmenter.Builder.NamedRefinedSet;
 import org.unicode.tools.Segmenter.SegmentationRule.Breaks;
 
 /** Ordered list of rules, with variables resolved before building. Use Builder to make. */
 public class Segmenter {
-    public enum Target {
-        FOR_UCD,
-        FOR_CLDR
-    }
-
     public static final int REGEX_FLAGS = Pattern.COMMENTS | Pattern.MULTILINE | Pattern.DOTALL;
     private static final UnicodeSet PATTERN_SYNTAX = new UnicodeSet("\\p{pattern syntax}").freeze();
     private static final UnicodeSet PATTERN_SYNTAX_OR_WHITE_SPACE =
@@ -66,27 +62,21 @@ public class Segmenter {
     private static final String DEBUG_AT_STRING = "\u0009\u0308\u00A0"; // null to turn off
     private static final String DEBUG_AT_RULE_CONTAINING = "$Spec3_"; // null to turn off
 
-    public final Target target;
-
     private UnicodeMap<String> samples = new UnicodeMap<String>();
     private List<NamedRefinedSet> partitionDefinition = new ArrayList<>();
-
-    private Segmenter(Target target) {
-        this.target = target;
-    }
 
     public static interface CodePointShower {
         String show(int codePoint);
     }
 
-    public static Builder make(UnicodeProperty.Factory propFactory, String type) {
-        return make(propFactory, type, Target.FOR_UCD);
-    }
-
-    public static Builder make(UnicodeProperty.Factory propFactory, String type, Target target) {
+    public static Builder make(VersionInfo version, String type) {
         String sourceFileName =
-                target == Target.FOR_CLDR ? "SegmenterCldr.txt" : "SegmenterDefault.txt";
-        Builder b = new Builder(propFactory, target);
+                "SegmenterDefault"
+                        + (version == Settings.LATEST_VERSION_INFO
+                                ? "Default"
+                                : version.getVersionString(3, 3))
+                        + ".txt";
+        Builder b = new Builder(version, target);
 
         // quick and dirty cache of file lines, so we don't hit file multiple times.
         Multimap<String, String> data = FILE_CACHE.get(sourceFileName);
@@ -533,8 +523,7 @@ public class Segmenter {
      * adding a rule sorts/overrides according to numeric value.
      */
     public static class Builder {
-        private final UnicodeProperty.Factory propFactory;
-        private final Target target;
+        private final VersionInfo version;
         private List<String> rawVariables = new ArrayList<String>();
         private Map<Double, String> xmlRules = new TreeMap<Double, String>();
         private Map<Double, String> htmlRules = new TreeMap<Double, String>();
@@ -641,9 +630,8 @@ public class Segmenter {
 
         private List<NamedRefinedSet> partition = new ArrayList<>(List.of(new NamedRefinedSet()));
 
-        public Builder(UnicodeProperty.Factory factory, Target target) {
-            propFactory = factory;
-            this.target = target;
+        public Builder(VersionInfo version) {
+            this.version = version;
             htmlRules.put(new Double(BREAK_SOT), "sot \u00F7");
             htmlRules.put(new Double(BREAK_EOT), "\u00F7 eot");
             htmlRules.put(new Double(BREAK_ANY), "\u00F7 Any");
@@ -940,7 +928,7 @@ public class Segmenter {
          * @return
          */
         public Segmenter make() {
-            Segmenter result = new Segmenter(target);
+            Segmenter result = new Segmenter();
             for (Double key : rules.keySet()) {
                 result.add(key.doubleValue(), rules.get(key));
             }
