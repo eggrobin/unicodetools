@@ -71,10 +71,10 @@ public class Segmenter {
 
     public static Builder make(VersionInfo version, String type) {
         String sourceFileName =
-                "SegmenterDefault"
+                "Segmenter"
                         + (version == Settings.LATEST_VERSION_INFO
                                 ? "Default"
-                                : version.getVersionString(3, 3))
+                                : "-" + version.getVersionString(3, 3))
                         + ".txt";
         Builder b = new Builder(version);
 
