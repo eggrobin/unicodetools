@@ -180,6 +180,7 @@ $NS=[$NSorig $CJ]
 13.01) × $EX
 13.02) × $CL
 13.03) × $CP
+13.031)× $IS
 13.04) × $SY
 #LB 14  Do not break after \u2018[\u2019, even after spaces.
 14) $OP $SP* ×
@@ -190,10 +191,6 @@ $NS=[$NSorig $CJ]
 # LB 15b Do not break before an unresolved final punctuation that lies at the end of the line, before
 # a space, before a prohibited break, or before an unresolved quotation mark, even before spaces.
 15.21) × $QU_Pf ( $SP | $GL | $WJ | $CL | $QU | $CP | $EX | $IS | $SY | $BK | $CR | $LF | $NL | $ZW | $eot )
-# LB 15c Break before numbers starting with a decimal mark.
-15.30) $SP ÷ $IS $NU
-# LB 15d Otherwise, do not break before commas or full stops.
-15.40) × $IS
 # LB 16  Do not break between closing punctuation and a nonstarter (lb=NS), even with intervening spaces.
 16) ($CL | $CP) $SP* × $NS
 # LB 17  Do not break within \u2018\u2014\u2014\u2019, even with intervening spaces.
@@ -201,25 +198,18 @@ $NS=[$NSorig $CJ]
 # LB 18  Break after spaces.
 18) $SP ÷
 # LB 19  Do not break before or after \u2018\"\u2019.
-19.01) × $QUmPi
-19.02) $QUmPf ×
-# LB 19a Unless surrounded by East Asian Characters, do not break either side of any unresolved quotation marks.
-19.10) [^$EastAsian] × $QU
-19.11) × $QU ( [^$EastAsian] | $eot )
-19.12) $QU × [^$EastAsian]
-19.13) ( [^$EastAsian] | $sot ) $QU ×
+19.01) × $QU
+19.02) $QU ×
 # LB 20  Break before and after unresolved CB.
 20.01)  ÷ $CB
 20.02) $CB ÷
-# LB 20a Do not break after a hyphen that follows break opportunity, a space, or the start of text.
-20.10) ( $BK | $CR | $LF | $NL | $SP | $ZW | $CB | $GL | $sot ) ( $HY | $Hyphen ) × $AL
 # LB 21  Do not break before hyphen-minus, other hyphens, fixed-width spaces, small kana and other non-starters, or after acute accents.
 21.01) × $BA
 21.02) × $HY
 21.03) × $NS
 21.04) $BB ×
 # LB 21a Do not break after the hyphen in Hebrew-hyphen-non-Hebrew.
-21.1) $HL ($HY | $NonEastAsianBA) × [^$HL]
+21.1) $HL ($HY | $BA) ×
 # LB 21b Don’t break between Solidus and Hebrew letters.
 21.2) $SY × $HL
 # LB 22  Do not break before ellipses.
@@ -236,21 +226,19 @@ $NS=[$NSorig $CJ]
 24.02) ($PR | $PO) × ($AL | $HL)
 24.03) ($AL | $HL) × ($PR | $PO)
 # LB 25 Do not break numbers.
-25.01) $NU ( $SY | $IS )* $CL × $PO
-25.02) $NU ( $SY | $IS )* $CP × $PO
-25.03) $NU ( $SY | $IS )* $CL × $PR
-25.04) $NU ( $SY | $IS )* $CP × $PR
-25.05) $NU ( $SY | $IS )* × $PO
-25.06) $NU ( $SY | $IS )* × $PR
-25.07) $PO × $OP $NU
-25.08) $PO × $OP $IS $NU
+25.01) $CL × $PO
+25.02) $CP × $PO
+25.03) $CL × $PR
+25.04) $CP × $PR
+25.05) $NU × $PO
+25.06) $NU × $PR
+25.07) $PO × $OP
 25.09) $PO × $NU
-25.10) $PR × $OP $NU
-25.11) $PR × $OP $IS $NU
+25.10) $PR × $OP
 25.12) $PR × $NU
 25.13) $HY × $NU
 25.14) $IS × $NU
-25.15) $NU ( $SY | $IS )* × $NU
+25.15) $NU × $NU
 #LB 26 Do not break a Korean syllable.
 26.01) $JL  × $JL | $JV | $H2 | $H3
 26.02) $JV | $H2 × $JV | $JT
