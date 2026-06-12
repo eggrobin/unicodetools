@@ -1,3 +1,33 @@
+@EmojiBreak
+$emoji_character = \p{Emoji}
+$default_emoji_presentation_character = \p{Emoji_Presentation}
+$default_text_presentation_character = \P{Emoji_Presentation}
+$text_presentation_selector = [\x{FE0E}]
+$emoji_presentation_selector = [\x{FE0F}]
+$emoji_modifier = \p{Emoji_Modifier}
+$emoji_modifier_base = \p{Emoji_Modifier_Base}
+$regional_indicator = \p{Regional_Indicator}
+$tag_spec_character = [\x{E0020}-\x{E007E}]
+$tag_end            = [\x{E007F}]
+$phone_key = [0-9#*]
+$keycap =  [\x{20E3}]
+$zwj = [\N{ZERO WIDTH JOINER}]
+
+@EmojiRoozbehBreak
+$emoji_character = \p{Emoji}
+$default_emoji_presentation_character = \p{Emoji_Presentation}
+$default_text_presentation_character = \P{Emoji_Presentation}
+$text_presentation_selector = [\x{FE0E}]
+$emoji_presentation_selector = [\x{FE0F}]
+$emoji_modifier = \p{Emoji_Modifier}
+$emoji_modifier_base = \p{Emoji_Modifier_Base}
+$regional_indicator = \p{Regional_Indicator}
+$tag_spec_character = [\x{E0020}-\x{E007E}]
+$tag_end            = [\x{E007F}]
+$phone_key = [0-9#*]
+$keycap =  [\x{20E3}]
+$zwj = [\N{ZERO WIDTH JOINER}]
+
 @GraphemeClusterBreak
 ## double ## at the start of a line doesn't show up
 

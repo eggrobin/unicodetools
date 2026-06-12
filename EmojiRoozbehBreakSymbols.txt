@@ -1,0 +1,12 @@
+# Symbol name ; Symbol definition in UnicodeSet notation
+default_text_presentation_character_text_presentation_selector|default_text_presentation_charactermemoji_charactermtext_presentation_selectormemoji_presentation_selectormtag_spec_charactermtag_endmkeycapmzwj ; [[\P{Emoji_Presentation}&[\x{FE0E}]] [\P{Emoji_Presentation}-\p{Emoji}-[\x{FE0E}]-[\x{FE0F}]-[\x{E0020}-\x{E007E}]-[\x{E007F}]-[\x{20E3}]-[\N{ZERO WIDTH JOINER}]]]
+emoji_character_phone_key ; [\p{Emoji}&[0-9#*]]
+emoji_character_default_emoji_presentation_charactermemoji_modifiermemoji_modifier_basemregional_indicator|emoji_charactermdefault_emoji_presentation_charactermemoji_modifier_basemphone_key ; [[\p{Emoji}&\p{Emoji_Presentation}-\p{Emoji_Modifier}-\p{Emoji_Modifier_Base}-\p{Regional_Indicator}] [\p{Emoji}-\p{Emoji_Presentation}-\p{Emoji_Modifier_Base}-[0-9#*]]]
+default_text_presentation_character_zwj ; [\P{Emoji_Presentation}&[\N{ZERO WIDTH JOINER}]]
+default_text_presentation_character_keycap ; [\P{Emoji_Presentation}&[\x{20E3}]]
+emoji_character_default_emoji_presentation_character_emoji_modifier_base|emoji_character_emoji_modifier_basemdefault_emoji_presentation_character ; [[\p{Emoji}&\p{Emoji_Presentation}&\p{Emoji_Modifier_Base}] [\p{Emoji}&\p{Emoji_Modifier_Base}-\p{Emoji_Presentation}]]
+default_text_presentation_character_emoji_presentation_selector ; [\P{Emoji_Presentation}&[\x{FE0F}]]
+emoji_character_default_emoji_presentation_character_regional_indicator ; [\p{Emoji}&\p{Emoji_Presentation}&\p{Regional_Indicator}]
+emoji_character_default_emoji_presentation_character_emoji_modifier ; [\p{Emoji}&\p{Emoji_Presentation}&\p{Emoji_Modifier}]
+default_text_presentation_character_tag_spec_character ; [\P{Emoji_Presentation}&[\x{E0020}-\x{E007E}]]
+default_text_presentation_character_tag_end ; [\P{Emoji_Presentation}&[\x{E007F}]]

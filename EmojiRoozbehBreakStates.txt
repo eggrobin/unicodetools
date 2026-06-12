@@ -1,0 +1,12 @@
+# State name ; Accepting (Yes, No, or lookahead name); lookahead name or empty; Break type.
+START ; No ;  ; 
+emoji_character_phone_key default_text_presentation_character_zwj ; No ;  ; 
+emoji_character_phone_key default_text_presentation_character_tag_spec_character ; No ;  ; 
+emoji_character_phone_key ; Yes ;  ; 
+emoji_character_default_emoji_presentation_charactermemoji_modifiermemoji_modifier_basemregional_indicator ; Yes ;  ; 
+emoji_character_default_emoji_presentation_character_emoji_modifier_base ; Yes ;  ; 
+emoji_character_default_emoji_presentation_character_regional_indicator ; Yes ;  ; 
+emoji_character_phone_key default_text_presentation_character_emoji_presentation_selector ; Yes ;  ; 
+emoji_character_default_emoji_presentation_charactermemoji_modifiermemoji_modifier_basemregional_indicator default_text_presentation_character_emoji_presentation_selector ; Yes ;  ; 
+emoji_character_default_emoji_presentation_character_regional_indicator emoji_character_default_emoji_presentation_character_regional_indicator ; Yes ;  ; 
+emoji_character_phone_key default_text_presentation_character_tag_spec_character default_text_presentation_character_tag_end ; Yes ;  ; 
