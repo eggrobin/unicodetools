@@ -245,6 +245,7 @@ $NS=[$NSorig $CJ]
 25.13) $HY × $NU
 25.14) $IS × $NU
 25.15) $NU × $NU
+25.16) $SY × $NU
 #LB 26 Do not break a Korean syllable.
 26.01) $JL  × $JL | $JV | $H2 | $H3
 26.02) $JV | $H2 × $JV | $JT
@@ -261,19 +262,10 @@ $NS=[$NSorig $CJ]
 30.01) ($AL | $HL | $NU) × $OP
 30.02) $CP × ($AL | $HL | $NU)
 # LB 30a  Break between two Regional Indicators if and only if there is an even number of them before the point being considered.
-<<<<<<< .\unicodetools\src\main\resources\org\unicode\tools\Segmenter-8.0.0.txt
 30.11) $RI × $RI
-=======
-30.11) $sot ($RI $RI)* $RI × $RI
-30.12) [^$RI] ($RI $RI)* $RI × $RI
-30.13) $RI ÷ $RI
-# LB 30b Do not break between an emoji base (or potential emoji) and an emoji modifier.
-30.21) $EB × $EM
-30.22) $ExtPictUnassigned × $EM
 # LB31 Break everywhere else.
 31.01) $ALL ÷
 31.02) ÷ $ALL
->>>>>>> new
 
 @SentenceBreak
 

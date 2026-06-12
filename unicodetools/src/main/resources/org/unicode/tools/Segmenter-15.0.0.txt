@@ -246,6 +246,7 @@ $NS=[$NSorig $CJ]
 25.13) $HY × $NU
 25.14) $IS × $NU
 25.15) $NU × $NU
+25.16) $SY × $NU
 #LB 26 Do not break a Korean syllable.
 26.01) $JL  × $JL | $JV | $H2 | $H3
 26.02) $JV | $H2 × $JV | $JT
