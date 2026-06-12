@@ -12,6 +12,9 @@ import org.unicode.props.UcdProperty;
 import org.unicode.text.utility.Settings;
 
 public class MonkeyMaker {
+
+    static final String[] MONKEYS = {"🙈", "🙉", "🙊", "🐵", "🐒"};
+
     public static void main(String[] args) throws IOException {
         String type = null;
         VersionInfo version = null;
@@ -86,20 +89,12 @@ public class MonkeyMaker {
                         final UnicodeSet part =
                                 partition.get(rng.nextInt(partition.size())).getSet();
                         cp = part.charAt(rng.nextInt(part.size()));
-                        if (scalarsOnly && cp <= 0xFFFF && Character.isSurrogate((char) cp)) {
-                            continue;
-                        } else if (!includeSA && sa.contains(cp)) {
-                            continue;
-                        }
-                    } while (false);
+                    } while ((scalarsOnly && cp <= 0xFFFF && Character.isSurrogate((char) cp))
+                            || (!includeSA && sa.contains(cp)));
                     testString.appendCodePoint(cp);
                 }
-                int i = 0;
-                for (; ; ) {
-                    file.print(segmenter.breaksAt(testString, i) ? " ÷ " : " × ");
-                    if (i == testString.length()) {
-                        break;
-                    }
+                file.print(segmenter.breaksAt(testString, 0) ? "÷ " : "× ");
+                for (int i = 0; i < testString.length(); ) {
                     final int cp = testString.codePointAt(i);
                     file.print(Utility.hex(cp));
                     if (cp > 0xFFFF) {
@@ -107,8 +102,15 @@ public class MonkeyMaker {
                     } else {
                         ++i;
                     }
+                    file.print(segmenter.breaksAt(testString, i) ? " ÷ " : " × ");
                 }
-                file.println("# 🐒");
+                final String monkey = MONKEYS[rng.nextInt(MONKEYS.length)];
+                file.println("# " + monkey);
+                System.out.print(monkey);
+                if ((k + 1) % 100 == 0) {
+                    System.out.println();
+                    System.out.println((k + 1) + "...");
+                }
             }
         }
     }
