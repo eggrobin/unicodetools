@@ -1,4 +1,6 @@
-## SegmenterDefault from final-17.0-20250910.
+## SegmenterDefault from final-17.0-20250910,
+## with changes from https://github.com/unicode-org/unicodetools/pull/1444
+## backported by git merge-file.
 
 @GraphemeClusterBreak
 ## double ## at the start of a line doesn't show up
