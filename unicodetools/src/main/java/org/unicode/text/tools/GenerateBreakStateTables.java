@@ -20,13 +20,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.unicode.props.IndexUnicodeProperties;
 import org.unicode.text.UCD.VersionedSymbolTable;
+import org.unicode.text.utility.Settings;
 import org.unicode.tools.Segmenter;
 import org.unicode.tools.Segmenter.Builder.NamedRefinedSet;
 import org.unicode.tools.Segmenter.Builder.NamedSet;
 
 public class GenerateBreakStateTables {
     public static void main(String[] args) throws IOException {
-        Generate("Line", "uline", Map.of(100, "Mandatory"));
+        //Generate("Line", "uline", Map.of(100, "Mandatory"));
         Generate("GraphemeCluster", "char", Map.of());
         // Generate("Word", "word", Map.of(100, "Number", 200, "Letter", 400, "Letter"));
         // Generate("Sentence", "sent", Map.of(100, "EOL"));
@@ -63,12 +64,12 @@ public class GenerateBreakStateTables {
                                         + ".brk"))) {
             rbbi = RuleBasedBreakIterator.getInstanceFromCompiledRules(f);
         }
-        final var iup = IndexUnicodeProperties.make(UCharacter.getUnicodeVersion());
+        final var iup = IndexUnicodeProperties.make(Settings.LATEST_VERSION_INFO);
         final var unassigned = iup.getProperty("gc").getSet("Unassigned");
         final var pua = iup.getProperty("gc").getSet("Private Use");
         var segmenter =
                 Segmenter.make(
-                                VersionedSymbolTable.frozenAt(UCharacter.getUnicodeVersion()),
+                                VersionedSymbolTable.frozenAt(Settings.LATEST_VERSION_INFO),
                                 name + "Break")
                         .make();
         List<NamedRefinedSet> namedPartition = segmenter.getPartitionDefinition();
