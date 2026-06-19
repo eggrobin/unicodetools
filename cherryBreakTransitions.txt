@@ -1,0 +1,57 @@
+# From state ; symbol ; to state
+START ; v|1|2|3|whatever ; whatever
+START ; t ; whatever
+START ; u ; whatever
+START ; w ; whatever
+START ; x ; x
+START ; y ; whatever
+START ; z ; whatever
+whatever ; v|1|2|3|whatever ; whatever
+whatever ; t ; whatever
+whatever ; u ; whatever
+whatever ; w ; whatever
+whatever ; x ; whatever
+whatever ; y ; whatever
+whatever ; z ; whatever
+x ; v|1|2|3|whatever ; whatever
+x ; t ; whatever
+x ; u ; whatever
+x ; w ; x w
+x ; x ; whatever
+x ; y ; x y
+x ; z ; whatever
+x w ; v|1|2|3|whatever ; whatever
+x w ; t ; whatever
+x w ; u ; x w u
+x w ; w ; whatever
+x w ; x ; whatever
+x w ; y ; whatever
+x w ; z ; x w z
+x y ; v|1|2|3|whatever ; whatever
+x y ; t ; x y t
+x y ; u ; whatever
+x y ; w ; whatever
+x y ; x ; whatever
+x y ; y ; whatever
+x y ; z ; x w z
+x w u ; v|1|2|3|whatever ; whatever
+x w u ; t ; whatever
+x w u ; u ; whatever
+x w u ; w ; whatever
+x w u ; x ; whatever
+x w u ; y ; whatever
+x w u ; z ; whatever
+x w z ; v|1|2|3|whatever ; whatever
+x w z ; t ; whatever
+x w z ; u ; whatever
+x w z ; w ; whatever
+x w z ; x ; whatever
+x w z ; y ; whatever
+x w z ; z ; whatever
+x y t ; v|1|2|3|whatever ; whatever
+x y t ; t ; whatever
+x y t ; u ; whatever
+x y t ; w ; whatever
+x y t ; x ; whatever
+x y t ; y ; whatever
+x y t ; z ; whatever

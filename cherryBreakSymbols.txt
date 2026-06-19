@@ -1,0 +1,8 @@
+# Symbol name ; Symbol definition in UnicodeSet notation
+v|1|2|3|whatever ; [[[v]] [[1]] [[2]] [[3]] [[[^]-[t-z]-[1-3]]]]
+t ; [[t]]
+u ; [[u]]
+w ; [[w]]
+x ; [[x]]
+y ; [[y]]
+z ; [[z]]

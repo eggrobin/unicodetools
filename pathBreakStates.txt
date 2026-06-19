@@ -1,0 +1,13 @@
+# State name ; Accepting (Yes, No, or lookahead name); lookahead name or empty; Break type.
+START ; Yes ;  ; 
+whatever ; Yes ;  ; 
+x y z ; Yes ;  ; 
+x ; Yes ; x / y z 1 ; 
+y ; Yes ; y / z 2 ; 
+x y ; Yes ; y / z 2 ; 
+y z ; Yes ; y z / t 1 ; 
+y z 2 ; y / z 2 ;  ; 
+y z t ; Yes ; y z t / 2 ; 
+x y z 1 ; x / y z 1 ;  ; 
+y z t 1 ; y z / t 1 ;  ; 
+y z t 2 ; y z t / 2 ;  ; 

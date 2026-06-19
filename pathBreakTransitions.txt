@@ -1,0 +1,85 @@
+# From state ; symbol ; to state
+START ; u|v|w|3|whatever ; whatever
+START ; 1 ; whatever
+START ; 2 ; whatever
+START ; t ; whatever
+START ; x ; x
+START ; y ; y
+START ; z ; whatever
+whatever ; u|v|w|3|whatever ; whatever
+whatever ; 1 ; whatever
+whatever ; 2 ; whatever
+whatever ; t ; whatever
+whatever ; x ; whatever
+whatever ; y ; whatever
+whatever ; z ; whatever
+x y z ; u|v|w|3|whatever ; whatever
+x y z ; 1 ; x y z 1
+x y z ; 2 ; y z 2
+x y z ; t ; whatever
+x y z ; x ; whatever
+x y z ; y ; whatever
+x y z ; z ; whatever
+x ; u|v|w|3|whatever ; whatever
+x ; 1 ; whatever
+x ; 2 ; whatever
+x ; t ; whatever
+x ; x ; whatever
+x ; y ; x y
+x ; z ; whatever
+y ; u|v|w|3|whatever ; whatever
+y ; 1 ; whatever
+y ; 2 ; whatever
+y ; t ; whatever
+y ; x ; whatever
+y ; y ; whatever
+y ; z ; y z
+x y ; u|v|w|3|whatever ; whatever
+x y ; 1 ; whatever
+x y ; 2 ; whatever
+x y ; t ; whatever
+x y ; x ; whatever
+x y ; y ; whatever
+x y ; z ; x y z
+y z ; u|v|w|3|whatever ; whatever
+y z ; 1 ; whatever
+y z ; 2 ; y z 2
+y z ; t ; y z t
+y z ; x ; whatever
+y z ; y ; whatever
+y z ; z ; whatever
+y z 2 ; u|v|w|3|whatever ; whatever
+y z 2 ; 1 ; whatever
+y z 2 ; 2 ; whatever
+y z 2 ; t ; whatever
+y z 2 ; x ; whatever
+y z 2 ; y ; whatever
+y z 2 ; z ; whatever
+y z t ; u|v|w|3|whatever ; whatever
+y z t ; 1 ; y z t 1
+y z t ; 2 ; y z t 2
+y z t ; t ; whatever
+y z t ; x ; whatever
+y z t ; y ; whatever
+y z t ; z ; whatever
+x y z 1 ; u|v|w|3|whatever ; whatever
+x y z 1 ; 1 ; whatever
+x y z 1 ; 2 ; whatever
+x y z 1 ; t ; whatever
+x y z 1 ; x ; whatever
+x y z 1 ; y ; whatever
+x y z 1 ; z ; whatever
+y z t 1 ; u|v|w|3|whatever ; whatever
+y z t 1 ; 1 ; whatever
+y z t 1 ; 2 ; whatever
+y z t 1 ; t ; whatever
+y z t 1 ; x ; whatever
+y z t 1 ; y ; whatever
+y z t 1 ; z ; whatever
+y z t 2 ; u|v|w|3|whatever ; whatever
+y z t 2 ; 1 ; whatever
+y z t 2 ; 2 ; whatever
+y z t 2 ; t ; whatever
+y z t 2 ; x ; whatever
+y z t 2 ; y ; whatever
+y z t 2 ; z ; whatever

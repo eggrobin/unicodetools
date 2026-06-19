@@ -26,8 +26,11 @@ import org.unicode.tools.Segmenter.Builder.NamedSet;
 
 public class GenerateBreakStateTables {
     public static void main(String[] args) throws IOException {
-        Generate("Line", "uline", Map.of(100, "Mandatory"));
-        Generate("GraphemeCluster", "char", Map.of());
+        Generate("cherry", "cherry", Map.of());
+        Generate("triangle", "triangle", Map.of());
+        Generate("path", "path", Map.of());
+        //Generate("Line", "uline", Map.of(100, "Mandatory"));
+        //Generate("GraphemeCluster", "char", Map.of());
         // Generate("Word", "word", Map.of(100, "Number", 200, "Letter", 400, "Letter"));
         // Generate("Sentence", "sent", Map.of(100, "EOL"));
     }
