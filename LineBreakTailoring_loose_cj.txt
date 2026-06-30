@@ -42,5 +42,7 @@
 [± ¤ € №] ; [{NON_EAST_ASIAN_PRX}]
 # Some $EastAsian PR to EAST_ASIAN_PRX.
 [＄﹩ ￡ ￥ ￦] ; [{EAST_ASIAN_PRX}]
-# HH to LOOSE_DASH. Needs revisiting in 18.0, as EN DASH will move back out of HH.
-[:lb=HH:] ; [{LOOSE_DASH}]
+# HH to LOOSE_HYPHEN.
+[:lb=HH:] ; [{LOOSE_HYPHEN}]
+# EN DASH to LOOSE_DASH (the CSS specification calls it a hyphen).
+[–] ; [{LOOSE_DASH}]
