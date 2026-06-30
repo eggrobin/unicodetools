@@ -29,8 +29,8 @@ public class GenerateBreakStateTables {
     public static void main(String[] args) throws IOException {
         //Generate("Line", "uline", Map.of(100, "Mandatory"));
         Generate("GraphemeCluster", "char", Map.of());
-        // Generate("Word", "word", Map.of(100, "Number", 200, "Letter", 400, "Letter"));
-        // Generate("Sentence", "sent", Map.of(100, "EOL"));
+        Generate("Word", "word", Map.of(100, "Number", 200, "Letter", 400, "Letter"));
+        Generate("Sentence", "sent", Map.of(100, "Nonterminated"));
     }
 
     private static final Map<Integer, String> LINE_TAILORING_HOOKS =
@@ -366,23 +366,52 @@ public class GenerateBreakStateTables {
             nameToLookahead.put(entry.getValue(), entry.getKey());
         }
         try (var file = new PrintStream(new File(name + "BreakSymbols.txt"))) {
-            file.println("# Symbol name ; Symbol definition in UnicodeSet notation");
-            for (final var characterClass : rbbiNames.values()) {
-                file.print(
-                        characterClass.stream()
+            file.println("# Symbol name ; Symbol definition in UnicodeSet notation ; Optional non-dictionary equivalent symbol");
+            for (final var entry : rbbiNames.entrySet()) {
+                final int i = entry.getKey();
+                final boolean isDictionarySymbol = i >= table.fDictCategoriesStart;
+                final var symbol = entry.getValue();
+                final String symbolName = 
+                        symbol.stream()
                                         .map(NamedRefinedSet::getName)
                                         .map(s -> s.replace("orig", ""))
-                                        .collect(Collectors.joining("|"))
+                                        .collect(Collectors.joining("|"));
+                file.print(symbolName
                                 + " ; ");
-                if (characterClass.size() > 1) {
+                if (symbol.size() > 1) {
                     file.print("[");
                 }
                 file.print(
-                        characterClass.stream()
+                        symbol.stream()
                                 .map(NamedRefinedSet::getDefinition)
                                 .collect(Collectors.joining(" ")));
-                if (characterClass.size() > 1) {
+                if (symbol.size() > 1) {
                     file.print("]");
+                }
+                file.print(" ; ");
+                if (isDictionarySymbol) {
+                    String nonDictionaryEquivalentSymbol = symbolName;
+                    findNonDictionaryEquivalent:
+                    for (final var other : rbbiNames.entrySet()) {
+                        final int j = other.getKey();
+                        if (j >= table.fDictCategoriesStart) {
+                            break;
+                        }
+                        for (int state = 1; state < table.fNumStates; ++state) {
+                            final int row = rbbi.fRData.getRowIndex(state);
+
+                            int nexti = table.fTable[row + RBBIDataWrapper.NEXTSTATES + i];
+                            int nextj = table.fTable[row + RBBIDataWrapper.NEXTSTATES + j];
+                            if (nexti != nextj) {
+                                continue findNonDictionaryEquivalent;
+                            }
+                        }
+                        nonDictionaryEquivalentSymbol = other.getValue().stream()
+                                            .map(NamedRefinedSet::getName)
+                                            .map(s -> s.replace("orig", ""))
+                                            .collect(Collectors.joining("|"));
+                    }
+                    file.print(nonDictionaryEquivalentSymbol);
                 }
                 file.println();
             }
