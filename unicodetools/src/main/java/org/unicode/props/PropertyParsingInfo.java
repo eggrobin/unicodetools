@@ -8,6 +8,7 @@ import com.ibm.icu.text.Normalizer2;
 import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.util.VersionInfo;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,6 +17,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -49,11 +51,54 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
     public final SpecialProperty special;
 
     /**
-     * Maps from Unicode versions to field number. A property whose field number depends on the
-     * version has more than one entry. A particular field number applies to the Unicode versions
+     * Represents a mapping from one field of a UCD file to another. For instance, given the data
+     * line ABCD ; Value ; 1234 FieldMapping(1) maps U+ABCD to Value, FieldMapping(2) maps U+ABCD to
+     * 1234 (which may be interpreted as U+1234) depending on the property type, and FieldMapping(2,
+     * 1) maps U+1234 to Value.
+     */
+    public static class FieldMapping implements Comparable<FieldMapping> {
+        public enum KeyType {
+            CodePoint,
+            String,
+            CodePointSet,
+        }
+
+        /** A mapping from field 0 to field `valueField`. This is the most common case. */
+        FieldMapping(int valueField) {
+            this(0, valueField, KeyType.CodePoint);
+        }
+
+        FieldMapping(int keyField, int valueField, KeyType keyType) {
+            this.keyField = keyField;
+            this.valueField = valueField;
+            this.keyType = keyType;
+        }
+
+        @Override
+        public int compareTo(FieldMapping other) {
+            return comparator.compare(this, other);
+        }
+
+        @Override
+        public String toString() {
+            return keyField + " ↦ " + valueField;
+        }
+
+        final int keyField;
+        final int valueField;
+        final KeyType keyType;
+        static final Comparator<FieldMapping> comparator =
+                Comparator.<FieldMapping>comparingInt(m -> m.keyField)
+                        .thenComparing(m -> m.valueField)
+                        .thenComparing(m -> m.keyType);
+    }
+
+    /**
+     * Maps from Unicode versions to field mapping. A property whose field mapping depends on the
+     * version has more than one entry. A particular field mapping applies to the Unicode versions
      * after the previous-version entry, up to and including its own version.
      */
-    TreeMap<VersionInfo, Integer> fieldNumbers;
+    TreeMap<VersionInfo, FieldMapping> fieldMappings;
 
     /**
      * Maps from Unicode versions to files. A property whose file depends on the version has more
@@ -105,16 +150,18 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
             Relation.of(new HashMap<String, Set<PropertyParsingInfo>>(), HashSet.class);
 
     public PropertyParsingInfo(
-            String file, UcdProperty property, int fieldNumber, SpecialProperty special) {
+            String file, UcdProperty property, FieldMapping fieldMapping, SpecialProperty special) {
         this.files = new TreeMap<>();
         files.put(Settings.LATEST_VERSION_INFO, file);
         this.property = property;
-        this.fieldNumbers = new TreeMap<>();
-        fieldNumbers.put(Settings.LATEST_VERSION_INFO, fieldNumber);
+        this.fieldMappings = new TreeMap<>();
+        fieldMappings.put(Settings.LATEST_VERSION_INFO, fieldMapping);
         this.special = special;
     }
 
     static final Pattern VERSION = Pattern.compile("v\\d+(\\.\\d+)+");
+    static final Pattern FIELD_MAPPING =
+            Pattern.compile("(?:(\\d+)|\\{(\\d+)\\}|\"(\\d+)\")\\s*↦\\s*(\\d+)");
 
     private static void fromStrings(String... propertyInfo) {
         if (propertyInfo.length < 2 || propertyInfo.length > 4) {
@@ -130,13 +177,29 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
 
         String last = propertyInfo[propertyInfo.length - 1];
 
-        int temp = 1;
+        var fieldMapping = new FieldMapping(1);
         if (propertyInfo.length > 2
                 && !propertyInfo[2].isEmpty()
                 && !VERSION.matcher(propertyInfo[2]).matches()) {
-            temp = Integer.parseInt(propertyInfo[2]);
+            final var matcher = FIELD_MAPPING.matcher(propertyInfo[2]);
+            if (matcher.matches()) {
+                fieldMapping =
+                        new FieldMapping(
+                                Integer.parseInt(
+                                        Optional.ofNullable(matcher.group(1))
+                                                .orElse(
+                                                        Optional.ofNullable(matcher.group(2))
+                                                                .orElse(matcher.group(3)))),
+                                Integer.parseInt(matcher.group(4)),
+                                matcher.group(1) != null
+                                        ? FieldMapping.KeyType.CodePoint
+                                        : matcher.group(2) != null
+                                                ? FieldMapping.KeyType.CodePointSet
+                                                : FieldMapping.KeyType.String);
+            } else {
+                fieldMapping = new FieldMapping(Integer.parseInt(propertyInfo[2]));
+            }
         }
-        int _fieldNumber = temp;
 
         if (VERSION.matcher(last).matches()) {
             propertyInfo[propertyInfo.length - 1] = "";
@@ -146,7 +209,7 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                         "No modern info for property with old file record: " + propName);
             }
             result.files.put(VersionInfo.getInstance(last.substring(1)), _file);
-            result.fieldNumbers.put(VersionInfo.getInstance(last.substring(1)), _fieldNumber);
+            result.fieldMappings.put(VersionInfo.getInstance(last.substring(1)), fieldMapping);
             file2PropertyInfoSet.put(_file, result);
             return;
         }
@@ -156,7 +219,7 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                         ? SpecialProperty.None
                         : SpecialProperty.valueOf(propertyInfo[3]);
         PropertyParsingInfo result =
-                new PropertyParsingInfo(_file, _property, _fieldNumber, _special);
+                new PropertyParsingInfo(_file, _property, fieldMapping, _special);
 
         try {
             PropertyUtilities.putNew(property2PropertyInfo, _property, result);
@@ -173,7 +236,9 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
         }
         PropertyParsingInfo info = property2PropertyInfo.get(prop);
         if (info == null) {
-            info = new PropertyParsingInfo(filename, prop, 1, SpecialProperty.None);
+            info =
+                    new PropertyParsingInfo(
+                            filename, prop, new FieldMapping(1), SpecialProperty.None);
             property2PropertyInfo.put(prop, info);
         }
         file2PropertyInfoSet.put(filename, info);
@@ -185,7 +250,7 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                 + " ;\t"
                 + property
                 + " ;\t"
-                + fieldNumbers
+                + fieldMappings
                 + " ;\t"
                 + special
                 + " ;\t"
@@ -212,8 +277,9 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
         if (0 != (result = property.toString().compareTo(arg0.property.toString()))) {
             return result;
         }
-        return fieldNumbers.get(Settings.LATEST_VERSION_INFO)
-                - arg0.fieldNumbers.get(Settings.LATEST_VERSION_INFO);
+        return fieldMappings
+                .get(Settings.LATEST_VERSION_INFO)
+                .compareTo(arg0.fieldMappings.get(Settings.LATEST_VERSION_INFO));
     }
 
     public static String getFullFileName(UcdProperty prop, VersionInfo ucdVersion) {
@@ -240,18 +306,18 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
         }
     }
 
-    public int getFieldNumber(VersionInfo ucdVersionRequested) {
-        int fieldNumber = 0;
-        if (fieldNumbers.size() == 1) {
-            return fieldNumbers.values().iterator().next();
+    public FieldMapping getFieldMapping(VersionInfo ucdVersionRequested) {
+        FieldMapping fieldMapping = null;
+        if (fieldMappings.size() == 1) {
+            return fieldMappings.values().iterator().next();
         }
-        for (final var entry : fieldNumbers.entrySet()) {
+        for (final var entry : fieldMappings.entrySet()) {
             if (ucdVersionRequested.compareTo(entry.getKey()) <= 0) {
-                fieldNumber = entry.getValue();
+                fieldMapping = entry.getValue();
                 break;
             }
         }
-        return fieldNumber;
+        return fieldMapping;
     }
 
     private static final VersionInfo V13 = VersionInfo.getInstance(13);
@@ -263,8 +329,9 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
             UnicodeMap<String> data,
             UcdLineParser.IntRange intRange,
             String string,
-            UnicodeProperty nextVersion) {
-        put(data, intRange, string, null, nextVersion);
+            UnicodeProperty nextVersion,
+            VersionInfo versionInfo) {
+        put(data, intRange, string, null, nextVersion, versionInfo);
     }
 
     public void put(
@@ -272,8 +339,9 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
             UcdLineParser.IntRange intRange,
             String string,
             Merge<String> merger,
-            UnicodeProperty nextVersion) {
-        put(data, null, intRange, string, merger, false, nextVersion);
+            UnicodeProperty nextVersion,
+            VersionInfo versionInfo) {
+        put(data, null, intRange, string, merger, false, nextVersion, versionInfo);
     }
 
     public void put(
@@ -283,7 +351,8 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
             String value,
             Merge<String> merger,
             boolean hackHangul,
-            UnicodeProperty nextVersion) {
+            UnicodeProperty nextVersion,
+            VersionInfo versionInfo) {
         if (value == null && property == UcdProperty.Idn_2008) {
             // The IDNA2008 Status field of the IDNA mapping table is treated as an enumerated
             // property by the tools, with an Extra @missing line with a value na.
@@ -300,7 +369,7 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
             // instead of by default for all but the few properties above.
             value = null;
         }
-        value = normalizeAndVerify(value);
+        value = normalizeAndVerify(versionInfo, value);
         if (intRange.string != null) {
             PropertyUtilities.putNew(data, intRange.string, value, merger);
         } else {
@@ -338,7 +407,12 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                                     oldValue = nextValue;
                                 }
                                 String mergedValue = merger.merge(oldValue, insertedValue);
-                                if (Objects.equals(mergedValue, nextValue)) {
+                                // Do not turn unchanged nulls into UNCHANGED_IN_BASE_VERSION, this
+                                // results in properties that have a mix of null (from code points
+                                // that have no record for this property) and
+                                // UNCHANGED_IN_BASE_VERSION (from records with a null value),
+                                // leading to an incorrect isTrivial.
+                                if (mergedValue != null && mergedValue.equals(nextValue)) {
                                     mergedValue = IndexUnicodeProperties.UNCHANGED_IN_BASE_VERSION;
                                 }
                                 PropertyUtilities.putNew(
@@ -350,7 +424,8 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                                 return;
                             }
                         }
-                        if (Objects.equals(insertedValue, nextValue)) {
+                        // Do not turn unchanged nulls into UNCHANGED_IN_BASE_VERSION, see above.
+                        if (insertedValue != null && insertedValue.equals(nextValue)) {
                             insertedValue = IndexUnicodeProperties.UNCHANGED_IN_BASE_VERSION;
                         }
                     }
@@ -366,7 +441,7 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
         }
     }
 
-    public String normalizeAndVerify(String string) {
+    public String normalizeAndVerify(VersionInfo versionInfo, String string) {
         switch (property.getType()) {
             case Enumerated:
             case Catalog:
@@ -378,12 +453,12 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                 if (property == UcdProperty.Script_Extensions) {
                     string = normalizeEnum(string);
                 } else {
-                    string = checkRegex2(string);
+                    string = checkRegex2(versionInfo, string);
                 }
                 break;
             case String:
                 // check regex
-                string = checkRegex2(string);
+                string = checkRegex2(versionInfo, string);
                 if (string == null) {
                     // nothing
                 } else {
@@ -435,9 +510,9 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
         return string;
     }
 
-    public String checkRegex2(String string) {
+    public String checkRegex2(VersionInfo versionInfo, String string) {
         if (getRegex() == null) {
-            IndexUnicodeProperties.getDataLoadingErrors().put(property, "Regex missing");
+            IndexUnicodeProperties.getDataLoadingErrors(versionInfo).put(property, "Regex missing");
             return string;
         }
         if (string == null) {
@@ -452,15 +527,15 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                     if (newString.length() != 0) {
                         newString.append(IndexUnicodeProperties.SET_SEPARATOR);
                     }
-                    checkRegex(part);
+                    checkRegex(versionInfo, part);
                     newString.append(part);
                 }
                 string = newString.toString();
             } else {
-                checkRegex(string);
+                checkRegex(versionInfo, string);
             }
         } else {
-            checkRegex(string);
+            checkRegex(versionInfo, string);
         }
         return string;
     }
@@ -476,11 +551,11 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
         return string;
     }
 
-    public void checkRegex(String part) {
+    public void checkRegex(VersionInfo versionInfo, String part) {
         if (!getRegex().matcher(part).matches()) {
             final String part2 = NFD.normalize(part);
             if (!getRegex().matcher(part2).matches()) {
-                IndexUnicodeProperties.getDataLoadingErrors()
+                IndexUnicodeProperties.getDataLoadingErrors(versionInfo)
                         .put(
                                 property,
                                 "Regex failure: " + RegexUtilities.showMismatch(getRegex(), part));
@@ -539,6 +614,8 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
     public void setMultiValued(String multivalued2) {
         switch (property) {
             case Name_Alias:
+            case Name_Alias_Abbreviation:
+            case Name_Alias_Control:
             case Standardized_Variant:
                 multivaluedSplit = NO_SPLIT;
                 break;
@@ -615,7 +692,8 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                             indexUnicodeProperties.property2UnicodeMap.get(propInfo.property),
                             nextProperties == null
                                     ? null
-                                    : nextProperties.getProperty(propInfo.property));
+                                    : nextProperties.getProperty(propInfo.property),
+                            indexUnicodeProperties.getUcdVersion());
                     break;
                 case NamedSequences:
                     parseNamedSequencesFile(
@@ -662,10 +740,28 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                             propInfoSet);
                     break;
                 case Field:
+                    FieldMapping mapping;
                     if (propInfoSet.size() == 1
                             && (propInfo = propInfoSet.iterator().next()).special
                                     == SpecialProperty.None
-                            && propInfo.getFieldNumber(indexUnicodeProperties.ucdVersion) == 1) {
+                            && (mapping =
+                                                    propInfo.getFieldMapping(
+                                                            indexUnicodeProperties.ucdVersion))
+                                            .keyField
+                                    == 0
+                            && mapping.valueField == 1) {
+                        if (fileName.equals("math/*/MathClass")
+                                && indexUnicodeProperties.ucdVersion.compareTo(
+                                                VersionInfo.UNICODE_6_3)
+                                        <= 0) {
+                            parser =
+                                    parser.withLinePreprocessor(
+                                            s ->
+                                                    s.startsWith("1D455=210E;")
+                                                                    || s.equals("code point;class")
+                                                            ? "#" + s
+                                                            : s);
+                        }
                         parseSimpleFieldFile(
                                 parser.withMissing(true),
                                 propInfo,
@@ -674,6 +770,23 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                                         ? null
                                         : nextProperties.getProperty(propInfo.property));
                     } else {
+                        if (fileName.equals("math/*/MathClassEx")
+                                && indexUnicodeProperties.ucdVersion.compareTo(
+                                                VersionInfo.UNICODE_6_3)
+                                        <= 0) {
+                            // Old versions of MathClassEx had a malformed range and a line that
+                            // should have been commented out.  Search for those specifically and
+                            // fix them; we don’t want to generally allow a new range syntax.
+                            parser =
+                                    parser.withLinePreprocessor(
+                                            s ->
+                                                    s.startsWith("FE61-FE68;")
+                                                            ? s.replaceFirst(
+                                                                    "FE61-FE68;", "FE61..FE68;")
+                                                            : s.startsWith("1D455=210E;")
+                                                                    ? "#" + s
+                                                                    : s);
+                        }
                         parseFieldFile(
                                 parser.withMissing(true),
                                 indexUnicodeProperties,
@@ -691,7 +804,8 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                                 indexUnicodeProperties.property2UnicodeMap.get(propInfo.property),
                                 nextProperties == null
                                         ? null
-                                        : nextProperties.getProperty(propInfo.property));
+                                        : nextProperties.getProperty(propInfo.property),
+                                indexUnicodeProperties.getUcdVersion());
                     } else {
                         throw new UnicodePropertyException(
                                 "List files must have only one property, and must be Boolean");
@@ -730,7 +844,7 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
             //                propInfo.defaultValue = "<none>";
             //            }
             switch (propInfo.defaultValueType) {
-                    // TODO(egg): Consider also storing only the changed values here.
+                // TODO(egg): Consider also storing only the changed values here.
                 case Script:
                 case Simple_Lowercase_Mapping:
                 case Simple_Titlecase_Mapping:
@@ -792,7 +906,8 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                     throw new UnicodePropertyException(); // unexpected error
             }
             data.freeze();
-            if (IndexUnicodeProperties.FILE_CACHE) {
+            if (IndexUnicodeProperties.FILE_CACHE
+                    || IndexUnicodeProperties.usingIncrementalProperties()) {
                 indexUnicodeProperties.internalStoreCachedMap(
                         Settings.Output.BIN_DIR, propInfo.property, data);
             }
@@ -804,113 +919,158 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
             IndexUnicodeProperties indexUnicodeProperties,
             IndexUnicodeProperties nextProperties,
             Set<PropertyParsingInfo> propInfoSet) {
+        class PropInfoNextAndData {
+            public final PropertyParsingInfo propInfo;
+            public final UnicodeProperty next;
+            public final UnicodeMap<String> data;
+
+            public PropInfoNextAndData(String name) {
+                UcdProperty property = null;
+                for (final var propInfo : propInfoSet) {
+                    String unqualified = propInfo.property.name();
+                    if (unqualified.endsWith("_fr")) {
+                        unqualified = unqualified.substring(0, unqualified.length() - 3);
+                    }
+                    if (unqualified.equals(name)) {
+                        property = propInfo.property;
+                        break;
+                    }
+                }
+                if (property == null) {
+                    throw new IllegalArgumentException(name);
+                }
+                propInfo = property2PropertyInfo.get(property);
+                next = nextProperties == null ? null : nextProperties.getProperty(property);
+                data = indexUnicodeProperties.property2UnicodeMap.get(property);
+            }
+        }
         final var namesListChar = Pattern.compile("[0-9A-F]{4,6}");
-        final var subheaderPropInfo = property2PropertyInfo.get(UcdProperty.Names_List_Subheader);
-        final var nextSubheader =
-                nextProperties == null
-                        ? null
-                        : nextProperties.getProperty(UcdProperty.Names_List_Subheader);
-        final UnicodeMap<String> subheaderData =
-                indexUnicodeProperties.property2UnicodeMap.get(UcdProperty.Names_List_Subheader);
-        final var subheaderNoticePropInfo =
-                property2PropertyInfo.get(UcdProperty.Names_List_Subheader_Notice);
-        final var nextSubheaderNotice =
-                nextProperties == null
-                        ? null
-                        : nextProperties.getProperty(UcdProperty.Names_List_Subheader_Notice);
-        final UnicodeMap<String> subheaderNoticeData =
-                indexUnicodeProperties.property2UnicodeMap.get(
-                        UcdProperty.Names_List_Subheader_Notice);
-        final var crossReferencePropInfo =
-                property2PropertyInfo.get(UcdProperty.Names_List_Cross_Ref);
-        final var nextCrossReference =
-                nextProperties == null
-                        ? null
-                        : nextProperties.getProperty(UcdProperty.Names_List_Cross_Ref);
-        final UnicodeMap<String> crossReferenceData =
-                indexUnicodeProperties.property2UnicodeMap.get(UcdProperty.Names_List_Cross_Ref);
-        final var commentPropInfo = property2PropertyInfo.get(UcdProperty.Names_List_Comment);
-        final var nextComment =
-                nextProperties == null
-                        ? null
-                        : nextProperties.getProperty(UcdProperty.Names_List_Comment);
-        final UnicodeMap<String> commentData =
-                indexUnicodeProperties.property2UnicodeMap.get(UcdProperty.Names_List_Comment);
-        final var aliasPropInfo = property2PropertyInfo.get(UcdProperty.Names_List_Alias);
-        final var nextAlias =
-                nextProperties == null
-                        ? null
-                        : nextProperties.getProperty(UcdProperty.Names_List_Alias);
-        final UnicodeMap<String> aliasData =
-                indexUnicodeProperties.property2UnicodeMap.get(UcdProperty.Names_List_Alias);
+        final var blockHeader = new PropInfoNextAndData("Names_List_Block_Header");
+        final var blockHeaderNotice = new PropInfoNextAndData("Names_List_Block_Header_Notice");
+        final var subheader = new PropInfoNextAndData("Names_List_Subheader");
+        final var subheaderNotice = new PropInfoNextAndData("Names_List_Subheader_Notice");
+        final var crossReference = new PropInfoNextAndData("Names_List_Cross_Ref");
+        final var comment = new PropInfoNextAndData("Names_List_Comment");
+        final var alias = new PropInfoNextAndData("Names_List_Alias");
+        final var formalAlias = new PropInfoNextAndData("Names_List_Formal_Alias");
+        final var name = new PropInfoNextAndData("Names_List_Name");
 
-        aliasPropInfo.multivaluedSplit = NO_SPLIT;
-        commentPropInfo.multivaluedSplit = NO_SPLIT;
+        alias.propInfo.multivaluedSplit = NO_SPLIT;
+        comment.propInfo.multivaluedSplit = NO_SPLIT;
+        blockHeaderNotice.propInfo.multivaluedSplit = NO_SPLIT;
+        blockHeader.propInfo.multivaluedSplit = NO_SPLIT;
 
-        String subheader = null;
-        String subheaderNotice = null;
+        String currentSubheader = null;
+        String currentSubheaderNotice = null;
         IntRange codePoint = null;
+        IntRange blockRange = null;
         for (String line : lines) {
             String[] parts = line.split("\t+");
             if (parts.length == 2 && namesListChar.matcher(parts[0]).matches()) {
                 codePoint = new IntRange();
                 codePoint.set(parts[0]);
-                if (subheader != null) {
-                    subheaderPropInfo.put(subheaderData, codePoint, subheader, nextSubheader);
+                if (!parts[1].startsWith("<")) {
+                    name.propInfo.put(
+                            name.data,
+                            codePoint,
+                            parts[1],
+                            name.next,
+                            indexUnicodeProperties.getUcdVersion());
                 }
-                if (subheaderNotice != null) {
-                    subheaderNoticePropInfo.put(
-                            subheaderNoticeData, codePoint, subheaderNotice, nextSubheaderNotice);
+                if (currentSubheader != null) {
+                    subheader.propInfo.put(
+                            subheader.data,
+                            codePoint,
+                            currentSubheader,
+                            subheader.next,
+                            indexUnicodeProperties.getUcdVersion());
+                }
+                if (currentSubheaderNotice != null) {
+                    subheaderNotice.propInfo.put(
+                            subheaderNotice.data,
+                            codePoint,
+                            currentSubheaderNotice,
+                            subheaderNotice.next,
+                            indexUnicodeProperties.getUcdVersion());
                 }
             } else if (codePoint != null
                     && parts.length == 2
                     && (parts[0].isEmpty()
                             || (parts[0].equals("@+") && parts[1].startsWith("* ")))) {
                 if (parts[1].startsWith("x ")) {
-                    String crossReference;
+                    String crossReferenceValue;
                     if (parts[1].charAt(2) == '(') {
-                        crossReference = parts[1].split(" \\- |\\)")[1];
+                        crossReferenceValue = parts[1].split(" \\- |\\)")[1];
                     } else {
-                        crossReference = parts[1].split(" ")[1];
+                        crossReferenceValue = parts[1].split(" ")[1];
                     }
-                    crossReferencePropInfo.put(
-                            crossReferenceData,
+                    crossReference.propInfo.put(
+                            crossReference.data,
                             codePoint,
-                            crossReference,
+                            crossReferenceValue,
                             IndexUnicodeProperties.MULTIVALUED_JOINER,
-                            nextCrossReference);
+                            crossReference.next,
+                            indexUnicodeProperties.getUcdVersion());
                 } else if (parts[1].startsWith("* ")) {
-                    commentPropInfo.put(
-                            commentData,
+                    comment.propInfo.put(
+                            comment.data,
                             codePoint,
                             parts[1].substring(2),
                             IndexUnicodeProperties.MULTIVALUED_JOINER,
-                            nextComment);
+                            comment.next,
+                            indexUnicodeProperties.getUcdVersion());
                 } else if (parts[1].startsWith("= ")) {
-                    aliasPropInfo.put(
-                            aliasData,
+                    alias.propInfo.put(
+                            alias.data,
                             codePoint,
                             parts[1].substring(2),
                             IndexUnicodeProperties.MULTIVALUED_JOINER,
-                            nextAlias);
+                            alias.next,
+                            indexUnicodeProperties.getUcdVersion());
+                } else if (parts[1].startsWith("% ")) {
+                    formalAlias.propInfo.put(
+                            formalAlias.data,
+                            codePoint,
+                            parts[1].substring(2),
+                            IndexUnicodeProperties.MULTIVALUED_JOINER,
+                            formalAlias.next,
+                            indexUnicodeProperties.getUcdVersion());
                 }
             }
             if (parts.length == 2 && parts[0].equals("@")) {
-                subheader = parts[1];
-                subheaderNotice = null;
+                currentSubheader = parts[1];
+                currentSubheaderNotice = null;
                 codePoint = null;
             }
             if (parts.length == 4 && parts[0].equals("@@")) {
-                // New block header, clear the current subheader.
-                subheader = null;
-                subheaderNotice = null;
+                blockRange = new IntRange();
+                blockRange.set(parts[1] + ".." + parts[3]);
+                final var subparts = parts[2].split(" *[()] *");
+                for (final String subpart : subparts) {
+                    blockHeader.propInfo.put(
+                            blockHeader.data,
+                            blockRange,
+                            subpart,
+                            IndexUnicodeProperties.MULTIVALUED_JOINER,
+                            blockHeader.next,
+                            indexUnicodeProperties.getUcdVersion());
+                }
+                currentSubheader = null;
+                currentSubheaderNotice = null;
                 codePoint = null;
             }
-            if (parts.length == 2
-                    && parts[0].equals("@+")
-                    && codePoint == null
-                    && subheader != null) {
-                subheaderNotice = parts[1];
+            if (parts.length == 2 && parts[0].equals("@+") && codePoint == null) {
+                if (subheader != null) {
+                    currentSubheaderNotice = parts[1];
+                } else if (blockRange != null) {
+                    blockHeaderNotice.propInfo.put(
+                            blockHeaderNotice.data,
+                            blockRange,
+                            parts[1],
+                            IndexUnicodeProperties.MULTIVALUED_JOINER,
+                            blockHeaderNotice.next,
+                            indexUnicodeProperties.getUcdVersion());
+                }
             }
         }
     }
@@ -919,7 +1079,8 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
             UcdLineParser parser,
             PropertyParsingInfo propInfo,
             UnicodeMap<String> data,
-            UnicodeProperty nextVersion) {
+            UnicodeProperty nextVersion,
+            VersionInfo versionInfo) {
         // Note: CJKRadicals.txt cannot be completely represented via a UnicodeMap.
         // See the comments in RadicalStroke.getCJKRadicals().
         /*
@@ -934,10 +1095,10 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
             String[] parts = line.getParts();
             if (!parts[1].isEmpty()) {
                 intRange.set(parts[1]);
-                propInfo.put(data, intRange, parts[0], nextVersion);
+                propInfo.put(data, intRange, parts[0], nextVersion, versionInfo);
             }
             intRange.set(parts[2]);
-            propInfo.put(data, intRange, parts[0], nextVersion);
+            propInfo.put(data, intRange, parts[0], nextVersion, versionInfo);
         }
     }
 
@@ -957,7 +1118,8 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                         line.getParts()[0],
                         nextProperties == null
                                 ? null
-                                : nextProperties.getProperty(propInfo.property));
+                                : nextProperties.getProperty(propInfo.property),
+                        indexUnicodeProperties.getUcdVersion());
             }
         }
     }
@@ -1003,7 +1165,8 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                         null,
                         nextProperties == null
                                 ? null
-                                : nextProperties.getProperty(propInfo.property));
+                                : nextProperties.getProperty(propInfo.property),
+                        indexUnicodeProperties.getUcdVersion());
             }
         }
     }
@@ -1221,7 +1384,8 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                         merger,
                         nextProperties == null
                                 ? null
-                                : nextProperties.getProperty(propInfo.property));
+                                : nextProperties.getProperty(propInfo.property),
+                        indexUnicodeProperties.getUcdVersion());
                 propInfo.multivaluedSplit = originalMultivaluedSplit;
             } else {
                 setPropDefault(
@@ -1261,7 +1425,8 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                     data,
                     intRange,
                     parts[1],
-                    nextProperties == null ? null : nextProperties.getProperty(propInfo.property));
+                    nextProperties == null ? null : nextProperties.getProperty(propInfo.property),
+                    indexUnicodeProperties.getUcdVersion());
         }
     }
 
@@ -1342,6 +1507,10 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                     parts[1] = "CJK UNIFIED IDEOGRAPH-#";
                 } else if (parts[1].contains("Tangut Ideograph")) {
                     parts[1] = "TANGUT IDEOGRAPH-#";
+                } else if (parts[1].contains("Seal Character")) {
+                    parts[1] = "SMALL SEAL CHARACTER-#";
+                } else if (parts[1].contains("Jurchen Character")) {
+                    parts[1] = "JURCHEN CHARACTER-#";
                 } else if (parts[1].contains("Hangul Syllable")) {
                     parts[1] = CONSTRUCTED_NAME;
                     hackHangul = true;
@@ -1420,6 +1589,10 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
             IndexUnicodeProperties indexUnicodeProperties,
             IndexUnicodeProperties nextProperties,
             Set<PropertyParsingInfo> propInfoSet) {
+        parser.withRange(
+                propInfoSet.stream()
+                        .map(pi -> pi.getFieldMapping(indexUnicodeProperties.ucdVersion).keyField)
+                        .anyMatch(kf -> kf == 0));
         for (UcdLineParser.UcdLine line : parser) {
             parseFields(line, indexUnicodeProperties, nextProperties, propInfoSet, null, false);
         }
@@ -1458,10 +1631,27 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                     default:
                         throw new UnicodePropertyException();
                 }
+                if (propInfo.property.name().startsWith("Name_Alias_")) {
+                    String type =
+                            indexUnicodeProperties.ucdVersion.compareTo(VersionInfo.UNICODE_6_0)
+                                            <= 0
+                                    ? "correction"
+                                    : parts[2];
+                    if (!propInfo.property
+                            .name()
+                            .substring(11)
+                            .toLowerCase(Locale.ROOT)
+                            .equals(type)) {
+                        continue;
+                    }
+                }
                 String value =
-                        propInfo.getFieldNumber(indexUnicodeProperties.ucdVersion) >= parts.length
+                        propInfo.getFieldMapping(indexUnicodeProperties.ucdVersion).valueField
+                                        >= parts.length
                                 ? null
-                                : parts[propInfo.getFieldNumber(indexUnicodeProperties.ucdVersion)];
+                                : parts[
+                                        propInfo.getFieldMapping(indexUnicodeProperties.ucdVersion)
+                                                .valueField];
                 if (propInfo.property == UcdProperty.Joining_Group
                         && indexUnicodeProperties.ucdVersion.compareTo(VersionInfo.UNICODE_4_0_1)
                                 <= 0
@@ -1510,22 +1700,183 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                         value = "No";
                     }
                 }
-                propInfo.put(
-                        data,
-                        line.getMissingSet(),
-                        line.getRange(),
-                        value,
-                        merger,
-                        hackHangul && propInfo.property == UcdProperty.Decomposition_Mapping,
-                        nextProperties == null
-                                ? null
-                                : nextProperties.getProperty(propInfo.property));
+                if ((propInfo.property == UcdProperty.Math_Entity_Name
+                                || propInfo.property == UcdProperty.Math_Entity_Set
+                                || propInfo.property == UcdProperty.Math_Class_Ex)
+                        && indexUnicodeProperties.ucdVersion.compareTo(Utility.UTR25_REVISION_16)
+                                < 0) {
+                    merger = new PropertyUtilities.RedundancyIgnoringMultivaluedJoiner();
+                }
+                if (propInfo.property == UcdProperty.Math_Descriptive_Comments
+                        && indexUnicodeProperties.ucdVersion.compareTo(Utility.UTR25_REVISION_16)
+                                < 0) {
+                    merger = new PropertyUtilities.NullIgnorer();
+                }
+                if (propInfo.property == UcdProperty.Math_Class_Ex
+                        && indexUnicodeProperties.ucdVersion.compareTo(VersionInfo.UNICODE_6_1) < 0
+                        && value.isEmpty()) {
+                    // MathClassEx-12 has
+                    // 27CA;;;;;;VERTICAL BAR WITH HORIZONTAL STROKE
+                    // MathClassEx-11 has
+                    // 21EA..21F3;;⇪..⇳;;;; 21EA-21F3 are keyboard
+                    value = "None";
+                }
+                if (line.getParts().length == 3
+                        && (propInfo.property == UcdProperty.Block
+                                || propInfo.property == UcdProperty.Pretty_Block)) {
+                    // The old Blocks files had First; Last; Block.
+                    IntRange range = new IntRange();
+                    range.start = Utility.codePointFromHex(line.getParts()[0]);
+                    range.end = Utility.codePointFromHex(line.getParts()[1]);
+                    // Unicode 2 puts FEFF both in Arabic Presentation Forms-B and in Specials.
+                    // We are not going to make Block multivalued for that, so we let the second
+                    // assignment win.
+                    // This fits with assignments in Unicode 2.1.4..3.1.1 where
+                    // Arabic Presentation Forms-B ended on FEFE and Specials was a
+                    // split Block of FEFF & FFF0..FFFD.
+                    // Since Unicode 3.2, blocks were contiguous xxx0..yyyF:
+                    // https://www.unicode.org/reports/tr28/tr28-3.html#database
+                    // The normative blocks defined in Blocks.txt have been adjusted slightly,
+                    // in accordance with Unicode Technical Committee decisions.
+                    // - Every block starts and ends on a column boundary.
+                    //   That is, the last digit of the first code point in the block is always 0,
+                    //   and the last digit of the final code point in the block is always F.
+                    // - Every block is contiguous. [...]
+                    propInfo.put(
+                            data,
+                            line.getMissingSet(),
+                            range,
+                            line.getParts()[2],
+                            indexUnicodeProperties.ucdVersion.getMajor() == 2
+                                    ? new PropertyUtilities.Overrider()
+                                    : null,
+                            false,
+                            nextProperties == null
+                                    ? null
+                                    : nextProperties.getProperty(propInfo.property),
+                            indexUnicodeProperties.getUcdVersion());
+                    continue;
+                }
+                if (propInfo.getFieldMapping(indexUnicodeProperties.ucdVersion).keyField == 0) {
+                    propInfo.put(
+                            data,
+                            line.getMissingSet(),
+                            line.getRange(),
+                            value,
+                            merger,
+                            hackHangul && propInfo.property == UcdProperty.Decomposition_Mapping,
+                            nextProperties == null
+                                    ? null
+                                    : nextProperties.getProperty(propInfo.property),
+                            indexUnicodeProperties.getUcdVersion());
+                } else {
+                    final var fieldMapping =
+                            propInfo.getFieldMapping(indexUnicodeProperties.ucdVersion);
+                    String keyField = parts[fieldMapping.keyField];
+                    if (propInfo.getFileName(indexUnicodeProperties.ucdVersion)
+                            .equals("USourceData")) {
+                        if (keyField.equals("UTC-03214") && parts[0].equals("UTC-03220")) {
+                            // TODO(egg): Complain to Ken about this, and then make this .equals
+                            // once fixed in 18.
+                            keyField =
+                                    indexUnicodeProperties.ucdVersion.compareTo(
+                                                            VersionInfo.UNICODE_17_0)
+                                                    >= 0
+                                            ? "U+33143"
+                                            : "";
+                        }
+                        if (keyField.equals("UTC-02828") && parts[0].equals("UK-02829")) {
+                            keyField =
+                                    indexUnicodeProperties.ucdVersion.equals(
+                                                    VersionInfo.UNICODE_13_0)
+                                            ? "U+30F8A"
+                                            : "";
+                        }
+                        if (indexUnicodeProperties.ucdVersion.compareTo(VersionInfo.UNICODE_12_1)
+                                        <= 0
+                                && keyField.matches("UTC-[0-9A-F]+")
+                                && parts[1].equals("UK-2015")) {
+                            keyField = "";
+                        }
+                        // U+2793 is ➓.  Surely that is nonsense.
+                        if (indexUnicodeProperties.ucdVersion.compareTo(VersionInfo.UNICODE_12_1)
+                                        <= 0
+                                && keyField.equals("U+2793DUTC-02138")) {
+                            keyField = "";
+                        }
+                        // U+4C74 is 䱴, which seems reasonably close to UK-02696 ⿰鱼恒 (now encoded at
+                        // 𱈈).
+                        if (indexUnicodeProperties.ucdVersion.compareTo(VersionInfo.UNICODE_12_1)
+                                        <= 0
+                                && keyField.equals("UTC-02557U+4C74")) {
+                            keyField = "U+4C74";
+                        }
+                        if (indexUnicodeProperties.ucdVersion.compareTo(VersionInfo.UNICODE_10_0)
+                                        <= 0
+                                && keyField.equals("U+891DU+79AA")) {
+                            keyField = "U+891D U+79AA";
+                        }
+                        if (indexUnicodeProperties.ucdVersion.compareTo(VersionInfo.UNICODE_10_0)
+                                        <= 0
+                                && keyField.equals("U+82B2U+83D5")) {
+                            keyField = "U+82B2 U+83D5";
+                        }
+                    }
+                    final var key = new IntRange();
+                    key.set(keyField);
+                    if (key.string != null) {
+                        if (fieldMapping.keyType == FieldMapping.KeyType.CodePoint) {
+                            throw new UnicodePropertyException(
+                                    propInfo.property.name()
+                                            + ": Cannot key on multiple or zero code points ("
+                                            + key.string
+                                            + ") unless the key is made a string with \"\" or a set with {} in IndexUnicodeProperties");
+                        }
+                    }
+                    if (key.string != null
+                            && fieldMapping.keyType == FieldMapping.KeyType.CodePointSet) {
+                        for (int codePoint : key.string.codePoints().toArray()) {
+                            IntRange cp = new IntRange();
+                            cp.start = codePoint;
+                            cp.end = codePoint;
+                            propInfo.put(
+                                    data,
+                                    line.getMissingSet(),
+                                    cp,
+                                    value,
+                                    IndexUnicodeProperties.MULTIVALUED_JOINER,
+                                    hackHangul
+                                            && propInfo.property
+                                                    == UcdProperty.Decomposition_Mapping,
+                                    nextProperties == null
+                                            ? null
+                                            : nextProperties.getProperty(propInfo.property),
+                                    indexUnicodeProperties.getUcdVersion());
+                        }
+                    } else {
+                        propInfo.put(
+                                data,
+                                line.getMissingSet(),
+                                key,
+                                value,
+                                IndexUnicodeProperties.MULTIVALUED_JOINER,
+                                hackHangul
+                                        && propInfo.property == UcdProperty.Decomposition_Mapping,
+                                nextProperties == null
+                                        ? null
+                                        : nextProperties.getProperty(propInfo.property),
+                                indexUnicodeProperties.getUcdVersion());
+                    }
+                }
             }
         } else {
             for (final PropertyParsingInfo propInfo : propInfoSet) {
                 final String value =
-                        propInfo.getFieldNumber(indexUnicodeProperties.ucdVersion) < parts.length
-                                ? parts[propInfo.getFieldNumber(indexUnicodeProperties.ucdVersion)]
+                        propInfo.getFieldMapping(indexUnicodeProperties.ucdVersion).valueField
+                                        < parts.length
+                                ? parts[
+                                        propInfo.getFieldMapping(indexUnicodeProperties.ucdVersion)
+                                                .valueField]
                                 : null;
                 setPropDefault(
                         propInfo.property,
@@ -1569,35 +1920,8 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                                 propInfo.property, defaultValue, "hardcoded", false, version);
                     }
                 }
-                if (line.getParts().length == 3 && propInfo.property == UcdProperty.Block) {
-                    // The old Blocks files had First; Last; Block.
-                    IntRange range = new IntRange();
-                    range.start = Utility.codePointFromHex(line.getParts()[0]);
-                    range.end = Utility.codePointFromHex(line.getParts()[1]);
-                    // Unicode 2 puts FEFF both in Arabic Presentation Forms-B and in Specials.
-                    // We are not going to make Block multivalued for that, so we let the second
-                    // assignment win.
-                    // This fits with assignments in Unicode 2.1.4..3.1.1 where
-                    // Arabic Presentation Forms-B ended on FEFE and Specials was a
-                    // split Block of FEFF & FFF0..FFFD.
-                    // Since Unicode 3.2, blocks were contiguous xxx0..yyyF:
-                    // https://www.unicode.org/reports/tr28/tr28-3.html#database
-                    // The normative blocks defined in Blocks.txt have been adjusted slightly,
-                    // in accordance with Unicode Technical Committee decisions.
-                    // - Every block starts and ends on a column boundary.
-                    //   That is, the last digit of the first code point in the block is always 0,
-                    //   and the last digit of the final code point in the block is always F.
-                    // - Every block is contiguous. [...]
-                    propInfo.put(
-                            data,
-                            line.getMissingSet(),
-                            range,
-                            line.getParts()[2],
-                            version.getMajor() == 2 ? new PropertyUtilities.Overrider() : null,
-                            false,
-                            nextVersion);
-                    continue;
-                } else if (propInfo.property == UcdProperty.Numeric_Value) {
+                Merge<String> merger = null;
+                if (propInfo.property == UcdProperty.Numeric_Value) {
                     String extractedValue = line.getParts()[1];
                     for (int cp = line.getRange().start; cp <= line.getRange().end; ++cp) {
                         String unicodeDataValue =
@@ -1607,7 +1931,7 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                         var range = new IntRange();
                         range.start = cp;
                         range.end = cp;
-                        if (unicodeDataValue == null) {
+                        if (unicodeDataValue.equals("NaN")) {
                             if (!extractedValue.endsWith(".0")) {
                                 throw new IllegalArgumentException(
                                         "Non-integer numeric value extracted from Unihan for "
@@ -1622,7 +1946,8 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                                     extractedValue.substring(0, extractedValue.length() - 2),
                                     null,
                                     false,
-                                    nextVersion);
+                                    nextVersion,
+                                    indexUnicodeProperties.getUcdVersion());
                         } else {
                             // Prior to Unicode 5.1, DerivedNumericValues.txt is useless for getting
                             // numeric values whose denominator is not a small power of two, as it
@@ -1642,10 +1967,18 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                                     unicodeDataValue,
                                     null,
                                     false,
-                                    nextVersion);
+                                    nextVersion,
+                                    indexUnicodeProperties.getUcdVersion());
                         }
                     }
                     continue;
+                } else if (propInfo.property == UcdProperty.Math_Class
+                        && version.compareTo(VersionInfo.UNICODE_6_0) < 0) {
+                    merger = new PropertyUtilities.RedundancyIgnoringMultivaluedJoiner();
+                    // MathClass-11 had a line without a value, 21EA..21F3;
+                    if (line.getParts()[1].isEmpty()) {
+                        line.getParts()[1] = "None";
+                    }
                 } else if (line.getParts().length != 2
                         && version.compareTo(VersionInfo.UNICODE_3_0_1) > 0) {
                     // Unicode 3.0 and earlier had name comments as an extra field.
@@ -1657,9 +1990,10 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                         line.getMissingSet(),
                         line.getRange(),
                         line.getParts()[1],
-                        null,
+                        merger,
                         false,
-                        nextVersion);
+                        nextVersion,
+                        indexUnicodeProperties.getUcdVersion());
             } else {
                 if (propInfo.property == UcdProperty.Numeric_Value
                         && line.getParts().length == 3
@@ -1691,9 +2025,10 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
             UcdLineParser parser,
             PropertyParsingInfo propInfo,
             UnicodeMap<String> data,
-            UnicodeProperty nextVersion) {
+            UnicodeProperty nextVersion,
+            VersionInfo versionInfo) {
         for (UcdLineParser.UcdLine line : parser) {
-            propInfo.put(data, line.getRange(), "Yes", nextVersion);
+            propInfo.put(data, line.getRange(), "Yes", nextVersion, versionInfo);
         }
     }
 
@@ -1788,14 +2123,14 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
         final PropertyParsingInfo propInfo = property2PropertyInfo.get(prop);
 
         if (value != null && !value.startsWith("<")) {
-            value = propInfo.normalizeAndVerify(value);
+            value = propInfo.normalizeAndVerify(version, value);
         }
 
         if (!propInfo.defaultValues.containsKey(version)) {
             propInfo.defaultValueType = IndexUnicodeProperties.DefaultValueType.forString(value);
             propInfo.defaultValues.put(version, value);
             if (IndexUnicodeProperties.SHOW_DEFAULTS) {
-                IndexUnicodeProperties.getDataLoadingErrors()
+                IndexUnicodeProperties.getDataLoadingErrors(version)
                         .put(
                                 prop,
                                 "**\t"
@@ -1806,6 +2141,11 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                                         + propInfo.getDefaultValue(version));
             }
         } else if (propInfo.getDefaultValue(version).equals(value)) {
+        } else if (propInfo.property == UcdProperty.Lowercase_Mapping
+                || propInfo.property == UcdProperty.Titlecase_Mapping
+                || propInfo.property == UcdProperty.Uppercase_Mapping) {
+            // These properties are intentionally set to <code point> in PropertyValueAliases.txt
+            // But we should keep <slc>, <stc>, and <suc>
         } else {
             final String comment =
                     "\t ** ERROR Will not change default for "
@@ -1816,7 +2156,7 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                             + propInfo.getDefaultValue(version);
             //            propInfo.defaultValueType = DefaultValueType.forString(value);
             //            propInfo.defaultValue = value;
-            IndexUnicodeProperties.getDataLoadingErrors().put(prop, comment);
+            IndexUnicodeProperties.getDataLoadingErrors(version).put(prop, comment);
         }
     }
 
@@ -1833,6 +2173,8 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
 
     static void init() {
         final Matcher semicolon = SEMICOLON.matcher("");
+        // Populate property2PropertyInfo, first from the index, then from our split Unihan
+        // implicitly.
         for (final String line :
                 FileUtilities.in(IndexUnicodeProperties.class, "IndexUnicodeProperties.txt")) {
             if (line.startsWith("#") || line.isEmpty()) {
@@ -1848,7 +2190,22 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                 fromStrings(parts);
             }
         }
-        // DO THESE FIRST (overrides values in files!)
+
+        // Starting with Unicode 13, we preprocess the Unihan data using the
+        // <Unicode Tools>/py/splitunihan.py script.
+        // It parses the small number of large, multi-property Unihan*.txt files
+        // and writes many smaller, single-property files like kTotalStrokes.txt.
+        for (UcdProperty prop : UcdProperty.values()) {
+            if (prop.getShortName().startsWith("cjk")) {
+                fromUnihanProperty(prop);
+            }
+        }
+
+        for (final String line :
+                FileUtilities.in(IndexUnicodeProperties.class, "IndexPropertyRegex.txt")) {
+            getRegexInfo(line);
+        }
+
         parseMissingFromValueAliases(
                 FileUtilities.in(IndexUnicodeProperties.class, "ExtraPropertyAliases.txt"));
         parseMissingFromValueAliases(
@@ -1867,11 +2224,6 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
         }
         parseMissingFromValueAliases(FileUtilities.in("", propValueAliases));
 
-        for (final String line :
-                FileUtilities.in(IndexUnicodeProperties.class, "IndexPropertyRegex.txt")) {
-            getRegexInfo(line);
-        }
-
         //        for (String line : FileUtilities.in(IndexUnicodeProperties.class,
         // "Multivalued.txt")) {
         //            UcdProperty prop = UcdProperty.forString(line);
@@ -1883,16 +2235,6 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
         //            if (property2PropertyInfo.containsKey(x.toString())) continue;
         //            if (SHOW_PROP_INFO) System.out.println("Missing: " + x);
         //        }
-
-        // Starting with Unicode 13, we preprocess the Unihan data using the
-        // <Unicode Tools>/py/splitunihan.py script.
-        // It parses the small number of large, multi-property Unihan*.txt files
-        // and writes many smaller, single-property files like kTotalStrokes.txt.
-        for (UcdProperty prop : UcdProperty.values()) {
-            if (prop.getShortName().startsWith("cjk")) {
-                fromUnihanProperty(prop);
-            }
-        }
     }
 
     private static void parseMissingFromValueAliases(Iterable<String> aliasesLines) {

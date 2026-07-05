@@ -11,7 +11,6 @@ import com.ibm.icu.text.RawCollationKey;
 import com.ibm.icu.text.RuleBasedCollator;
 import com.ibm.icu.text.StringTransform;
 import com.ibm.icu.text.Transform;
-import com.ibm.icu.text.UTF16;
 import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.text.UnicodeSetIterator;
 import com.ibm.icu.util.LocaleData;
@@ -424,6 +423,11 @@ public class XPropertyFactory extends UnicodeProperty.Factory {
         }
 
         @Override
+        protected String _getValue(String string) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         protected List _getValueAliases(String valueAlias, List result) {
             addUnique("<string>", result);
             return result;
@@ -464,6 +468,11 @@ public class XPropertyFactory extends UnicodeProperty.Factory {
                 addUnique(valueAlias, result);
             }
             return result;
+        }
+
+        @Override
+        protected String _getValue(String string) {
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -542,7 +551,7 @@ public class XPropertyFactory extends UnicodeProperty.Factory {
 
         @Override
         protected String _getValue(int codepoint) {
-            return transform.transform(UTF16.valueOf(codepoint));
+            return transform.transform(Character.toString(codepoint));
         }
     }
 
@@ -640,6 +649,11 @@ public class XPropertyFactory extends UnicodeProperty.Factory {
         @Override
         protected String _getValue(int codepoint) {
             return YESNO_ARRAY[unicodeSet.contains(codepoint) ? 0 : 1];
+        }
+
+        @Override
+        protected String _getValue(String string) {
+            return YESNO_ARRAY[unicodeSet.contains(string) ? 0 : 1];
         }
 
         @Override

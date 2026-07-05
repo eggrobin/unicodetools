@@ -22,12 +22,15 @@ public class Settings {
     // Are they equivalent for our purposes?
 
     /** Used for the default version. */
-    public static final String latestVersion = "17.0.0";
+    public static final String latestVersion = "18.0.0";
 
     public enum ReleasePhase {
         DEV("dev"), // Before α.
         ALPHA("α"), // α review.
-        BETA("β"); // β review.
+        BETA("β"), // β review.
+        // Produce release-final artefacts with no β markings (most relevant for the JSPs and
+        // charindex).
+        GAMMA("");
 
         private final String toString;
 
@@ -43,7 +46,7 @@ public class Settings {
 
     public static final ReleasePhase latestVersionPhase = ReleasePhase.BETA;
 
-    public static final String lastVersion = "16.0.0"; // last released version
+    public static final String lastVersion = "17.0.0"; // last released version
 
     public static final VersionInfo LATEST_VERSION_INFO = VersionInfo.getInstance(latestVersion);
     public static final VersionInfo LAST_VERSION_INFO = VersionInfo.getInstance(lastVersion);

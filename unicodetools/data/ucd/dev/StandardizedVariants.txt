@@ -1,6 +1,6 @@
-# StandardizedVariants-17.0.0.txt
-# Date: 2025-01-23, 00:00:00 GMT [KW]
-# © 2025 Unicode®, Inc.
+# StandardizedVariants-18.0.0.txt
+# Date: 2026-01-26
+# © 2026 Unicode®, Inc.
 # Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 # For terms of use and license, see https://www.unicode.org/terms_of_use.html
 #
@@ -26,8 +26,8 @@
 # from what it would have had in the absence of the variation selector.
 #
 # For more information on standardized variation sequences,
-# see Section 23.4, Variation Selectors,
-# in the core specification of the Unicode Standard.
+# see the "Special Areas and Format Characters" / "Variation Selectors" section
+# of the core specification.
 #
 # For more information on the Ideographic Variation Database,
 # see https://www.unicode.org/ivd/
@@ -49,7 +49,7 @@
 #
 # =============================
 
-# Mathematical
+# Mathematical and other symbols
 
 0030 FE00; short diagonal stroke form; # DIGIT ZERO
 2205 FE00; zero with long diagonal stroke overlay form; # EMPTY SET
@@ -76,6 +76,7 @@
 229C FE00; with equal sign touching the circle; # CIRCLED EQUALS
 22DA FE00; with slanted equal; # LESS-THAN EQUAL TO OR GREATER-THAN
 22DB FE00; with slanted equal; # GREATER-THAN EQUAL TO OR LESS-THAN
+29B7 FE00; with parallel lines touching the circle; # CIRCLED PARALLEL
 2A3C FE00; tall variant with narrow foot; # INTERIOR PRODUCT
 2A3D FE00; tall variant with narrow foot; # RIGHTHAND INTERIOR PRODUCT
 2A9D FE00; with similar following the slant of the upper leg; # SIMILAR OR LESS-THAN
@@ -85,6 +86,16 @@
 2ACB FE00; with stroke through bottom members; # SUBSET OF ABOVE NOT EQUAL TO
 2ACC FE00; with stroke through bottom members; # SUPERSET OF ABOVE NOT EQUAL TO
 FF10 FE00; short diagonal stroke form; # FULLWIDTH DIGIT ZERO
+
+1DB10 FE00; with descender; # CARTESIAN EQUALS SIGN
+223D FE00; using lazy S; # REVERSED TILDE
+2243 FE00; using lazy S; # ASYMPTOTICALLY EQUAL TO
+22CD FE00; using lazy S; # REVERSED TILDE EQUALS
+2242 FE00; using lazy S; # MINUS TILDE
+2248 FE00; using lazy S; # ALMOST EQUAL TO
+2A6C FE00; using lazy S; # SIMILAR MINUS SIMILAR
+22DC FE00; with horizontal equal; # EQUAL TO OR LESS-THAN
+22DD FE00; with horizontal equal; # EQUAL TO OR GREATER-THAN
 
 # Mathematical alphabet script variants
 
@@ -142,6 +153,8 @@ FF10 FE00; short diagonal stroke form; # FULLWIDTH DIGIT ZERO
 1D4B4 FE01; roundhand style; #  MATHEMATICAL SCRIPT CAPITAL Y
 1D4B5 FE01; roundhand style; #  MATHEMATICAL SCRIPT CAPITAL Z
 
+1D4CF FE02; kurrent style; #  MATHEMATICAL SCRIPT SMALL Z
+
 # East Asian punctuation positional and width variants
 
 2018 FE00; non-fullwidth form; # LEFT SINGLE QUOTATION MARK
@@ -172,6 +185,26 @@ FF1B FE00; corner-justified form; # FULLWIDTH SEMICOLON
 FF1B FE01; centered form; # FULLWIDTH SEMICOLON
 FF1F FE00; corner-justified form; # FULLWIDTH QUESTION MARK
 FF1F FE01; centered form; # FULLWIDTH QUESTION MARK
+
+# CJK strokes
+
+31C0 FE00; dotted T form; # CJK STROKE T
+31C6 FE00; curved Z form; # CJK STROKE HZG
+31C6 FE01; rising H form; # CJK STROKE HZG
+31C9 FE00; slanted S form; # CJK STROKE SZWG
+31CF FE00; curved starting N form; # CJK STROKE N
+31CF FE01; flat N form; # CJK STROKE N
+31D0 FE00; rising H form; # CJK STROKE H
+31D1 FE00; slanted S form; # CJK STROKE S
+31D2 FE00; flat P form; # CJK STROKE P
+31D4 FE00; to bottom left form; # CJK STROKE D
+31D5 FE00; slanted Z form; # CJK STROKE HZ
+31D7 FE00; slanted S form; # CJK STROKE SZ
+31DB FE00; slanted SD form; # CJK STROKE PD
+31DC FE00; upwards T form; # CJK STROKE PZ
+31DD FE00; horizontal H curved N form; # CJK STROKE TN
+31DD FE01; upwards T flat N form; # CJK STROKE TN
+31E5 FE00; slanted S form; # CJK STROKE SZP
 
 # Myanmar
 

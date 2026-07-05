@@ -5,7 +5,6 @@ import com.ibm.icu.dev.tool.UOption;
 import com.ibm.icu.impl.UnicodeMap;
 import com.ibm.icu.text.NumberFormat;
 import com.ibm.icu.text.Transliterator;
-import com.ibm.icu.text.UTF16;
 import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.text.UnicodeSetIterator;
 import java.io.BufferedReader;
@@ -31,7 +30,6 @@ import org.unicode.cldr.draft.FileUtilities;
 import org.unicode.cldr.util.Tabber;
 import org.unicode.cldr.util.Tabber.HTMLTabber;
 import org.unicode.cldr.util.props.UnicodeLabel;
-import org.unicode.jsp.ICUPropertyFactory;
 import org.unicode.props.BagFormatter;
 import org.unicode.props.IndexUnicodeProperties;
 import org.unicode.props.IndexUnicodeProperties.DefaultValueType;
@@ -43,7 +41,6 @@ import org.unicode.text.utility.Settings;
 public class TestUnicodeInvariants {
     private static final boolean DEBUG = false;
 
-    private static final boolean ICU_VERSION = false; // ignore the versions if this is true
     private static final Factory LATEST_PROPS = getProperties(Settings.latestVersion);
     private static final boolean SHOW_LOOKUP = false;
     private static int showRangeLimit = 20;
@@ -485,7 +482,7 @@ public class TestUnicodeInvariants {
         final var iup = IndexUnicodeProperties.make(Settings.latestVersion);
         final List<String> errorMessageLines = new ArrayList<>();
         for (var p : UcdProperty.values()) {
-            if (p.name().startsWith("Names_List_")) {
+            if (p.name().startsWith("Names_List_") || p == UcdProperty.Pretty_Block) {
                 continue;
             }
             final var property = iup.getProperty(p);
@@ -656,7 +653,7 @@ public class TestUnicodeInvariants {
             } while (Lookahead.oneToken(pp, source).accept(","));
         }
         for (var p : UcdProperty.values()) {
-            if (p.name().startsWith("Names_List_")) {
+            if (p.name().startsWith("Names_List_") || p == UcdProperty.Pretty_Block) {
                 continue;
             }
             final var property = iup.getProperty(p);
@@ -1073,8 +1070,9 @@ public class TestUnicodeInvariants {
                 return null;
             }
             int start = next.getIndex();
-            if (PATTERN_SYNTAX.contains(text.codePointAt(start))) {
-                final String syntax = Character.toString(text.codePointAt(start));
+            int startCp = text.codePointAt(start);
+            if (PATTERN_SYNTAX.contains(startCp)) {
+                final String syntax = Character.toString(startCp);
                 next.setIndex(start + syntax.length());
                 final String marks = scan(NONSPACING_MARK, text, next, true);
                 return new Lookahead(syntax + marks, pp, next);
@@ -1349,8 +1347,8 @@ public class TestUnicodeInvariants {
                                             + values);
                         }
                         buffer.setLength(0);
-                        for (int j = 0; j < value.length(); j += UTF16.getCharCount(cp)) {
-                            cp = UTF16.charAt(value, j);
+                        for (int j = 0; j < value.length(); j += Character.charCount(cp)) {
+                            cp = value.codePointAt(j);
                             if (!propOrFilter.filter.contains(cp)) {
                                 continue;
                             }
@@ -1367,8 +1365,8 @@ public class TestUnicodeInvariants {
                                             + values);
                         }
                         buffer.setLength(0);
-                        for (int j = 0; j < value.length(); j += UTF16.getCharCount(cp)) {
-                            cp = UTF16.charAt(value, j);
+                        for (int j = 0; j < value.length(); j += Character.charCount(cp)) {
+                            cp = value.codePointAt(j);
                             final String value2 = propOrFilter.prop.getValue(cp);
                             buffer.append(value2);
                         }
@@ -1383,8 +1381,8 @@ public class TestUnicodeInvariants {
                                             + values);
                         }
                         values = new ArrayList<>();
-                        for (int j = 0; j < value.length(); j += UTF16.getCharCount(cp)) {
-                            cp = UTF16.charAt(value, j);
+                        for (int j = 0; j < value.length(); j += Character.charCount(cp)) {
+                            cp = value.codePointAt(j);
                             final String value2 = propOrFilter.prop.getValue(cp);
                             values.add(value2);
                         }
@@ -1425,6 +1423,11 @@ public class TestUnicodeInvariants {
                 }
             }
             return value;
+        }
+
+        @Override
+        protected String _getValue(String string) {
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -1973,7 +1976,7 @@ public class TestUnicodeInvariants {
     private static int scan(UnicodeSet allowed, CharSequence line, int start, boolean in) {
         int cp = 0;
         int i;
-        for (i = start; i < line.length(); i += UTF16.getCharCount(cp)) {
+        for (i = start; i < line.length(); i += Character.charCount(cp)) {
             cp = Character.codePointAt(line, i);
             if (allowed.contains(cp) != in) {
                 break;
@@ -1983,7 +1986,7 @@ public class TestUnicodeInvariants {
     }
 
     private static Factory getProperties(final String version) {
-        return ICU_VERSION ? ICUPropertyFactory.make() : ToolUnicodePropertySource.make(version);
+        return ToolUnicodePropertySource.make(version);
     }
 
     // Some of our parse exceptions are thrown with a parse position before the problem.
