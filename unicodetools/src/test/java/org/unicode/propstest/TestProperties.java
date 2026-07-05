@@ -11,6 +11,8 @@ import com.ibm.icu.text.Transform;
 import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.text.UnicodeSetIterator;
 import com.ibm.icu.util.VersionInfo;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,9 +20,11 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -1052,6 +1056,64 @@ public class TestProperties extends TestFmwkMinusMinus {
                             + " must not have size 1, see L2/24-203",
                     independentVowels.size(),
                     1);
+        }
+    }
+
+    @Test
+    public void TestBrahmicModels() {
+        final var inSC = iup.getProperty(UcdProperty.Indic_Syllabic_Category);
+        final var inPC = iup.getProperty(UcdProperty.Indic_Positional_Category);
+        final var indic =
+                inSC.getSet(UcdPropertyValues.Indic_Syllabic_Category_Values.Other).retainAll(inPC.getSet(UcdPropertyValues.Indic_Positional_Category_Values.Not_Applicable)).complement();
+        final var virama =
+                inSC.getSet(UcdPropertyValues.Indic_Syllabic_Category_Values.Virama);
+        final var invisibleStackers =
+                inSC.getSet(UcdPropertyValues.Indic_Syllabic_Category_Values.Invisible_Stacker);
+        final var subjoinedConsonants =
+                inSC.getSet(UcdPropertyValues.Indic_Syllabic_Category_Values.Consonant_Subjoined);
+        final var pureKillers =
+                inSC.getSet(UcdPropertyValues.Indic_Syllabic_Category_Values.Pure_Killer);
+        final var independentVowels =
+                inSC.getSet(UcdPropertyValues.Indic_Syllabic_Category_Values.Vowel_Independent);
+        final var visualOrder =
+                inPC.getSet(UcdPropertyValues.Indic_Positional_Category_Values.Visual_Order_Left);
+        final var scx = iup.getProperty(UcdProperty.Script_Extensions);
+        Map<String, List<UcdPropertyValues.Script_Values>> partition = new TreeMap<>();
+        for (final var script : UcdPropertyValues.Script_Values.values()) {
+            final var characters = scx.getSet(script);
+            if (script == UcdPropertyValues.Script_Values.Latin) {
+                System.err.println(characters);
+            }
+            if (characters.containsNone(indic)) {
+                continue;
+            }
+            final var key = new StringBuilder();
+            if (characters.containsSome(visualOrder)) {
+                key.append("Thai");
+            }
+            if (characters.containsSome(virama) || characters.containsSome(invisibleStackers)) {
+                if (characters.containsSome(virama)) {
+                    key.append("Devanagari");
+                } else {
+                    key.append("Khmer");
+                }
+            } else if (characters.containsSome(subjoinedConsonants)) {
+                key.append("Tibetan");
+            } else if (characters.containsSome(pureKillers)) {
+                key.append("Pu");
+            } else {
+                key.append("Nil");
+            }
+            if (characters.containsSome(independentVowels)) {
+                key.append("Iv");
+            }
+            partition.computeIfAbsent(key.toString(), k -> new ArrayList<>()).add(script);
+        }
+        for (final var entry : partition.entrySet()) {
+            System.err.println(entry.getKey());
+            for (final var script : entry.getValue()) {
+                System.err.println("  "+script);
+            }
         }
     }
 }
