@@ -1073,6 +1073,10 @@ public class TestProperties extends TestFmwkMinusMinus {
                 inSC.getSet(UcdPropertyValues.Indic_Syllabic_Category_Values.Consonant_Subjoined);
         final var pureKillers =
                 inSC.getSet(UcdPropertyValues.Indic_Syllabic_Category_Values.Pure_Killer);
+        final var left =
+                inPC.getSet(UcdPropertyValues.Indic_Positional_Category_Values.Left);
+        final var reorderingKillers =
+                inSC.getSet(UcdPropertyValues.Indic_Syllabic_Category_Values.Reordering_Killer);
         final var independentVowels =
                 inSC.getSet(UcdPropertyValues.Indic_Syllabic_Category_Values.Vowel_Independent);
         final var visualOrder =
@@ -1094,19 +1098,20 @@ public class TestProperties extends TestFmwkMinusMinus {
             if (characters.containsSome(virama) || characters.containsSome(invisibleStackers)) {
                 if (characters.containsSome(virama)) {
                     key.append("Devanagari");
-                } else {
+                }
+                if (characters.containsSome(invisibleStackers)) {
                     key.append("Khmer");
                 }
             } else if (characters.containsSome(subjoinedConsonants)) {
                 key.append("Tibetan");
-            } else if (characters.containsSome(pureKillers)) {
-                key.append("Pu");
+            } else if (characters.containsSome(reorderingKillers) || characters.containsSome(left)) {
+                key.append("Odd");
             } else {
-                key.append("Nil");
-            }
+                key.append("Straightforward");
+            }/*
             if (characters.containsSome(independentVowels)) {
                 key.append("Iv");
-            }
+            } */
             partition.computeIfAbsent(key.toString(), k -> new ArrayList<>()).add(script);
         }
         for (final var entry : partition.entrySet()) {
