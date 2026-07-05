@@ -12,14 +12,14 @@ with open("unikemet_diff.html", "w", encoding="utf-8") as f:
     .changed	 	{ background-color: #FFFF00; border-style: dotted; border-width: 1px; }
     .removed	 	{ text-decoration: line-through; background-color: #FFFF00; border-style: dotted; border-width: 1px; }
     </style>
-    <title>Changes to Unikemet properties between 17.0β and 17.0</title>
+    <title>Changes to Unikemet properties between 17.0 and 18.0</title>
   </head>
   <body>
     <p style=text-align:right>L2/25-178</p>
     <p>From: Robin Leroy</p>
     <p>Date: 2025-07-22</p>
   """, file=f)
-  print(f"<h1>Changes to Unikemet properties between 17.0β and 17.0</h1>", file=f)
+  print(f"<h1>Changes to Unikemet properties between 17.0 and 18.0</h1>", file=f)
   for provisional in False, True:
     if provisional:
       print(f"<h2>Changes to Provisional properties</h2>", file=f)
