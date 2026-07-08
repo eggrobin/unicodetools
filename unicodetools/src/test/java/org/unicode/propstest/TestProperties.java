@@ -6,6 +6,7 @@ import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.impl.UnicodeMap;
 import com.ibm.icu.impl.UnicodeMap.EntryRange;
 import com.ibm.icu.impl.Utility;
+import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.text.NumberFormat;
 import com.ibm.icu.text.Transform;
 import com.ibm.icu.text.UnicodeSet;
@@ -1053,5 +1054,75 @@ public class TestProperties extends TestFmwkMinusMinus {
                     independentVowels.size(),
                     1);
         }
+    }
+
+    @Test
+    public void FuckThisThingInParticular() {
+        final var iup = IndexUnicodeProperties.make(UCharacter.getUnicodeVersion());
+        final var ccc = iup.getProperty(UcdProperty.Canonical_Combining_Class);
+        final var starters =
+                ccc.getSet(UcdPropertyValues.Canonical_Combining_Class_Values.Not_Reordered);
+        final var dm = iup.getProperty(UcdProperty.Decomposition_Mapping);
+        final var canonicalDecomposables =
+                iup.getProperty(UcdProperty.Decomposition_Type)
+                        .getSet(UcdPropertyValues.Decomposition_Type_Values.Canonical);
+        final var compEx = iup.getProperty(UcdProperty.Full_Composition_Exclusion).getSet("Yes");
+        final var primaryComposites = canonicalDecomposables.cloneAsThawed().removeAll(compEx);
+        final var nfcInert = new UnicodeSet("[:NFC_Inert:]").complement().complement();
+        final var rederivedInert = new UnicodeSet("[^]");
+        final UnicodeMap<Integer> lowestTrailingCCCByStarter = new UnicodeMap<>();
+        final var forwardComposing = new UnicodeSet();
+        final var trailing = new UnicodeSet();
+        for (final int cp : primaryComposites.codePoints()) {
+            final var decompositionMapping = dm.getValue(cp).codePoints().toArray();
+            trailing.add(decompositionMapping[1]);
+            final int starter = decompositionMapping[0];
+            forwardComposing.add(starter);
+            final int trailingCCC =
+                    Integer.parseInt(
+                            UcdPropertyValues.Canonical_Combining_Class_Values.forName(
+                                            ccc.getValue(decompositionMapping[1]))
+                                    .getShortName());
+            final Integer lowest = lowestTrailingCCCByStarter.get(starter);
+            if (lowest == null || trailingCCC < lowest) {
+                lowestTrailingCCCByStarter.put(starter, trailingCCC);
+            }
+        }
+        final var backwardComposing = new UnicodeSet();
+        for (int cp = 0; cp <= 0x10FFFF; ++cp) {
+            int decomposedStarter = cp;
+            while (canonicalDecomposables.contains(decomposedStarter)) {
+                decomposedStarter = dm.getValue(decomposedStarter).codePointAt(0);
+            }
+            if (trailing.contains(decomposedStarter)) {
+                backwardComposing.add(cp);
+            }
+        }
+        rederivedInert.retainAll(starters);
+        rederivedInert.removeAll(compEx);
+        rederivedInert.removeAll(forwardComposing).removeAll(backwardComposing);
+        for (final int cp : primaryComposites.codePoints()) {
+            var decompositionMapping = dm.getValue(cp).codePoints().toArray();
+            for (; ; ) {
+                final int starter = decompositionMapping[0];
+                final int trailingCCC =
+                        Integer.parseInt(
+                                UcdPropertyValues.Canonical_Combining_Class_Values.forName(
+                                                ccc.getValue(decompositionMapping[1]))
+                                        .getShortName());
+                final Integer lowestStarterComposingCCC =
+                        lowestTrailingCCCByStarter.getValue(starter);
+                if (lowestStarterComposingCCC != null
+                        && lowestStarterComposingCCC > 0
+                        && trailingCCC > lowestStarterComposingCCC) {
+                    rederivedInert.remove(cp);
+                }
+                if (!canonicalDecomposables.contains(starter)) {
+                    break;
+                }
+                decompositionMapping = dm.getValue(starter).codePoints().toArray();
+            }
+        }
+        assertEquals("meow", nfcInert, rederivedInert);
     }
 }
