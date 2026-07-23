@@ -692,7 +692,8 @@ public class TestProperties extends TestFmwkMinusMinus {
 
         logln("New chars: " + newChars.size());
         {
-            LinkedHashSet values = new LinkedHashSet(Arrays.asList(Script_Values.values()));
+            LinkedHashSet<Script_Values> values =
+                    new LinkedHashSet(Arrays.asList(Script_Values.values()));
             values.remove(Script_Values.Unknown);
             values.remove(Script_Values.Katakana_Or_Hiragana);
             listValues(
@@ -706,7 +707,7 @@ public class TestProperties extends TestFmwkMinusMinus {
                     });
         }
         {
-            LinkedHashSet values =
+            LinkedHashSet<General_Category_Values> values =
                     new LinkedHashSet(Arrays.asList(General_Category_Values.values()));
             listValues(
                     UcdProperty.General_Category,
@@ -717,6 +718,35 @@ public class TestProperties extends TestFmwkMinusMinus {
                             return source.getShortName();
                         }
                     });
+        }
+        // TODO(egg): Is the stuff above a test, or just another tool that screams into the void?
+
+        for (final var iup :
+                new IndexUnicodeProperties[] {
+                    IndexUnicodeProperties.make(VersionInfo.UNICODE_5_0),
+                    IndexUnicodeProperties.make(VersionInfo.UNICODE_4_1),
+                    IndexUnicodeProperties.make(VersionInfo.UNICODE_4_0_1),
+                    IndexUnicodeProperties.make(VersionInfo.UNICODE_4_0)
+                }) {
+            // Unassigned code points were made Unknown by 106-C17 for Unicode Version 5.0.
+            // The default for unlisted code points changed from Common to Unknown in that version.
+            // Assigned Common code points were explicitly listed since 4.0.1, but were missing in
+            // 4.0.0, so we need a versioned @missing in ExtraPropertyValueAliases to interpret the
+            // older files correctly.
+            final var scriptValue2072 =
+                    Script_Values.forName(iup.getProperty(UcdProperty.Script).getValue(0x2072));
+            assertEquals(
+                    "Script of U+2072 in " + iup.getUcdVersion(),
+                    iup.getUcdVersion() == VersionInfo.UNICODE_5_0
+                            ? Script_Values.Unknown
+                            : Script_Values.Common,
+                    scriptValue2072);
+            final var scriptValueEmDash =
+                    Script_Values.forName(iup.getProperty(UcdProperty.Script).getValue('—'));
+            assertEquals(
+                    "Script of EM DASH in " + iup.getUcdVersion(),
+                    Script_Values.Common,
+                    scriptValueEmDash);
         }
     }
 
@@ -999,6 +1029,29 @@ public class TestProperties extends TestFmwkMinusMinus {
             //            logln(age + ", nt-gc:N" + diff);
             diff = new UnicodeSet(gcNum).removeAll(ntNum);
             logln(age + ", gc:N-nt" + diff);
+        }
+    }
+
+    @Test
+    public void TestVowelCarrierInSc() {
+        // If a script has a single independent vowel character which is the inherent vowel, with
+        // all other independent vowels formed by sticking dependent vowels on it, that independent
+        // vowel is treated as a (null) consonant.
+        // See L2/24-203 and 181-C44.
+        final var inSC = iup.getProperty(UcdProperty.Indic_Syllabic_Category);
+        final var inSCVowelIndependent =
+                inSC.getSet(UcdPropertyValues.Indic_Syllabic_Category_Values.Vowel_Independent);
+        final var sc = iup.getProperty(UcdProperty.Script);
+        for (final var script : UcdPropertyValues.Script_Values.values()) {
+            final var independentVowels = sc.getSet(script).retainAll(inSCVowelIndependent);
+            assertNotEquals(
+                    "The set "
+                            + independentVowels
+                            + " of independent vowels in "
+                            + script
+                            + " must not have size 1, see L2/24-203",
+                    independentVowels.size(),
+                    1);
         }
     }
 }
