@@ -28,7 +28,7 @@ with open("unikemet_diff.html", "w", encoding="utf-8") as f:
     for property, changes in UNIKEMET_DIFF.items():
       if ("Provisional" in property) != provisional:
         continue
-      print(f"<h3>Changes for {property}</h3>", file=f)
+      print(f"<h3>Changes to {property}</h3>", file=f)
       if not changes:
         print("(None)", file=f)
         continue
