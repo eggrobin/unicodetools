@@ -15,9 +15,9 @@ with open("unikemet_diff.html", "w", encoding="utf-8") as f:
     <title>Changes to Unikemet properties between 17.0 and 18.0</title>
   </head>
   <body>
-    <p style=text-align:right>L2/25-178</p>
+    <p style=text-align:right>L2/26-199</p>
     <p>From: Robin Leroy</p>
-    <p>Date: 2025-07-22</p>
+    <p>Date: 2026-07-24</p>
   """, file=f)
   print(f"<h1>Changes to Unikemet properties between 17.0 and 18.0</h1>", file=f)
   for provisional in False, True:
