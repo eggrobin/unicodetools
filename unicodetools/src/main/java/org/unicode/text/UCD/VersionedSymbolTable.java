@@ -61,12 +61,9 @@ public class VersionedSymbolTable extends UnicodeSet.XSymbolTable {
         String propertyPredicate = afterEquals;
         boolean interiorlyNegated = false;
         int posNotEqual = beforeEquals.indexOf('≠');
-        // TODO(egg): We cannot distinguish \p{X=} from \p{X} in this API, both give us an empty
-        // string as afterEquals.  This is an @internal API, so we could change it to pass null in
-        // the unary case.
         if (posNotEqual >= 0) {
             propertyPredicate =
-                    afterEquals.isEmpty()
+                    afterEquals == null
                             ? beforeEquals.substring(posNotEqual + 1)
                             : beforeEquals.substring(posNotEqual + 1) + "=" + afterEquals;
             leftHandSide = beforeEquals.substring(0, posNotEqual);
@@ -90,7 +87,7 @@ public class VersionedSymbolTable extends UnicodeSet.XSymbolTable {
         checkLoaded(deducedQueriedVersion);
         final var queriedProperties = IndexUnicodeProperties.make(deducedQueriedVersion);
 
-        if (propertyPredicate.isEmpty()) {
+        if (propertyPredicate == null) {
             return computeUnaryQuery(queriedProperties, unqualifiedLeftHandSide);
         } else {
             return computeBinaryQuery(
@@ -100,7 +97,6 @@ public class VersionedSymbolTable extends UnicodeSet.XSymbolTable {
 
     private UnicodeSet computeUnaryQuery(
             IndexUnicodeProperties queriedProperties, String unqualifiedQuery) {
-        // Either unary-property-query, or binary-property-query with an empty property-value.
         final var script = queriedProperties.getProperty(UcdProperty.Script);
         final var generalCategory = queriedProperties.getProperty(UcdProperty.General_Category);
         if (script.isValidValue(unqualifiedQuery)) {
@@ -118,10 +114,6 @@ public class VersionedSymbolTable extends UnicodeSet.XSymbolTable {
                     "Invalid unary-query-expression; could not find property " + unqualifiedQuery);
         }
         if (!queriedProperty.isType(UnicodeProperty.BINARY_MASK)) {
-            // TODO(egg): Remove when we can tell this is a unary query.
-            if (queriedProperty.isType(UnicodeProperty.STRING_OR_MISC_MASK)) {
-                return queriedProperty.getSet("");
-            }
             throw new IllegalArgumentException(
                     "Invalid unary-query-expression for non-binary property "
                             + queriedProperty.getName());
@@ -227,7 +219,7 @@ public class VersionedSymbolTable extends UnicodeSet.XSymbolTable {
                             "No character name nor name alias matches " + propertyValue);
                 }
                 return result;
-            } else if (queriedProperty.getName().equals("Name_Alias")) {
+            } else if (queriedProperty.getName().startsWith("Name_Alias")) {
                 var result = queriedProperty.getSet(propertyValue);
                 if (result.isEmpty()) {
                     throw new IllegalArgumentException("No name alias matches " + propertyValue);
@@ -290,10 +282,10 @@ public class VersionedSymbolTable extends UnicodeSet.XSymbolTable {
         } else {
             switch (versionQualifier.charAt(0)) {
                 case 'R':
-                    // Extension: we allow a version-qualifier starting with R for retroactive
-                    // properties, that is, property derivations applied before the property
-                    // existed.
-                    // TODO(egg): Actually support that.
+                // Extension: we allow a version-qualifier starting with R for retroactive
+                // properties, that is, property derivations applied before the property
+                // existed.
+                // TODO(egg): Actually support that.
                 case 'U':
                     break;
                 default:

@@ -92,3 +92,5 @@ rules.mk
 lex.yy.c
 y.tab.h
 y.tab.c
+# Files created as part of the JSPs build.
+UnicodeJsps/src/main/webapp/LastResort-Regular.ttf

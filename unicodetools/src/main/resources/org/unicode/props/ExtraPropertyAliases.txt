@@ -9,6 +9,7 @@ REKS ; RGI_Emoji_Keycap_Sequence ; Emoji_Keycap_Sequence ; Emoji_Combining_Seque
 RETS ; RGI_Emoji_Tag_Sequence ; Emoji_Tag_Sequence ; NonUCDProperty
 REZS ; RGI_Emoji_Zwj_Sequence ; Emoji_Zwj_Sequence ; NonUCDProperty
 RGI_Emoji ; RGI_Emoji ; NonUCDProperty
+Link_Email ; Link_Email ; NonUCDProperty
 
 # ================================================
 # Enumerated Properties
@@ -26,10 +27,38 @@ IDNA2008_Category ; IDNA2008_Category ; NonUCDProperty
 Other_Joining_Type ; Other_Joining_Type ; UCDNonProperty
 
 Do_Not_Emit_Type ; Do_Not_Emit_Type ; UCDNonProperty
+Do_Not_Emit_Dispreferred_Type ; Do_Not_Emit_Dispreferred_Type ; UCDNonProperty
 
 kEH_Core                 ; kEH_Core ; Provisional
 
 RGI_Emoji_Qualification ; RGI_Emoji_Qualification ; NonUCDProperty
+
+Math_Class ; Math_Class ; NonUCDProperty
+# The first field of MathClassEx is supposed to be the Math_Class property,
+# identical to the assignment in MathClass.  In practice there are a few
+# characters for which it historically lagged behind the value in MathClass.
+Math_Class_Ex ; Math_Class_Ex ; NonUCDNonProperty
+
+Link_Term  ; Link_Term  ; NonUCDProperty
+
+# ================================================
+# Numeric Properties
+# ================================================
+
+# 15.1
+cjkVietnameseNumeric     ; kVietnameseNumeric ; Provisional
+cjkZhuangNumeric         ; kZhuangNumeric ; Provisional
+# 17.0
+cjkTayNumeric            ; kTayNumeric ; Provisional
+
+# [185-C37] Consensus: Add a new provisional property, kTGT_Numeric to the
+# Tangut data files, based on L2/25-055, for Unicode Version 18.0.
+# [Ref. 5.2 in L2/25-232R]
+kTGT_Numeric ; kTGT_Numeric ; Provisional
+
+# Contributory non-property matching exactly field 8 of UnicodeData.txt.
+# Mostly useful as a helper to diachronically parse Numeric_Value.
+Non_Unihan_Numeric_Value ; Non_Unihan_Numeric_Value ; UCDNonProperty
 
 # ================================================
 # String Properties
@@ -46,19 +75,38 @@ ConfMA ; Confusable_MA ; Confusable ; NonUCDNonProperty
 
 cjkSimplifiedVariant ; kSimplifiedVariant ; Provisional
 cjkTraditionalVariant ; kTraditionalVariant ; Provisional
+# 13.0
+cjkSpoofingVariant       ; kSpoofingVariant ; Provisional
+# 18.0
+cjkJapaneseNewVariant    ; kJapaneseNewVariant ; Provisional
+cjkJapaneseOldVariant    ; kJapaneseOldVariant ; Provisional
 
 Do_Not_Emit_Preferred ; Do_Not_Emit_Preferred ; UCDNonProperty
+Do_Not_Emit_Dispreferred ; Do_Not_Emit_Dispreferred ; UCDNonProperty
 
 normalization_correction_original ; normalization_correction_original ; UCDNonProperty
 normalization_correction_corrected ; normalization_correction_corrected ; UCDNonProperty
 
 kEH_AltSeq               ; kEH_AltSeq ; Provisional
 
+kSEAL_MCJK ; kSEAL_MCJK ; Provisional
+
 Names_List_Cross_Ref ; Names_List_Cross_Ref ; UCDNonProperty
+Names_List_Cross_Ref_fr ; Names_List_Cross_Ref_fr ; NonUCDNonProperty
+
+Link_Bracket ; Link_Bracket ; NonUCDProperty
 
 # ================================================
 # Miscellaneous Properties
 # ================================================
+
+# The spelling of the block name in Blocks.txt, which is not exactly the
+# matching one in PropertyValueAliases.txt (the latter has _ instead of both
+# spaces and hyphens, and they also differ in case, e.g. Greek_And_Coptic vs.
+# Greek and Coptic.).
+Pretty_Block ; Pretty_Block ; UCDNonProperty
+
+Arabic_Shaping_Schematic_Name ; Arabic_Shaping_Schematic_Name ; UCDNonProperty
 
 CJKR ; CJK_Radical ; UCDNonProperty
 
@@ -161,7 +209,6 @@ cjkKoreanEducationHanja ; kKoreanEducationHanja ; Provisional
 cjkKoreanName ; kKoreanName ; Provisional
 cjkTGH ; kTGH ; Provisional
 # 13.0
-cjkSpoofingVariant       ; kSpoofingVariant ; Provisional
 cjkTGHZ2013              ; kTGHZ2013 ; Provisional
 # 14.0
 cjkStrange               ; kStrange ; Provisional
@@ -172,37 +219,69 @@ cjkJapanese              ; kJapanese ; Provisional
 cjkMojiJoho              ; kMojiJoho ; Provisional
 cjkSMSZD2003Index        ; kSMSZD2003Index ; Provisional
 cjkSMSZD2003Readings     ; kSMSZD2003Readings ; Provisional
-cjkVietnameseNumeric     ; kVietnameseNumeric ; Provisional
-cjkZhuangNumeric         ; kZhuangNumeric ; Provisional
 # 16.0
 cjkFanqie                ; kFanqie ; Provisional
 cjkZhuang                ; kZhuang ; Provisional
-# 17.0
-cjkTayNumeric            ; kTayNumeric ; Provisional
+
+# USourceData.txt fields other than 2, keyed on field 2.
+cjkUSource_Identifier          ; cjkUSource_Identifier          ; UCDNonProperty
+cjkUSource_Status              ; cjkUSource_Status              ; UCDNonProperty
+
+cjkUSource_RSUnicode           ; cjkUSource_RSUnicode           ; UCDNonProperty
+cjkUSource_KangXi              ; cjkUSource_KangXi              ; UCDNonProperty
+cjkUSource_IDS                 ; cjkUSource_IDS                 ; UCDNonProperty
+cjkUSource_Source              ; cjkUSource_Source              ; UCDNonProperty
+cjkUSource_Comments            ; cjkUSource_Comments            ; UCDNonProperty
+cjkUSource_TotalStrokes        ; cjkUSource_TotalStrokes        ; UCDNonProperty
+cjkUSource_FirstResidualStroke ; cjkUSource_FirstResidualStroke ; UCDNonProperty
 
 # [183-C29] Consensus: In TangutSources.txt,
 # change the tag kRSTUnicode to kTGT_RSUnicode.
 # For Unicode Version 17.0. See L2/25-087 item 1.9.
 # (Changed between 17 alpha and beta.)
-kTGT_MergedSrc           ; kTGT_MergedSrc ; UCDNonProperty
-kTGT_RSUnicode           ; kTGT_RSUnicode ; kRSTUnicode ; UCDNonProperty
+kTGT_RSUnicode           ; kTGT_RSUnicode ; kRSTUnicode ; Provisional
+
+kJURC_RSUnicode ; kJURC_RSUnicode ; Provisional
+kJURC_NCReading ; kJURC_NCReading ; Provisional
+kJURC_Numeric   ; kJURC_Numeric   ; Provisional
 
 # [183-C30] Consensus: In NushuSources.txt,
 # change the tag kSrc_NushuDuben to kNSHU_DubenSrc, and change the tag kReading to kNSHU_Reading.
 # For Unicode Version 17.0. See L2/25-087 item 1.9.
 # (Changed between 17 alpha and beta.)
-kNSHU_DubenSrc           ; kNSHU_DubenSrc ; kSrc_NushuDuben ; UCDNonProperty
-kNSHU_Reading            ; kNSHU_Reading ; kReading ; UCDNonProperty
+kNSHU_DubenSrc           ; kNSHU_DubenSrc ; kSrc_NushuDuben ; ExtraAliases
+kNSHU_Reading            ; kNSHU_Reading ; kReading ; Provisional
+
+kSEAL_Rad ; kSEAL_Rad ; Provisional
 
 kEH_Func                 ; kEH_Func ; Provisional
 kEH_FVal                 ; kEH_FVal ; Provisional
 kEH_UniK                 ; kEH_UniK ; Provisional
 
-# Contributory non-property matching exactly field 8 of UnicodeData.txt.
-# Mostly useful as a helper to diachronically parse Numeric_Value.
-Non_Unihan_Numeric_Value ; Non_Unihan_Numeric_Value ; UCDNonProperty
+Name_Alias_Correction   ; Name_Alias_Correction   ; UCDNonProperty
+Name_Alias_Control      ; Name_Alias_Control      ; UCDNonProperty
+Name_Alias_Alternate    ; Name_Alias_Alternate    ; UCDNonProperty
+Name_Alias_Figment      ; Name_Alias_Figment      ; UCDNonProperty
+Name_Alias_Abbreviation ; Name_Alias_Abbreviation ; UCDNonProperty
 
-Names_List_Subheader        ; Names_List_Subheader ; subhead ; UCDNonProperty
-Names_List_Subheader_Notice ; Names_List_Subheader_Notice    ; UCDNonProperty
-Names_List_Alias            ; Names_List_Alias               ; UCDNonProperty
-Names_List_Comment          ; Names_List_Comment             ; UCDNonProperty
+Names_List_Block_Header        ; Names_List_Block_Header        ; UCDNonProperty
+Names_List_Block_Header_Notice ; Names_List_Block_Header_Notice ; UCDNonProperty
+Names_List_Subheader           ; Names_List_Subheader ; subhead ; UCDNonProperty
+Names_List_Subheader_Notice    ; Names_List_Subheader_Notice    ; UCDNonProperty
+Names_List_Alias               ; Names_List_Alias               ; UCDNonProperty
+Names_List_Comment             ; Names_List_Comment             ; UCDNonProperty
+Names_List_Name                ; Names_List_Name                ; UCDNonProperty
+Names_List_Formal_Alias        ; Names_List_Formal_Alias        ; UCDNonProperty
+
+Names_List_Block_Header_fr        ; Names_List_Block_Header_fr        ; NonUCDNonProperty
+Names_List_Block_Header_Notice_fr ; Names_List_Block_Header_Notice_fr ; NonUCDNonProperty
+Names_List_Subheader_fr           ; Names_List_Subheader_fr           ; NonUCDNonProperty
+Names_List_Subheader_Notice_fr    ; Names_List_Subheader_Notice_fr    ; NonUCDNonProperty
+Names_List_Alias_fr               ; Names_List_Alias_fr               ; NonUCDNonProperty
+Names_List_Comment_fr             ; Names_List_Comment_fr             ; NonUCDNonProperty
+Names_List_Name_fr                ; Names_List_Name_fr                ; NonUCDNonProperty
+Names_List_Formal_Alias_fr        ; Names_List_Formal_Alias_fr        ; NonUCDNonProperty
+
+Math_Entity_Name          ; Math_Entity_Name          ; NonUCDNonProperty
+Math_Entity_Set           ; Math_Entity_Set           ; NonUCDNonProperty
+Math_Descriptive_Comments ; Math_Descriptive_Comments ; NonUCDNonProperty

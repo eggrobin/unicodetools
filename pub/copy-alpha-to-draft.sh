@@ -11,7 +11,7 @@ DEST=$2
 UNITOOLS_DATA=$UNICODETOOLS/unicodetools/data
 
 # Adjust the following for each year and version as needed.
-COPY_YEAR=2025
+COPY_YEAR=2026
 UNI_VER=18.0.0
 EMOJI_VER=18.0
 
@@ -59,5 +59,4 @@ rm $DEST/alpha.zip
 echo "--------------------"
 echo "Copy files from elsewhere:"
 echo "- Unihan.zip to $DEST/ucd"
-echo "- alpha charts to $DEST/charts"
 
