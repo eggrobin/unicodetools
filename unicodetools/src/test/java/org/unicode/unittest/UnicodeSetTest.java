@@ -21,7 +21,6 @@ public class UnicodeSetTest extends TestFmwkMinusMinus {
                 org.unicode.text.utility.Utility.getMostRecentUnicodeDataFile(
                         "unicodeset/*/UnicodeSetTest", Settings.latestVersion, true, false);
         for (final String line : FileUtilities.in("", path)) {
-          System.out.println(line);
             final int commentPosition = line.indexOf('#');
             final String contents = commentPosition >= 0 ? line.substring(0, commentPosition) : line;
             if (contents.isEmpty()) {
@@ -54,11 +53,11 @@ public class UnicodeSetTest extends TestFmwkMinusMinus {
             try {
               setUnderTest = new UnicodeSet(expression, pp, symbolTable);
               if (scope.equals("Ill_Formed")) {
-                System.out.println("EXTENSION: " + expression + " = " + setUnderTest.complement().complement());
+                System.out.println("EXTENSION: " + expression + " = " + setUnderTest.complement().complement() + " for\n" + line);
               }
             } catch (Exception e) {
               if (e.getMessage().contains("doubly negated property-query")) {
-                  System.out.println("RESTRICTION: " + e.getMessage() + " for " + line);
+                  System.out.println("RESTRICTION: " + e.getMessage() + " for\n" + line);
               } else if (!scope.equals("Ill_Formed")) {
                 errln("Parse error " + e.getMessage() + " for " + line);
               }
@@ -66,17 +65,17 @@ public class UnicodeSetTest extends TestFmwkMinusMinus {
             }
               for (final String element : elements) {
                 if (!setUnderTest.contains(element)) {
-                 errln("element <" + Utility.hex(element) + "> " + element + " for " + line);
+                 errln("element <" + Utility.hex(element) + "> " + element + " for\n" + line);
                 }
               }
               for (final String element : nonElements) {
                 if (setUnderTest.contains(element)) {
-                errln("non-element <" + Utility.hex(element) + "> " + element + " for " + line);
+                errln("non-element <" + Utility.hex(element) + "> " + element + " for\n" + line);
                 }
               }
               if (size != null) {
                 if (setUnderTest.size() != size) {
-                  errln("size is " +setUnderTest.size() +" for " + line);
+                  errln("size is " +setUnderTest.size() +" for\n" + line);
                 }
               }
         }
