@@ -197,6 +197,49 @@ Consistent             ;;;   <0061> <0062> <0064> ; <0063> <0043> ;      25 ; [a
 Consistent             ;;;   <0061> <0062> ; <0063> <0064> <0043> ;      24 ; [ [a-z] - [[c] [d]] ]
 Consistent             ;;;   <0061> <0062> ; <0063> <0064> <0043> ;      24 ; [a-b e-z]
 
+
+## Examples from https://www.unicode.org/reports/tr35/tr35-78/tr35.html#syntax-special-case-examples.
+Consistent             ;;;    ; <0061> ; 1114111 ; [^a]
+# Not actually a syntax error:
+Consistent             ;;;    ; <0061> ; 1114111 ; [ ^a]
+Ill_Formed        ;;;    ; ;  ; [a^]
+Minimally_Consistent   ;; General_Category ;   <0041> <0061> ; <002E> ; ; [:L:]
+Ill_Formed        ;;;    ; ;  ; [:L]
+Ill_Formed        ;;;    ; ;  ; [:]
+Consistent             ;;; <003A> ;  ; 1 ; [ :]
+Consistent             ;;; <003A> <004C> ;  ; 2 ; [L:]
+Syntactically_Complete ;;;   <002D> ;        ;       1 ; [-]
+Syntactically_Complete ;;;   <002D> ;        ;       1 ; [ - ]
+Consistent ;;; <0061> <002D> ;        ;       2 ; [a-]
+Consistent ;;; <0061> <002D> ;        ;       2 ; [-a]
+Consistent ;;; <0061> <0062> ;        ;       2 ; [a -b]
+Consistent ;;; <0061> ;        ;       1 ; [[a-b] -[b]], [[a]-[b]-[c]]
+Ill_Formed ;;;  ;        ;        ; [a-b-c]
+Syntactically_Complete ;;;    ; <002D> ; 1114111 ; [^ - ]
+# Not actually a syntax error:
+Syntactically_Complete ;;;    ; <002D> ; 1114111 ; [ ^ - ]
+Ill_Formed ;;;  ;        ;        ; [$]
+Ill_Formed ;;;  ;        ;        ; [ $ ]
+Ill_Formed ;;;  ;        ;        ; [$a]
+Ill_Formed ;;;  ;        ;        ; [$ a]
+Ill_Formed ;;;  ;        ;        ; [$und]
+Ill_Formed ;;;  ;        ;        ; [$a$]
+Ill_Formed ;;;  ;        ;        ; [a$]
+Consistent             ;;; <007D> ;  ; 1 ; [}]
+Ill_Formed ;;;  ;        ;        ; [{]
+# [{}] covered above.
+Ill_Formed ;;;  ; <007D>  <> ;       2 ; [{}}]
+Consistent             ;;; <007D> ;  ; 1 ; [{{}]
+Consistent             ;;; <0024 0076 0061 0072> ;  ; 1 ; [{$var}]
+Consistent             ;;; <005B 0061 002D 007A> ;  ; 1 ; [{[a-z}]
+# Spaces are no longer ignored in string literals.
+Consistent             ;;; <0020 005B 0020 0061 0020 002D 0020 007A> ;  ; 1 ; [{ [ a - z}]
+Ill_Formed ;;;  ;        ;        ; [\x{10FFFF 1}]
+Ill_Formed ;;;  ;        ;        ; [\x{10FFFF1}]
+Consistent ;;; <0061> <0062> <0063> <0064> ;        ;       4 ; [\x{61}-d]
+Ill_Formed ;;;  ;        ;        ; [\x{61 63}-d]
+Ill_Formed ;;;  ;        ;        ; [\x{61 63}-\x{62 64}]
+
 # escaped-element tests
 Consistent             ;;;   <0000> ;        ;       1 ; [   \0]
 Consistent             ;;;   <0008> ;        ;       1 ; [   \10]
@@ -227,7 +270,6 @@ Minimally_Consistent   ;;;        ;        ;       0 ; [[\x00-\x7f]&[\x80-\xff]]
 Minimally_Consistent   ;;;   <0039> ;   <0040> ;      64 ; [[\x{0}-\x{7f}]-[\x{40}-\x{10FFFF}]]
 # Expressions that use only set-operators.
 Syntactically_Complete ;;;        ;        ; 1114112 ; [^]
-Syntactically_Complete ;;;   <002D> ;        ;       1 ; [-]
 Syntactically_Complete ;;;        ;        ; 1114112 ; [[^] & [	^	]]
 Syntactically_Complete ;;;        ;        ;       0 ; [[^]&[]]
 Syntactically_Complete ;;;        ;        ; 1114112 ; [[^]-[]]
