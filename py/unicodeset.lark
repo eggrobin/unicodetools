@@ -1,26 +1,27 @@
 %ignore WHITE_SPACE
 
-unicode_set : factor | named_singleton
-factor : OPENING_BRACKET union "]"
-       | complement
-       | PROPERTY_QUERY
-named_singleton : NAMED_ELEMENT
+unicode_set : OPENING_BRACKET union "]"
+            | complement
+            | PROPERTY_QUERY
 complement : OPENING_BRACKET "^" union "]"
-union : terms
+union :
+      | terms
+      | unescaped_hyphen_minus
       | unescaped_hyphen_minus terms
       | terms unescaped_hyphen_minus
       | unescaped_hyphen_minus terms unescaped_hyphen_minus
+      | unescaped_hyphen_minus unescaped_hyphen_minus
 unescaped_hyphen_minus : "-"
-terms :
+terms : term
       | terms term
 term : elements
      | restriction
 
-restriction : factor
+restriction : unicode_set
             | intersection
             | difference
 
-intersection : restriction "&" factor
+intersection : restriction "&" unicode_set
 difference : restriction "-" unicode_set
 elements : element | range
 range : range_element "-" range_element
@@ -54,7 +55,12 @@ UP_TO_TWO_HEXADECIMAL_DIGITS : HEXADECIMAL_DIGIT /(?![\u200E\u200F]+[0-9A-Fa-f])
                              | HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT
 FOUR_HEXADECIMAL_DIGITS : HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT
 FIVE_HEXADECIMAL_DIGITS : HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT
-HEXADECIMAL_DIGITS : HEXADECIMAL_DIGIT+
+HEXADECIMAL_DIGITS : HEXADECIMAL_DIGIT
+                   | HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT
+                   | HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT
+                   | HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT
+                   | HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT
+                   | HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT HEXADECIMAL_DIGIT
 OCTAL_DIGIT : "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7"
 HEXADECIMAL_DIGIT : "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
                   | "A" | "B" | "C" | "D" | "E" | "F"
@@ -64,8 +70,8 @@ ESCAPABLE_CHARACTER : /[^0-7uxUNabtnvfrpP\u200E\u200F]/
 
 // https://www.unicode.org/reports/tr61/#named-element
 NAMED_ELEMENT : "\\N{" UCD_IDENTIFIER "}"
-              | "\\xN{" HEXADECIMAL_DIGITS ":" UCD_IDENTIFIER "}"
-              | "\\xcN{" HEXADECIMAL_DIGITS ":" NAMED_LITERAL_ELEMENT ":" UCD_IDENTIFIER "}"
+              | "\\N{" HEXADECIMAL_DIGITS ":" UCD_IDENTIFIER "}"
+              | "\\N{" HEXADECIMAL_DIGITS ":" NAMED_LITERAL_ELEMENT ":" UCD_IDENTIFIER "}"
 UCD_IDENTIFIER : UCD_IDENTIFIER_CHARACTER+
 
 NAMED_LITERAL_ELEMENT : /[^:}]/

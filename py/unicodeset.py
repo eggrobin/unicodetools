@@ -1,7 +1,8 @@
 import lark
 
 with open("unicodeset.lark", encoding="utf-8") as f:
-  early_parser = lark.Lark(f, start="unicode_set", lexer="basic")
+  early_parser = lark.Lark(f, start="unicode_set", lexer="basic", ambiguity='explicit')
+
 with open("unicodeset-lalr(1).lark", encoding="utf-8") as f:
   # NOTE(egg): There appears to be a bug in the terminal overlap checking.
   # With strict=True, the lexer reports a conflict between BRACKETED_ELEMENT and
@@ -10,8 +11,10 @@ with open("unicodeset-lalr(1).lark", encoding="utf-8") as f:
   lalr_parser = lark.Lark(f, start="unicode_set", parser="lalr", lexer="basic")
 for parser in (lalr_parser, early_parser):
   print(parser.parser.parser_conf.parser_type)
+  print(parser.parse("[-]").pretty("|"))
+  print(parser.parse("[--]").pretty("|"))
+  print(parser.parse("[ a -   ]").pretty("|"))
   print(parser.parse("[ a -   ]").pretty("|"))
   print(parser.parse("[ a - z ]").pretty("|"))
   print(parser.parse("[ [a - z] -       ]").pretty("|"))
-  print(parser.parse("[ [a - z] - [c-x] ]").pretty("|"))
-  print(parser.parse("[:a-z]").pretty("|"))
+  print(parser.parse("[ [a - z] - [c-x] ]").pretty("|"))  #print(parser.parse("[:a-z]").pretty("|"))
