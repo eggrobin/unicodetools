@@ -234,6 +234,7 @@ Consistent             ;;; <0024 0076 0061 0072> ;  ; 1 ; [{$var}]
 Consistent             ;;; <005B 0061 002D 007A> ;  ; 1 ; [{[a-z}]
 # Spaces are no longer ignored in string literals.
 Consistent             ;;; <0020 005B 0020 0061 0020 002D 0020 007A> ;  ; 1 ; [{ [ a - z}]
+# Never implemented, not standardized in UTS #61 (was meant to be a string in UTS #35).
 Ill_Formed ;;;  ;        ;        ; [\x{10FFFF 1}]
 Ill_Formed ;;;  ;        ;        ; [\x{10FFFF1}]
 Consistent ;;; <0061> <0062> <0063> <0064> ;        ;       4 ; [\x{61}-d]
