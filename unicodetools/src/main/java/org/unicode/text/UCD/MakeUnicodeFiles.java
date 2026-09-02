@@ -42,6 +42,8 @@ import java.util.stream.Collectors;
 import org.unicode.cldr.draft.FileUtilities;
 import org.unicode.cldr.util.Tabber;
 import org.unicode.cldr.util.props.UnicodeLabel;
+import org.unicode.idna.GenerateIdna;
+import org.unicode.idna.GenerateIdnaTest;
 import org.unicode.props.BagFormatter;
 import org.unicode.props.DefaultValues;
 import org.unicode.props.IndexUnicodeProperties;
@@ -60,15 +62,24 @@ import org.unicode.text.utility.ChainException;
 import org.unicode.text.utility.Settings;
 import org.unicode.text.utility.UnicodeDataFile;
 import org.unicode.text.utility.Utility;
-import org.unicode.tools.Segmenter;
+import org.unicode.tools.GenerateLinkData;
 
 public class MakeUnicodeFiles {
     static boolean DEBUG = false;
 
     public static void main(String[] args) throws IOException {
 
-        boolean cleanAndCopy =
-                Arrays.asList(args).contains("-c"); // clean Bin & copy changed output
+        // Copy generated files to the dev directory by default
+        boolean cleanAndCopy = true;
+        if (Arrays.asList(args).contains("--no-copy")) {
+            // Leave dev untouched, files are only in Generated directory
+            cleanAndCopy = false;
+        }
+
+        int files = Arrays.asList(args).indexOf("--generate");
+        if (files >= 0) {
+            Format.theFormat.filesToDo = Arrays.copyOfRange(args, files + 1, args.length);
+        }
 
         if (cleanAndCopy) {
 
@@ -81,11 +92,13 @@ public class MakeUnicodeFiles {
             binFile.delete();
 
             // Remove the old files in the output directory
-
-            Files.walk(Path.of(Settings.Output.GEN_UCD_DIR))
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
+            var genUcdPath = Path.of(Settings.Output.GEN_UCD_DIR);
+            if (Files.isDirectory(genUcdPath)) {
+                Files.walk(genUcdPath)
+                        .sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
+            }
         }
 
         generateFile();
@@ -423,10 +436,14 @@ public class MakeUnicodeFiles {
                             comments = "";
                         }
                         if (line.startsWith("Generate:")) {
-                            filesToDo = Utility.split(lineValue.trim(), ' ');
-                            if (filesToDo.length == 0
-                                    || (filesToDo.length == 1 && filesToDo[0].length() == 0)) {
-                                filesToDo = new String[] {".*"};
+                            // A --generate on the command line overrides the Generate: directive in
+                            // MakeUnicodeFiles.txt.
+                            if (filesToDo == null) {
+                                filesToDo = Utility.split(lineValue.trim(), ' ');
+                                if (filesToDo.length == 0
+                                        || (filesToDo.length == 1 && filesToDo[0].length() == 0)) {
+                                    filesToDo = new String[] {".*"};
+                                }
                             }
                         } else if (line.startsWith("CopyrightYear:")) {
                             Default.setYear(lineValue);
@@ -590,24 +607,16 @@ public class MakeUnicodeFiles {
                     GenerateStandardizedVariants.generate();
                     break;
                 case "GraphemeBreakTest":
-                    new GenerateBreakTest.GenerateGraphemeBreakTest(
-                                    Default.ucd(), Segmenter.Target.FOR_UCD)
-                            .run();
+                    new GenerateBreakTest.GenerateGraphemeBreakTest(Default.ucd()).run();
                     break;
                 case "WordBreakTest":
-                    new GenerateBreakTest.GenerateWordBreakTest(
-                                    Default.ucd(), Segmenter.Target.FOR_UCD)
-                            .run();
+                    new GenerateBreakTest.GenerateWordBreakTest(Default.ucd()).run();
                     break;
                 case "LineBreakTest":
-                    new GenerateBreakTest.GenerateLineBreakTest(
-                                    Default.ucd(), Segmenter.Target.FOR_UCD)
-                            .run();
+                    new GenerateBreakTest.GenerateLineBreakTest(Default.ucd()).run();
                     break;
                 case "SentenceBreakTest":
-                    new GenerateBreakTest.GenerateSentenceBreakTest(
-                                    Default.ucd(), Segmenter.Target.FOR_UCD)
-                            .run();
+                    new GenerateBreakTest.GenerateSentenceBreakTest(Default.ucd()).run();
                     break;
                 case "DerivedName":
                 case "DerivedLabel":
@@ -621,6 +630,27 @@ public class MakeUnicodeFiles {
                     break;
                 case "DoNotEmit":
                     generateDoNotEmit(filename);
+                    break;
+                case "LinkEmail":
+                    GenerateLinkData.generateLinkEmail(Default.getYear());
+                    break;
+                case "LinkTerm":
+                    GenerateLinkData.generateLinkTerm(Default.getYear());
+                    break;
+                case "LinkBracket":
+                    GenerateLinkData.generateLinkBracket(Default.getYear());
+                    break;
+                case "LinkDetectionTest":
+                    GenerateLinkData.generateDetectionTestData(Default.getYear());
+                    break;
+                case "LinkFormattingTest":
+                    GenerateLinkData.generateFormattingTestData(Default.getYear());
+                    break;
+                case "IdnaMappingTable":
+                    GenerateIdna.main(new String[0]);
+                    break;
+                case "IdnaTestV2":
+                    GenerateIdnaTest.main(new String[0]);
                     break;
                 default:
                     generatePropertyFile(filename);
@@ -950,7 +980,7 @@ public class MakeUnicodeFiles {
                                                                     dispreferred.codePointAt(0)))
                                                     == UcdPropertyValues.Script_Values.Bengali),
                             new DoNotEmitSubsection(
-                                    "Gurmukhi, from Table 12-16",
+                                    "Gurmukhi, from Table 12-17",
                                     "[:Do_Not_Emit_Type=Indic_Vowel_Letter:]",
                                     dispreferred ->
                                             UcdPropertyValues.Script_Values.forName(
@@ -958,7 +988,7 @@ public class MakeUnicodeFiles {
                                                                     dispreferred.codePointAt(0)))
                                                     == UcdPropertyValues.Script_Values.Gurmukhi),
                             new DoNotEmitSubsection(
-                                    "Gujarati, from Table 12-20",
+                                    "Gujarati, from Table 12-21",
                                     "[:Do_Not_Emit_Type=Indic_Vowel_Letter:]",
                                     dispreferred ->
                                             UcdPropertyValues.Script_Values.forName(
@@ -966,7 +996,7 @@ public class MakeUnicodeFiles {
                                                                     dispreferred.codePointAt(0)))
                                                     == UcdPropertyValues.Script_Values.Gujarati),
                             new DoNotEmitSubsection(
-                                    "Oriya (Odia), from Table 12-22",
+                                    "Oriya (Odia), from Table 12-23",
                                     "[:Do_Not_Emit_Type=Indic_Vowel_Letter:]",
                                     dispreferred ->
                                             UcdPropertyValues.Script_Values.forName(
@@ -974,7 +1004,7 @@ public class MakeUnicodeFiles {
                                                                     dispreferred.codePointAt(0)))
                                                     == UcdPropertyValues.Script_Values.Oriya),
                             new DoNotEmitSubsection(
-                                    "Tamil, from Table 12-27",
+                                    "Tamil, from Table 12-28",
                                     "[:Do_Not_Emit_Type=Indic_Vowel_Letter:]",
                                     dispreferred ->
                                             UcdPropertyValues.Script_Values.forName(
@@ -982,7 +1012,7 @@ public class MakeUnicodeFiles {
                                                                     dispreferred.codePointAt(0)))
                                                     == UcdPropertyValues.Script_Values.Tamil),
                             new DoNotEmitSubsection(
-                                    "Telugu, from Table 12-31",
+                                    "Telugu, from Table 12-32",
                                     "[:Do_Not_Emit_Type=Indic_Vowel_Letter:]",
                                     dispreferred ->
                                             UcdPropertyValues.Script_Values.forName(
@@ -990,7 +1020,7 @@ public class MakeUnicodeFiles {
                                                                     dispreferred.codePointAt(0)))
                                                     == UcdPropertyValues.Script_Values.Telugu),
                             new DoNotEmitSubsection(
-                                    "Kannada, from Table 12-32",
+                                    "Kannada, from Table 12-33",
                                     "[:Do_Not_Emit_Type=Indic_Vowel_Letter:]",
                                     dispreferred ->
                                             UcdPropertyValues.Script_Values.forName(
@@ -998,7 +1028,7 @@ public class MakeUnicodeFiles {
                                                                     dispreferred.codePointAt(0)))
                                                     == UcdPropertyValues.Script_Values.Kannada),
                             new DoNotEmitSubsection(
-                                    "Malayalam, from Table 12-34",
+                                    "Malayalam, from Table 12-35",
                                     "[:Do_Not_Emit_Type=Indic_Vowel_Letter:]",
                                     dispreferred ->
                                             UcdPropertyValues.Script_Values.forName(
@@ -1120,7 +1150,11 @@ public class MakeUnicodeFiles {
                                             UcdPropertyValues.Script_Values.forName(
                                                             script.getValue(
                                                                     dispreferred.codePointAt(0)))
-                                                    == Script_Values.Khmer))
+                                                    == Script_Values.Khmer),
+                            new DoNotEmitSubsection(
+                                    "Precomposed form of mathematical symbols negated with a vertical bar",
+                                    "[:Do_Not_Emit_Type=Precomposed_Form:]",
+                                    dispreferred -> dispreferred.contains("\u20D2")))
                 };
         for (final var section : sections) {
             pw.println();
@@ -2493,6 +2527,7 @@ public class MakeUnicodeFiles {
             rangeBlocks.put("Tangut", "Tangut Ideograph");
             rangeBlocks.put("Tangut_Supplement", "Tangut Ideograph Supplement");
             rangeBlocks.put("Seal", "Seal Character");
+            rangeBlocks.put("Jurchen", "Jurchen Character");
             rangeBlocks.put("Supplementary_Private_Use_Area_A", "Plane 15 Private Use");
             rangeBlocks.put("Supplementary_Private_Use_Area_B", "Plane 16 Private Use");
         }
@@ -2638,8 +2673,8 @@ public class MakeUnicodeFiles {
      if (DEBUG) System.out.println("\tGetID <" + text.substring(start,limit) + ">");
      int cp = 0;
      int i;
-     for (i = start; i < limit; i += UTF16.getCharCount(cp)) {
-     cp = UTF16.charAt(text, i);
+     for (i = start; i < limit; i += Character.charCount(cp)) {
+     cp = text.codePointAt(i);
      if (!com.ibm.icu.lang.UCharacter.isUnicodeIdentifierPart(cp)) {
      break;
      }
