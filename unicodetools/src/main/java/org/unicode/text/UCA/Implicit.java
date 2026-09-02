@@ -183,6 +183,10 @@ public class Implicit {
     }
 
     public int codePointForPrimaryPair(int lead, int trail) {
+        if (lead <0 || lead > 0xFFFF || trail < 0 || trail > 0xFFFF) {
+            throw new IllegalArgumentException(
+                    "(" + Utility.hex(lead) + ", " + Utility.hex(trail) + ") is not a primary pair (did you pass entire collation elements instead or primary weights?)");
+        }
         if (lead < START || trail <= 0x7FFF) {
             // not implicit
         } else if (lead < CJK_BASE) {

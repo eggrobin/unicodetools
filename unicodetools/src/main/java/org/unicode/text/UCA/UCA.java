@@ -929,7 +929,7 @@ public final class UCA implements Comparator<String> {
         return getCEListForImplicit(c);
     }
 
-    CEList getCEListForImplicit(int c) {
+    public CEList getCEListForImplicit(int c) {
         int implicitPair = implicit.primaryPairForCodePoint(c);
         int p =
                 makeKey(
