@@ -174,7 +174,7 @@ public class CollationFolding {
         try (final var writer =
                 new DiffingPrintWriter(
                         Settings.UnicodeTools.UNICODETOOLS_REPO_DIR
-                                + "/unicodetools/data/other/dev/",
+                                + "/unicodetools/data/uca/unpublished/",
                         "CollationFolding.txt")) {
         final var iup = IndexUnicodeProperties.make();
         for (int cp = 0; cp < 0x10FFFF; ++cp) {
