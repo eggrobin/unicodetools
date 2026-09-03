@@ -1266,8 +1266,8 @@ public class ToolUnicodePropertySource extends UnicodeProperty.Factory {
             // Disallow multiple values for code point, but only if we are using this class to
             // derive the current properties; the derivation is incorrect for earlier versions
             // anyway.
-            //unicodeMap.setErrorOnReset(
-              //      compositeVersion == UCD.makeLatestVersion().getCompositeVersion());
+            // unicodeMap.setErrorOnReset(
+            //      compositeVersion == UCD.makeLatestVersion().getCompositeVersion());
 
             final UnicodeProperty cat = getProperty("General_Category");
             final UnicodeProperty script = getProperty("Script");

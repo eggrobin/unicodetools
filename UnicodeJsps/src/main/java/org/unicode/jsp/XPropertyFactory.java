@@ -280,7 +280,7 @@ public class XPropertyFactory extends UnicodeProperty.Factory {
         final List<TreeSet<CEList>> allElementListsByLevel =
                 List.of(new TreeSet<>(), new TreeSet<>(), new TreeSet<>());
         final int[] masks = {0xFFFF_0000, 0xFFFF_FF80, 0xFFFF_FFFF};
-                final long start = System.currentTimeMillis();
+        final long start = System.currentTimeMillis();
         for (String s = ucaContents.next(); s != null; s = ucaContents.next()) {
             CEList collationElements = ucaContents.getCEs();
             for (int level = 0; level < 3; ++level) {
@@ -288,15 +288,17 @@ public class XPropertyFactory extends UnicodeProperty.Factory {
                 for (int i = 0; i < collationElements.length(); ++i) {
                     maskedElements[i] = masks[level] & collationElements.at(i);
                 }
-                CEList levelElements = new CEList(Arrays.stream(maskedElements).filter(i -> i != 0).toArray());
+                CEList levelElements =
+                        new CEList(Arrays.stream(maskedElements).filter(i -> i != 0).toArray());
                 stringToElementsByLevel.get(level).put(s, levelElements);
                 allElementListsByLevel.get(level).add(levelElements);
             }
         }
-        System.err.println("%%%%%%%%%%%%%%% iteration : " + (System.currentTimeMillis() - start) + "ms") ;
+        System.err.println(
+                "%%%%%%%%%%%%%%% iteration : " + (System.currentTimeMillis() - start) + "ms");
 
         for (int level = 0; level < 3; ++level) {
-                final long eqstart = System.currentTimeMillis();
+            final long eqstart = System.currentTimeMillis();
             final Map<CEList, String> representatives = new TreeMap<>();
             for (CEList elements : allElementListsByLevel.get(level)) {
                 representatives.put(
@@ -304,29 +306,29 @@ public class XPropertyFactory extends UnicodeProperty.Factory {
                         stringToElementsByLevel.get(level).keySet(elements).stream()
                                 .min(uca)
                                 .get());
-
             }
             final UnicodeMap<String> collationFolding = new UnicodeMap<>();
-            foldExpansions: for (CEList elements : allElementListsByLevel.get(level)) {
+            foldExpansions:
+            for (CEList elements : allElementListsByLevel.get(level)) {
                 if (elements.length() > 1) {
                     final var folding = new StringBuilder();
                     for (int i = 0; i < elements.length(); ++i) {
-                        String representative = representatives.get(new CEList(new int[] {elements.at(i)}));
+                        String representative =
+                                representatives.get(new CEList(new int[] {elements.at(i)}));
                         if (representative == null) {
                             collationFolding.putAll(
-                                stringToElementsByLevel.get(level).keySet(),
-                                representatives.get(elements));
+                                    stringToElementsByLevel.get(level).keySet(),
+                                    representatives.get(elements));
                             continue foldExpansions;
                         }
                         folding.append(representative);
                     }
                     collationFolding.putAll(
-                        stringToElementsByLevel.get(level).keySet(),
-                        folding.toString());
+                            stringToElementsByLevel.get(level).keySet(), folding.toString());
                 } else {
                     collationFolding.putAll(
-                        stringToElementsByLevel.get(level).keySet(),
-                        representatives.get(elements));
+                            stringToElementsByLevel.get(level).keySet(),
+                            representatives.get(elements));
                 }
             }
             CEList previousElements = null;
@@ -336,8 +338,7 @@ public class XPropertyFactory extends UnicodeProperty.Factory {
                 final UnicodeSet equivalenceClass =
                         stringToElementsByLevel.get(level).keySet(elements);
                 if (previousElements != null) {
-                    nextCodePoint.putAll(
-                            equivalenceClass, representatives.get(previousElements));
+                    nextCodePoint.putAll(equivalenceClass, representatives.get(previousElements));
                     previousCodePoint.putAll(
                             stringToElementsByLevel.get(level).keySet(previousElements),
                             representatives.get(elements));
@@ -369,7 +370,12 @@ public class XPropertyFactory extends UnicodeProperty.Factory {
                                     prefix + "_fold",
                                     UnicodeProperty.STRING,
                                     "1.1"));
-        System.err.println("%%%%%%%%%%%%%%% equivalence classes level " + level + ": " + (System.currentTimeMillis() - eqstart) + "ms") ;
+            System.err.println(
+                    "%%%%%%%%%%%%%%% equivalence classes level "
+                            + level
+                            + ": "
+                            + (System.currentTimeMillis() - eqstart)
+                            + "ms");
         }
     }
 
