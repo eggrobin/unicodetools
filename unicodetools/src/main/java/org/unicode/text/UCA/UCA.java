@@ -25,6 +25,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.unicode.text.UCA.UCA_Statistics.RoBitSet;
 import org.unicode.text.UCD.Default;
 import org.unicode.text.UCD.Normalizer;
@@ -1468,6 +1470,12 @@ public final class UCA implements Comparator<String> {
         if (SHOW_STATS) {
             System.out.println("\trenumberedVariable: " + getStatistics().renumberedVariable);
         }
+        if (variableWarning != null || zeroVariableWarning != null) {
+            throw new IllegalArgumentException(
+                    Stream.of(variableWarning, zeroVariableWarning)
+                            .filter(w -> w != null)
+                            .collect(Collectors.joining("\n")));
+        }
     }
 
     /** Remove comments, extra whitespace */
@@ -1590,6 +1598,10 @@ public final class UCA implements Comparator<String> {
         return count;
     }
 
+    String variableWarning = null;
+
+    String zeroVariableWarning = null;
+
     /**
      * Gets a CE from a UCA format line
      *
@@ -1598,10 +1610,6 @@ public final class UCA implements Comparator<String> {
      * @param position on input, the place to start at. On output, updated to point to the next
      *     place to search.
      */
-    boolean haveVariableWarning = false;
-
-    boolean haveZeroVariableWarning = false;
-
     private int getCEFromLine(
             int value,
             String line,
@@ -1618,9 +1626,8 @@ public final class UCA implements Comparator<String> {
         final int key2 = Integer.parseInt(line.substring(start + 7, start + 11), 16);
         final int key3 = Integer.parseInt(line.substring(start + 12, start + 16), 16);
         if (key1 == 0 && variable) {
-            if (!haveZeroVariableWarning) {
-                System.out.println("\tBAD DATA: Zero L1s cannot be variable!!: " + line);
-                haveZeroVariableWarning = true;
+            if (zeroVariableWarning == null) {
+                zeroVariableWarning = "\tBAD DATA: Zero L1s cannot be variable!!: " + line;
             }
             variable = false; // FIX DATA FILE
         }
@@ -1635,14 +1642,13 @@ public final class UCA implements Comparator<String> {
         // adjust variable bounds, if needed
         if (variable) {
             if (key1 > ucaData.nonVariableLow) {
-                if (!haveVariableWarning) {
-                    System.out.println(
+                if (variableWarning == null) {
+                    variableWarning =
                             "\tBAD DATA: Variable overlap, nonvariable low: "
                                     + Utility.hex(ucaData.nonVariableLow)
                                     + ", line: \""
                                     + line
-                                    + "\"");
-                    haveVariableWarning = true;
+                                    + "\"";
                 }
             } else {
                 if (key1 < ucaData.variableLow) {
@@ -1652,16 +1658,17 @@ public final class UCA implements Comparator<String> {
                     ucaData.variableHigh = key1;
                 }
             }
-        } else if (key1 != 0) { // not variable, not zero
+        } else if (key1 != 0
+                && !(value == '\uFFFE'
+                        && key1 == 0x200)) { // not variable, not zero nor the weight of U+FFFE.
             if (key1 < ucaData.variableHigh) {
-                if (!haveVariableWarning) {
-                    System.out.println(
+                if (variableWarning == null) {
+                    variableWarning =
                             "\tBAD DATA: Variable overlap, variable high: "
                                     + Utility.hex(ucaData.variableHigh)
                                     + ", line: \""
                                     + line
-                                    + "\"");
-                    haveVariableWarning = true;
+                                    + "\"";
                 }
             } else {
                 if (key1 < ucaData.nonVariableLow) {
