@@ -4,6 +4,7 @@ import com.ibm.icu.impl.UnicodeMap;
 import com.ibm.icu.text.UnicodeSet;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -14,32 +15,114 @@ import org.unicode.props.IndexUnicodeProperties;
 import org.unicode.text.UCA.CEList;
 import org.unicode.text.UCA.UCA;
 import org.unicode.text.UCA.UCA.UCAContents;
+import org.unicode.text.UCA.UCA_Types.Alternate;
 import org.unicode.text.utility.DiffingPrintWriter;
 import org.unicode.text.utility.Settings;
 import org.unicode.text.utility.Utility;
 
 public class CollationFolding {
+
+    private static long addQuaternary(
+            UCA uca, Alternate alternate, int collationElement, Integer preceding) {
+        if (alternate == Alternate.NON_IGNORABLE) {
+            return (long) collationElement << 16;
+        }
+        int l1 = CEList.getPrimary(collationElement);
+        int l3 = CEList.getTertiary(collationElement);
+        if (collationElement == 0) {
+            return 0;
+        } else if (l1 == 0 && l3 != 0 && preceding != null && uca.isVariable(preceding)) {
+            return 0;
+        } else if (l1 != 0 && uca.isVariable(collationElement)) {
+            return l1;
+        } else if (l1 == 0 && l3 != 0 && (preceding == null || !uca.isVariable(preceding))) {
+            return ((long) collationElement << 16) | 0xFFFF;
+        } else if (l1 != 0 && !uca.isVariable(collationElement)) {
+            return ((long) collationElement << 16) | 0xFFFF;
+        } else {
+            throw new IllegalArgumentException(
+                    (preceding == null ? "null" : new CEList(new int[] {preceding}).toString())
+                            + new CEList(new int[] {collationElement}).toString());
+        }
+    }
+
+    private static int removeQuaternary(long collationElement) {
+        return (int) (collationElement >> 16);
+    }
+
+    static class FoldingType {
+        FoldingType(int level, Alternate alternate) {
+            if (level < 1 || level > 4) {
+                throw new IllegalArgumentException("Bad level " + level);
+            }
+            if (level == 4 && alternate == Alternate.NON_IGNORABLE) {
+                throw new IllegalArgumentException("Bad level " + level + " for non-ignorable");
+            }
+            this.level = level;
+            this.alternate = alternate;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof FoldingType
+                    && ((FoldingType) other).level == level
+                    && ((FoldingType) other).alternate == alternate;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(level, alternate);
+        }
+
+        @Override
+        public String toString() {
+            return Integer.toString(level) + "_" + alternate;
+        }
+
+        int level;
+        Alternate alternate;
+    }
+
+    static final FoldingType[] FOLDING_TYPES =
+            new FoldingType[] {
+                new FoldingType(1, Alternate.NON_IGNORABLE),
+                new FoldingType(2, Alternate.NON_IGNORABLE),
+                new FoldingType(3, Alternate.NON_IGNORABLE), /*
+        new FoldingType(1, Alternate.SHIFTED),
+        new FoldingType(2, Alternate.SHIFTED),
+        new FoldingType(3, Alternate.SHIFTED),
+        new FoldingType(4, Alternate.SHIFTED), */
+            };
+
     public static final void main(String[] args) throws IOException {
         final UCA uca = UCA.buildDucetCollator();
         final UCAContents ucaContents = uca.getContents(null);
-        final List<UnicodeMap<CEList>> stringToElementsByLevel =
-                List.of(new UnicodeMap<>(), new UnicodeMap<>(), new UnicodeMap<>());
-        final List<TreeMap<CEList, UnicodeSet>> elementsToStringsByLevel =
-                List.of(new TreeMap<>(), new TreeMap<>(), new TreeMap<>());
-        final int[] masks = {0xFFFF_0000, 0xFFFF_FF80, 0xFFFF_FFFF};
+        final Map<FoldingType, UnicodeMap<long[]>> stringToElementsByType = new HashMap<>();
+        final Map<FoldingType, TreeMap<long[], UnicodeSet>> elementsToStringsByType =
+                new HashMap<>();
+        final long[] masks = {
+            0, 0xFFFF_0000_0000L, 0xFFFF_FF80_0000L, 0xFFFF_FFFF_0000L, 0xFFFF_FFFF_FFFFL
+        };
         final long start = System.currentTimeMillis();
         for (String s = ucaContents.next(); s != null; s = ucaContents.next()) {
             CEList collationElements = ucaContents.getCEs();
-            for (int level = 0; level < 3; ++level) {
-                int[] maskedElements = new int[collationElements.length()];
+            for (final var type : FOLDING_TYPES) {
+                long[] maskedElements = new long[collationElements.length()];
                 for (int i = 0; i < collationElements.length(); ++i) {
-                    maskedElements[i] = masks[level] & collationElements.at(i);
+                    maskedElements[i] =
+                            masks[type.level]
+                                    & addQuaternary(
+                                            uca,
+                                            type.alternate,
+                                            collationElements.at(i),
+                                            i == 0 ? null : collationElements.at(i - 1));
                 }
-                CEList levelElements =
-                        new CEList(Arrays.stream(maskedElements).filter(i -> i != 0).toArray());
-                stringToElementsByLevel.get(level).put(s, levelElements);
-                elementsToStringsByLevel
-                        .get(level)
+                long[] levelElements = Arrays.stream(maskedElements).filter(i -> i != 0).toArray();
+                stringToElementsByType
+                        .computeIfAbsent(type, k -> new UnicodeMap<>())
+                        .put(s, levelElements);
+                elementsToStringsByType
+                        .computeIfAbsent(type, k -> new TreeMap<>(Arrays::compare))
                         .computeIfAbsent(levelElements, k -> new UnicodeSet())
                         .add(s);
             }
@@ -47,44 +130,49 @@ public class CollationFolding {
         System.err.println(
                 "%%%%%%%%%%%%%%% iteration : " + (System.currentTimeMillis() - start) + "ms");
 
-        final List<UnicodeMap<String>> collationFoldings =
-                List.of(new UnicodeMap<>(), new UnicodeMap<>(), new UnicodeMap<>());
-        for (int level = 0; level < 3; ++level) {
+        final Map<FoldingType, UnicodeMap<String>> collationFoldings = new HashMap<>();
+        for (final var type : FOLDING_TYPES) {
             final long eqstart = System.currentTimeMillis();
-            final Map<CEList, String> representatives = new TreeMap<>();
-            for (final var entry : elementsToStringsByLevel.get(level).entrySet()) {
-                final CEList elements = entry.getKey();
+            final Map<long[], String> representatives = new TreeMap<>(Arrays::compare);
+            for (final var entry : elementsToStringsByType.get(type).entrySet()) {
+                final long[] elements = entry.getKey();
                 final UnicodeSet strings = entry.getValue();
                 representatives.put(elements, strings.stream().min(uca).get());
             }
-            final UnicodeMap<String> collationFolding = collationFoldings.get(level);
+            final UnicodeMap<String> collationFolding =
+                    collationFoldings.computeIfAbsent(type, k -> new UnicodeMap<>());
             foldExpansions:
-            for (final var entry : elementsToStringsByLevel.get(level).entrySet()) {
-                final CEList elements = entry.getKey();
+            for (final var entry : elementsToStringsByType.get(type).entrySet()) {
+                final long[] elements = entry.getKey();
                 final UnicodeSet strings = entry.getValue();
-                if (elements.length() > 1) {
+                if (elements.length > 1) {
                     final var folding = new StringBuilder();
-                    for (int i = 0; i < elements.length(); ++i) {
-                        if (UCA.isImplicitLeadCE(elements.at(i))) {
+                    for (int i = 0; i < elements.length; ++i) {
+                        if (UCA.isImplicitLeadCE(removeQuaternary(elements[i]))) {
                             final int cp =
                                     uca.implicit.codePointForPrimaryPair(
-                                            CEList.getPrimary(elements.at(i)),
-                                            CEList.getPrimary(elements.at(i + 1)));
+                                            CEList.getPrimary(removeQuaternary(elements[i])),
+                                            CEList.getPrimary(removeQuaternary(elements[i + 1])));
                             final CEList cpElements = uca.getCEListForImplicit(cp);
-                            int[] maskedElements = new int[cpElements.length()];
+                            long[] maskedElements = new long[cpElements.length()];
                             for (int j = 0; j < cpElements.length(); ++j) {
-                                maskedElements[j] = masks[level] & cpElements.at(j);
+                                maskedElements[j] =
+                                        masks[type.level]
+                                                & addQuaternary(
+                                                        uca,
+                                                        type.alternate,
+                                                        cpElements.at(j),
+                                                        /*preceding=*/null);
                             }
-                            if (maskedElements[0] != elements.at(i)
-                                    || maskedElements[1] != elements.at(i + 1)) {
+                            if (maskedElements[0] != elements[i]
+                                    || maskedElements[1] != elements[i + 1]) {
                                 collationFolding.putAll(strings, representatives.get(elements));
                                 continue foldExpansions;
                             }
                             ++i;
                             folding.append(Character.toString(cp));
                         } else {
-                            String representative =
-                                    representatives.get(new CEList(new int[] {elements.at(i)}));
+                            String representative = representatives.get(new long[] {elements[i]});
                             if (representative == null) {
                                 collationFolding.putAll(strings, representatives.get(elements));
                                 continue foldExpansions;
@@ -97,39 +185,36 @@ public class CollationFolding {
                     collationFolding.putAll(strings, representatives.get(elements));
                 }
             }
-            CEList previousElements = null;
+            long[] previousElements = null;
             final UnicodeMap<String> nextCodePoint = new UnicodeMap<>();
             final UnicodeMap<String> previousCodePoint = new UnicodeMap<>();
-            for (CEList elements : elementsToStringsByLevel.get(level).keySet()) {
+            for (long[] elements : elementsToStringsByType.get(type).keySet()) {
                 final UnicodeSet equivalenceClass =
-                        stringToElementsByLevel.get(level).keySet(elements);
+                        stringToElementsByType.get(type).keySet(elements);
                 if (equivalenceClass.contains("é")) {
-                    System.out.println("uca level " + (level + 1) + " equivalence class of é:");
+                    System.out.println("uca level " + type.level + " equivalence class of é:");
                     System.out.println(equivalenceClass);
                     System.out.println(Utility.hex(collationFolding.get("é")));
                 }
                 if (equivalenceClass.contains("\u4E00")) {
-                    System.out.println(
-                            "uca level " + (level + 1) + " equivalence class of \u4E00:");
+                    System.out.println("uca level " + type.level + " equivalence class of \u4E00:");
                     System.out.println(equivalenceClass);
                     System.out.println(Utility.hex(collationFolding.get("\u4E00")));
                 }
                 if (equivalenceClass.contains("\u3226")) {
-                    System.out.println(
-                            "uca level " + (level + 1) + " equivalence class of \u3226:");
+                    System.out.println("uca level " + type.level + " equivalence class of \u3226:");
                     System.out.println(equivalenceClass);
                     System.out.println(Utility.hex(collationFolding.get("\u3226")));
                 }
                 if (equivalenceClass.contains("\u0439")) {
-                    System.out.println(
-                            "uca level " + (level + 1) + " equivalence class of \u0439:");
+                    System.out.println("uca level " + type.level + " equivalence class of \u0439:");
                     System.out.println(equivalenceClass);
                     System.out.println(Utility.hex(collationFolding.get("\u0439")));
                 }
                 if (previousElements != null) {
                     nextCodePoint.putAll(equivalenceClass, representatives.get(previousElements));
                     previousCodePoint.putAll(
-                            stringToElementsByLevel.get(level).keySet(previousElements),
+                            stringToElementsByType.get(type).keySet(previousElements),
                             representatives.get(elements));
                 }
                 previousElements = elements;
@@ -161,8 +246,8 @@ public class CollationFolding {
                                     UnicodeProperty.STRING,
                                     "1.1"));*/
             System.err.println(
-                    "%%%%%%%%%%%%%%% equivalence classes level "
-                            + level
+                    "%%%%%%%%%%%%%%% equivalence classes for "
+                            + type
                             + ": "
                             + (System.currentTimeMillis() - eqstart)
                             + "ms");
@@ -187,7 +272,8 @@ public class CollationFolding {
                 final var foldings =
                         cp == 0x110000
                                 ? null
-                                : collationFoldings.stream()
+                                : Arrays.stream(FOLDING_TYPES)
+                                        .map(collationFoldings::get)
                                         .map(
                                                 f ->
                                                         Objects.requireNonNullElse(

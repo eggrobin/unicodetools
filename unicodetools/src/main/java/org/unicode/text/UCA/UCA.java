@@ -1658,9 +1658,8 @@ public final class UCA implements Comparator<String> {
                     ucaData.variableHigh = key1;
                 }
             }
-        } else if (key1 != 0
-                && !(value == '\uFFFE'
-                        && key1 == 0x200)) { // not variable, not zero nor the weight of U+FFFE.
+        } else if (key1 != 0 && !(value == '\uFFFE' && key1 == MAX_LOW_SPECIAL_PRIMARY)) {
+            // Not variable, not zero nor the weight of U+FFFE.
             if (key1 < ucaData.variableHigh) {
                 if (variableWarning == null) {
                     variableWarning =
