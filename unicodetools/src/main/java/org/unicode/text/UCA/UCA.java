@@ -12,7 +12,6 @@ package org.unicode.text.UCA;
 import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.text.UnicodeSetIterator;
 import com.ibm.icu.util.VersionInfo;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -1751,10 +1750,10 @@ public final class UCA implements Comparator<String> {
     private static UCA buildCollator(VersionInfo version, int variableHigh, int firstNonVariable) {
         try {
             if (VERBOSE) System.out.println("Building UCA");
-            final Path dataPath = Settings.UnicodeTools.getDataPath("uca", version.getVersionString(3, 3));
+            final Path dataPath =
+                    Settings.UnicodeTools.getDataPath("uca", version.getVersionString(3, 3));
             final String file = Utility.searchDirectory(dataPath.toFile(), "allkeys", true, ".txt");
-            final UCA collator =
-                    new UCA(file, version, variableHigh, firstNonVariable);
+            final UCA collator = new UCA(file, version, variableHigh, firstNonVariable);
             if (VERBOSE)
                 System.out.println(
                         "Built version "
@@ -1803,7 +1802,9 @@ public final class UCA implements Comparator<String> {
                     break;
             }
         }
-        final UCA result = buildCollator(Settings.LATEST_VERSION_INFO, cldrVariableHigh, firstDucetNonVariable);
+        final UCA result =
+                buildCollator(
+                        Settings.LATEST_VERSION_INFO, cldrVariableHigh, firstDucetNonVariable);
 
         return result;
     }

@@ -3,7 +3,6 @@ package org.unicode.text.tools;
 import com.ibm.icu.impl.UnicodeMap;
 import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.util.VersionInfo;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -121,7 +120,14 @@ public class CollationFolding {
                                             i == 0 ? null : collationElements.at(i - 1));
                 }
                 long[] levelElements = Arrays.stream(maskedElements).filter(i -> i != 0).toArray();
-                if (s.equals("\u2105")) System.out.println("\u2105 " + type + " " + Arrays.stream(levelElements).mapToObj(Utility::hex).collect(Collectors.joining(",")));
+                if (s.equals("\u2105"))
+                    System.out.println(
+                            "\u2105 "
+                                    + type
+                                    + " "
+                                    + Arrays.stream(levelElements)
+                                            .mapToObj(Utility::hex)
+                                            .collect(Collectors.joining(",")));
                 stringToElementsByType
                         .computeIfAbsent(type, k -> new UnicodeMap<>())
                         .put(s, levelElements);
@@ -141,7 +147,8 @@ public class CollationFolding {
             for (final var entry : elementsToStringsByType.get(type).entrySet()) {
                 final long[] elements = entry.getKey();
                 final UnicodeSet strings = entry.getValue();
-                representatives.put(elements, strings.stream().min(uca.thenComparing(String::compareTo)).get());
+                representatives.put(
+                        elements, strings.stream().min(uca.thenComparing(String::compareTo)).get());
             }
             final UnicodeMap<String> collationFolding =
                     collationFoldings.computeIfAbsent(type, k -> new UnicodeMap<>());
@@ -166,7 +173,7 @@ public class CollationFolding {
                                                         uca,
                                                         type.alternate,
                                                         cpElements.at(j),
-                                                        /*preceding=*/null);
+                                                        /* preceding= */ null);
                             }
                             if (maskedElements[0] != elements[i]
                                     || maskedElements[1] != elements[i + 1]) {
@@ -258,7 +265,8 @@ public class CollationFolding {
         }
         try (final var writer =
                 new DiffingPrintWriter(
-                        Settings.UnicodeTools.getDataPath("uca", version.getVersionString(3, 3)) +"/unpublished/",
+                        Settings.UnicodeTools.getDataPath("uca", version.getVersionString(3, 3))
+                                + "/unpublished/",
                         "CollationFolding.txt")) {
             final var iup = IndexUnicodeProperties.make(version);
             final var tabber = new Tabber.MonoTabber();
