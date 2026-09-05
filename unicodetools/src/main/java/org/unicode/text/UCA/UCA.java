@@ -11,6 +11,8 @@ package org.unicode.text.UCA;
 
 import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.text.UnicodeSetIterator;
+import com.ibm.icu.util.VersionInfo;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -113,7 +115,7 @@ public final class UCA implements Comparator<String> {
 
     public static UCA getDucetCollator() {
         if (ducetCollator == null) {
-            ducetCollator = buildDucetCollator();
+            ducetCollator = buildDucetCollator(Settings.LATEST_VERSION_INFO);
         }
         return ducetCollator;
     }
@@ -252,7 +254,7 @@ public final class UCA implements Comparator<String> {
      * Initializes the collation from a stream of rules in the allkeys.txt format. If the source is
      * null, uses the normal Unicode data files, which need to be in BASE_DIR.
      */
-    public UCA(String sourceFile, String unicodeVersion) throws java.io.IOException {
+    public UCA(String sourceFile, VersionInfo unicodeVersion) throws java.io.IOException {
         this(sourceFile, unicodeVersion, -1, -1);
     }
 
@@ -261,8 +263,9 @@ public final class UCA implements Comparator<String> {
      * null, uses the normal Unicode data files, which need to be in BASE_DIR. Supports explicit
      * variableHigh for the CLDR sort order.
      */
-    UCA(String sourceFile, String unicodeVersion, int variableHigh, int firstNonVariable)
+    UCA(String sourceFile, VersionInfo unicodeVersion, int variableHigh, int firstNonVariable)
             throws java.io.IOException {
+        final String versionString = unicodeVersion.getVersionString(3, 3);
         fullData = sourceFile == null;
         fileVersion = sourceFile;
 
@@ -272,10 +275,10 @@ public final class UCA implements Comparator<String> {
             // not try to create a collator for an old Unicode version
             // because we do not track changes to special weight values and algorithm edge cases.
             // Also, toD is static, so we cannot have multiple versions at the same time.
-            toD = Normalizer.getOrMakeNfdInstance(unicodeVersion);
+            toD = Normalizer.getOrMakeNfdInstance(versionString);
         }
 
-        ucd = UCD.make(unicodeVersion);
+        ucd = UCD.make(versionString);
         ucdVersion = ucd.getVersion();
 
         ucaData = new UCA_Data(toD, ucd, variableHigh, firstNonVariable);
@@ -1741,17 +1744,17 @@ public final class UCA implements Comparator<String> {
         return getStatistics().homelessSecondaries;
     }
 
-    public static UCA buildDucetCollator() {
-        return buildCollator(-1, -1);
+    public static UCA buildDucetCollator(VersionInfo version) {
+        return buildCollator(version, -1, -1);
     }
 
-    private static UCA buildCollator(int variableHigh, int firstNonVariable) {
+    private static UCA buildCollator(VersionInfo version, int variableHigh, int firstNonVariable) {
         try {
             if (VERBOSE) System.out.println("Building UCA");
-            final Path dataPath = Settings.UnicodeTools.getDataPathForLatestVersion("uca");
+            final Path dataPath = Settings.UnicodeTools.getDataPath("uca", version.getVersionString(3, 3));
             final String file = Utility.searchDirectory(dataPath.toFile(), "allkeys", true, ".txt");
             final UCA collator =
-                    new UCA(file, Default.ucdVersion(), variableHigh, firstNonVariable);
+                    new UCA(file, version, variableHigh, firstNonVariable);
             if (VERBOSE)
                 System.out.println(
                         "Built version "
@@ -1800,7 +1803,7 @@ public final class UCA implements Comparator<String> {
                     break;
             }
         }
-        final UCA result = buildCollator(cldrVariableHigh, firstDucetNonVariable);
+        final UCA result = buildCollator(Settings.LATEST_VERSION_INFO, cldrVariableHigh, firstDucetNonVariable);
 
         return result;
     }

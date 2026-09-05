@@ -2,6 +2,8 @@ package org.unicode.text.tools;
 
 import com.ibm.icu.impl.UnicodeMap;
 import com.ibm.icu.text.UnicodeSet;
+import com.ibm.icu.util.VersionInfo;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -95,7 +97,8 @@ public class CollationFolding {
             };
 
     public static final void main(String[] args) throws IOException {
-        final UCA uca = UCA.buildDucetCollator();
+        final var version = VersionInfo.getInstance(args[0]);
+        final UCA uca = UCA.buildDucetCollator(version);
         final UCAContents ucaContents = uca.getContents(null);
         final Map<FoldingType, UnicodeMap<long[]>> stringToElementsByType = new HashMap<>();
         final Map<FoldingType, TreeMap<long[], UnicodeSet>> elementsToStringsByType =
@@ -255,10 +258,9 @@ public class CollationFolding {
         }
         try (final var writer =
                 new DiffingPrintWriter(
-                        Settings.UnicodeTools.UNICODETOOLS_REPO_DIR
-                                + "/unicodetools/data/uca/unpublished/",
+                        Settings.UnicodeTools.getDataPath("uca", version.getVersionString(3, 3)) +"/unpublished/",
                         "CollationFolding.txt")) {
-            final var iup = IndexUnicodeProperties.make();
+            final var iup = IndexUnicodeProperties.make(version);
             final var tabber = new Tabber.MonoTabber();
             tabber.add(12, Tabber.LEFT);
             for (final var type : FOLDING_TYPES) {
@@ -319,14 +321,5 @@ public class CollationFolding {
                 + "\t# "
                 + iup.getName(rangeFirst)
                 + (rangeFirst != rangeLast ? ".." + iup.getName(rangeLast) : "");
-    }
-
-    private static String getLine(
-            String string, List<String> foldings, IndexUnicodeProperties iup) {
-        return Utility.hex(string)
-                + "\t; "
-                + foldings.stream().map(Utility::hex).collect(Collectors.joining("\t; "))
-                + "\t# "
-                + string.codePoints().mapToObj(iup::getName).collect(Collectors.joining(", "));
     }
 }
