@@ -85,13 +85,13 @@ public class CollationFolding {
 
     static final FoldingType[] FOLDING_TYPES =
             new FoldingType[] {
+                new FoldingType(1, Alternate.SHIFTED),
+                new FoldingType(2, Alternate.SHIFTED),
+                new FoldingType(3, Alternate.SHIFTED),
+                new FoldingType(4, Alternate.SHIFTED),
                 new FoldingType(1, Alternate.NON_IGNORABLE),
                 new FoldingType(2, Alternate.NON_IGNORABLE),
-                new FoldingType(3, Alternate.NON_IGNORABLE), /*
-        new FoldingType(1, Alternate.SHIFTED),
-        new FoldingType(2, Alternate.SHIFTED),
-        new FoldingType(3, Alternate.SHIFTED),
-        new FoldingType(4, Alternate.SHIFTED), */
+                new FoldingType(3, Alternate.NON_IGNORABLE),
             };
 
     public static final void main(String[] args) throws IOException {
@@ -118,6 +118,7 @@ public class CollationFolding {
                                             i == 0 ? null : collationElements.at(i - 1));
                 }
                 long[] levelElements = Arrays.stream(maskedElements).filter(i -> i != 0).toArray();
+                if (s.equals("\u2105")) System.out.println("\u2105 " + type + " " + Arrays.stream(levelElements).mapToObj(Utility::hex).collect(Collectors.joining(",")));
                 stringToElementsByType
                         .computeIfAbsent(type, k -> new UnicodeMap<>())
                         .put(s, levelElements);
@@ -137,7 +138,7 @@ public class CollationFolding {
             for (final var entry : elementsToStringsByType.get(type).entrySet()) {
                 final long[] elements = entry.getKey();
                 final UnicodeSet strings = entry.getValue();
-                representatives.put(elements, strings.stream().min(uca).get());
+                representatives.put(elements, strings.stream().min(uca.thenComparing(String::compareTo)).get());
             }
             final UnicodeMap<String> collationFolding =
                     collationFoldings.computeIfAbsent(type, k -> new UnicodeMap<>());
@@ -192,22 +193,22 @@ public class CollationFolding {
                 final UnicodeSet equivalenceClass =
                         stringToElementsByType.get(type).keySet(elements);
                 if (equivalenceClass.contains("é")) {
-                    System.out.println("uca level " + type.level + " equivalence class of é:");
+                    System.out.println("uca level " + type + " equivalence class of é:");
                     System.out.println(equivalenceClass);
                     System.out.println(Utility.hex(collationFolding.get("é")));
                 }
                 if (equivalenceClass.contains("\u4E00")) {
-                    System.out.println("uca level " + type.level + " equivalence class of \u4E00:");
+                    System.out.println("uca level " + type + " equivalence class of \u4E00:");
                     System.out.println(equivalenceClass);
                     System.out.println(Utility.hex(collationFolding.get("\u4E00")));
                 }
                 if (equivalenceClass.contains("\u3226")) {
-                    System.out.println("uca level " + type.level + " equivalence class of \u3226:");
+                    System.out.println("uca level " + type + " equivalence class of \u3226:");
                     System.out.println(equivalenceClass);
                     System.out.println(Utility.hex(collationFolding.get("\u3226")));
                 }
                 if (equivalenceClass.contains("\u0439")) {
-                    System.out.println("uca level " + type.level + " equivalence class of \u0439:");
+                    System.out.println("uca level " + type + " equivalence class of \u0439:");
                     System.out.println(equivalenceClass);
                     System.out.println(Utility.hex(collationFolding.get("\u0439")));
                 }
@@ -260,9 +261,9 @@ public class CollationFolding {
             final var iup = IndexUnicodeProperties.make();
             final var tabber = new Tabber.MonoTabber();
             tabber.add(12, Tabber.LEFT);
-            tabber.add(17, Tabber.LEFT); // level 1
-            tabber.add(17, Tabber.LEFT); // level 2
-            tabber.add(17, Tabber.LEFT); // level 3
+            for (final var type : FOLDING_TYPES) {
+                tabber.add(17, Tabber.LEFT);
+            }
             int rangeStart = -1;
             List<String> rangeFoldings = null;
             for (int cp = 0; cp <= 0x10FFFF + 1; ++cp) {
