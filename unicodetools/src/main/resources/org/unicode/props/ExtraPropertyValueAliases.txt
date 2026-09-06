@@ -252,6 +252,14 @@ jg; ALEF_MAQSURAH ; ALEF_MAQSURAH
 
 # Extras
 
+# @missing: 0000..10FFFF; UCA_Fold_1_Shifted       ; <code point>
+# @missing: 0000..10FFFF; UCA_Fold_2_Shifted       ; <code point>
+# @missing: 0000..10FFFF; UCA_Fold_3_Shifted       ; <code point>
+# @missing: 0000..10FFFF; UCA_Fold_4_Shifted       ; <code point>
+# @missing: 0000..10FFFF; UCA_Fold_1_Non_Ignorable ; <code point>
+# @missing: 0000..10FFFF; UCA_Fold_2_Non_Ignorable ; <code point>
+# @missing: 0000..10FFFF; UCA_Fold_3_Non_Ignorable ; <code point>
+
 # @missing: 0000..10FFFF; Idn_Status   ; disallowed
 
 idns ; v     ; valid

@@ -13,6 +13,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.unicode.cldr.util.Tabber;
 import org.unicode.props.IndexUnicodeProperties;
+import org.unicode.props.UcdProperty;
 import org.unicode.text.UCA.CEList;
 import org.unicode.text.UCA.UCA;
 import org.unicode.text.UCA.UCA.UCAContents;
@@ -318,6 +319,15 @@ public class CollationFolding {
             }
             */
         }
+        final var getPropertyStart = System.currentTimeMillis();
+        final var ucaFold1Shifted = IndexUnicodeProperties.make(version).getProperty(UcdProperty.UCA_Fold_1_Shifted);
+        System.err.println(
+                "%%%%%%%%%%%%%%% getProperty : " + (System.currentTimeMillis() - getPropertyStart) + "ms");
+        final var getSetStart = System.currentTimeMillis();
+        final var set = ucaFold1Shifted.getSet("\u4E00");
+        System.err.println(
+                "%%%%%%%%%%%%%%% getSet : " + (System.currentTimeMillis() - getSetStart) + "ms");
+        System.err.println(set);
     }
 
     private static String getLine(

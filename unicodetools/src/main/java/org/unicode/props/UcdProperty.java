@@ -111,6 +111,26 @@ public enum UcdProperty {
     Simple_Titlecase_Mapping(PropertyType.String, DerivedPropertyStatus.Approved, "stc"),
     Simple_Uppercase_Mapping(PropertyType.String, DerivedPropertyStatus.Approved, "suc"),
     Titlecase_Mapping(PropertyType.String, DerivedPropertyStatus.Approved, "tc"),
+    UCA_Fold_1_Non_Ignorable(
+            PropertyType.String,
+            DerivedPropertyStatus.NonUCDNonProperty,
+            "UCA_Fold_1_Non_Ignorable"),
+    UCA_Fold_1_Shifted(
+            PropertyType.String, DerivedPropertyStatus.NonUCDNonProperty, "UCA_Fold_1_Shifted"),
+    UCA_Fold_2_Non_Ignorable(
+            PropertyType.String,
+            DerivedPropertyStatus.NonUCDNonProperty,
+            "UCA_Fold_2_Non_Ignorable"),
+    UCA_Fold_2_Shifted(
+            PropertyType.String, DerivedPropertyStatus.NonUCDNonProperty, "UCA_Fold_2_Shifted"),
+    UCA_Fold_3_Non_Ignorable(
+            PropertyType.String,
+            DerivedPropertyStatus.NonUCDNonProperty,
+            "UCA_Fold_3_Non_Ignorable"),
+    UCA_Fold_3_Shifted(
+            PropertyType.String, DerivedPropertyStatus.NonUCDNonProperty, "UCA_Fold_3_Shifted"),
+    UCA_Fold_4_Shifted(
+            PropertyType.String, DerivedPropertyStatus.NonUCDNonProperty, "UCA_Fold_4_Shifted"),
     Uppercase_Mapping(PropertyType.String, DerivedPropertyStatus.Approved, "uc"),
     kCompatibilityVariant(
             PropertyType.String, DerivedPropertyStatus.Approved, "cjkCompatibilityVariant"),

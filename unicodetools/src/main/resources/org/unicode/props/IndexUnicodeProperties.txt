@@ -533,6 +533,14 @@ USourceData ; cjkUSource_Comments            ; {2} ↦ 7
 USourceData ; cjkUSource_TotalStrokes        ; {2} ↦ 8
 USourceData ; cjkUSource_FirstResidualStroke ; {2} ↦ 9
 
+uca/*/unpublished/CollationFolding; UCA_Fold_1_Shifted; 1
+uca/*/unpublished/CollationFolding; UCA_Fold_2_Shifted; 1
+uca/*/unpublished/CollationFolding; UCA_Fold_3_Shifted; 1
+uca/*/unpublished/CollationFolding; UCA_Fold_4_Shifted; 1
+uca/*/unpublished/CollationFolding; UCA_Fold_1_Non_Ignorable; 1
+uca/*/unpublished/CollationFolding; UCA_Fold_2_Non_Ignorable; 1
+uca/*/unpublished/CollationFolding; UCA_Fold_3_Non_Ignorable; 1
+
 idna/*/IdnaMappingTable; Idn_Status;
 idna/*/IdnaMappingTable; Idn_Mapping; 2
 idna/*/IdnaMappingTable; Idn_2008; 3
