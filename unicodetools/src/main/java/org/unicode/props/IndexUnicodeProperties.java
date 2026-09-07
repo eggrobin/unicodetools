@@ -88,6 +88,7 @@ public class IndexUnicodeProperties extends UnicodeProperty.Factory {
         LITERAL(null),
         NONE(null),
         CODE_POINT(null),
+        NEXT_CODE_POINT(null),
         Script(UcdProperty.Script),
         Simple_Lowercase_Mapping(UcdProperty.Simple_Lowercase_Mapping),
         Simple_Titlecase_Mapping(UcdProperty.Simple_Titlecase_Mapping),
@@ -102,6 +103,7 @@ public class IndexUnicodeProperties extends UnicodeProperty.Factory {
             mapping.put("<suc>", Simple_Uppercase_Mapping);
             mapping.put("<codepoint>", CODE_POINT);
             mapping.put("<code point>", CODE_POINT);
+            mapping.put("<next code point>", NEXT_CODE_POINT);
             mapping.put("<script>", Script);
             // mapping.put("NaN", LITERAL);
         }
@@ -754,6 +756,8 @@ public class IndexUnicodeProperties extends UnicodeProperty.Factory {
             switch (defaultValueType) {
                 case CODE_POINT:
                     return Character.toString(codePoint).equals(value);
+                case NEXT_CODE_POINT:
+                    return Character.toString((codePoint + 1) % 0x110000).equals(value);
                 case NONE:
                     return value == null;
                 case LITERAL:
@@ -872,6 +876,8 @@ public class IndexUnicodeProperties extends UnicodeProperty.Factory {
             }
             if (DefaultValueType.forString(rawValue) == DefaultValueType.CODE_POINT) {
                 return Character.toString(codepoint);
+            } else if (DefaultValueType.forString(rawValue) == DefaultValueType.NEXT_CODE_POINT) {
+                return Character.toString((codepoint + 1) % 0x10FFFF);
             } else if (prop == UcdProperty.Name && rawValue != null && rawValue.endsWith("#")) {
                 return rawValue.substring(0, rawValue.length() - 1) + Utility.hex(codepoint);
             } else {

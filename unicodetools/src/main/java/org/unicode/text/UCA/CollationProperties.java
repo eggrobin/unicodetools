@@ -9,13 +9,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import org.unicode.cldr.util.Tabber;
-import org.unicode.props.IndexUnicodeProperties;
 import org.unicode.text.UCA.UCA.AppendToCe;
 import org.unicode.text.UCA.UCA.UCAContents;
 import org.unicode.text.UCA.UCA_Types.Alternate;
-import org.unicode.text.utility.DiffingPrintWriter;
-import org.unicode.text.utility.Settings;
 import org.unicode.text.utility.Utility;
 
 public class CollationProperties {
@@ -215,10 +211,10 @@ public class CollationProperties {
         return collationFoldings;
     }
 
-    public void next(VersionInfo version) {
+    public static Map<Alternate, UnicodeMap<String>> getNext(VersionInfo version) {
         final UCA uca = UCA.buildDucetCollator(version);
         final var nextStart = System.currentTimeMillis();
-        final Map<Alternate, UnicodeMap<Integer>> next =
+        final Map<Alternate, UnicodeMap<String>> next =
                 Map.of(
                         Alternate.SHIFTED,
                         new UnicodeMap<>(),
@@ -249,41 +245,13 @@ public class CollationProperties {
             Integer preceding = null;
             for (final int cp : totalOrder.values()) {
                 if (preceding != null && cp != preceding + 1) {
-                    next.get(alternate).put(preceding, cp);
+                    next.get(alternate).put(preceding, Character.toString(cp));
                 }
                 preceding = cp;
             }
         }
         System.err.println(
                 "%%%%%%%%%%%%%%% next : " + (System.currentTimeMillis() - nextStart) + "ms");
-        try (final var writer =
-                new DiffingPrintWriter(
-                        Settings.UnicodeTools.getDataPath("uca", version.getVersionString(3, 3))
-                                + "/unpublished/",
-                        "CodePointOrder.txt")) {
-            final var tabber = new Tabber.MonoTabber();
-            tabber.add(8, Tabber.LEFT);
-            tabber.add(8, Tabber.LEFT);
-            tabber.add(8, Tabber.LEFT);
-            for (int cp = 0; cp <= 0x10FFFF; ++cp) {
-                final Integer nextShifted = next.get(Alternate.SHIFTED).get(cp);
-                final Integer nextNonIgnorable = next.get(Alternate.NON_IGNORABLE).get(cp);
-                if (nextShifted == null && nextNonIgnorable == null) {
-                    continue;
-                }
-                writer.println(
-                        tabber.process(
-                                Utility.hex(cp)
-                                        + "\t; "
-                                        + Utility.hex(
-                                                Objects.requireNonNullElse(nextShifted, cp + 1))
-                                        + "\t; "
-                                        + Utility.hex(
-                                                Objects.requireNonNullElse(
-                                                        nextNonIgnorable, cp + 1))
-                                        + "\t# "
-                                        + IndexUnicodeProperties.make().getName(cp)));
-            }
-        }
+        return next;
     }
 }

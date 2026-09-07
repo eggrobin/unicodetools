@@ -131,6 +131,10 @@ public enum UcdProperty {
             PropertyType.String, DerivedPropertyStatus.NonUCDNonProperty, "UCA_Fold_3_Shifted"),
     UCA_Fold_4_Shifted(
             PropertyType.String, DerivedPropertyStatus.NonUCDNonProperty, "UCA_Fold_4_Shifted"),
+    UCA_Next_Non_Ignorable(
+            PropertyType.String, DerivedPropertyStatus.NonUCDNonProperty, "UCA_Next_Non_Ignorable"),
+    UCA_Next_Shifted(
+            PropertyType.String, DerivedPropertyStatus.NonUCDNonProperty, "UCA_Next_Shifted"),
     Uppercase_Mapping(PropertyType.String, DerivedPropertyStatus.Approved, "uc"),
     kCompatibilityVariant(
             PropertyType.String, DerivedPropertyStatus.Approved, "cjkCompatibilityVariant"),

@@ -896,6 +896,7 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                     // do nothing, already none;
                     break;
                 case CODE_POINT:
+                case NEXT_CODE_POINT:
                     // NOTE(egg): The naïve thing here would be
                     //   for (final String cp : nullValues) {
                     //     data.put(cp, cp);
@@ -1085,19 +1086,38 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
             IndexUnicodeProperties nextProperties,
             Set<PropertyParsingInfo> propInfoSet) {
         final var foldings = CollationProperties.getFoldings(indexUnicodeProperties.ucdVersion);
-        foldings:
+        properties:
         for (final var entry : foldings.entrySet()) {
             final UcdProperty property = UcdProperty.forString("UCA_Fold_" + entry.getKey());
             for (final var propInfo : propInfoSet) {
                 if (nextProperties != null) {
-                    throw new IllegalArgumentException("next=" + nextProperties.ucdVersion);
+                    throw new IllegalArgumentException("NYI next=" + nextProperties.ucdVersion);
                 }
                 if (propInfo.property == property) {
                     indexUnicodeProperties
                             .property2UnicodeMap
                             .get(property)
                             .putAll(entry.getValue());
-                    continue foldings;
+                    continue properties;
+                }
+            }
+            throw new IllegalArgumentException(
+                    property + " generated from allkeys but not in propInfoSet");
+        }
+        final var next = CollationProperties.getNext(indexUnicodeProperties.ucdVersion);
+        properties:
+        for (final var entry : next.entrySet()) {
+            final UcdProperty property = UcdProperty.forString("UCA_Next_" + entry.getKey());
+            for (final var propInfo : propInfoSet) {
+                if (nextProperties != null) {
+                    throw new IllegalArgumentException("NYI next=" + nextProperties.ucdVersion);
+                }
+                if (propInfo.property == property) {
+                    indexUnicodeProperties
+                            .property2UnicodeMap
+                            .get(property)
+                            .putAll(entry.getValue());
+                    continue properties;
                 }
             }
             throw new IllegalArgumentException(

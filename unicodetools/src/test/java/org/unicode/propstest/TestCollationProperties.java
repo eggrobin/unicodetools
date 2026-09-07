@@ -54,4 +54,34 @@ public class TestCollationProperties extends TestFmwkMinusMinus {
                 new UnicodeSet("['׳‘-‛＇]"),
                 iup151.getProperty(UcdProperty.UCA_Fold_1_Non_Ignorable).getSet("'"));
     }
+    @Test
+    public void TestNextCodePoint() {
+        final var iup = IndexUnicodeProperties.make();
+        assertEquals(
+                "code point following ideograph one in shifted order",
+                "㈠",
+                iup.getProperty(UcdProperty.UCA_Next_Shifted).getValue("\u4E00"));
+        assertEquals(
+                "code point following ideograph one in non-ignorable order",
+                "\u2F00",
+                iup.getProperty(UcdProperty.UCA_Next_Non_Ignorable).getValue("\u4E00"));
+        final var iup150 = IndexUnicodeProperties.make(VersionInfo.UNICODE_15_0);
+        final var iup151 = IndexUnicodeProperties.make(VersionInfo.UNICODE_15_1);
+        assertEquals(
+                "15.0 code point following APOSTROPHE in shifted order",
+                "＇",
+                iup150.getProperty(UcdProperty.UCA_Next_Shifted).getValue("'"));
+        assertEquals(
+                "15.1 code point following APOSTROPHE in shifted order",
+                "׳",
+                iup151.getProperty(UcdProperty.UCA_Next_Shifted).getValue("'"));
+        assertEquals(
+                "15.0 code point following RIGHT SINGLE QUOTATION MARK in shifted order",
+                "‚",
+                iup150.getProperty(UcdProperty.UCA_Next_Shifted).getValue("’"));
+        assertEquals(
+                "15.1 code point following RIGHT SINGLE QUOTATION MARK in shifted order",
+                "‚",
+                iup151.getProperty(UcdProperty.UCA_Next_Shifted).getValue("’"));
+    }
 }

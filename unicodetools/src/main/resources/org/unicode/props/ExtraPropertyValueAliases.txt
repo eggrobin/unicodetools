@@ -259,6 +259,8 @@ jg; ALEF_MAQSURAH ; ALEF_MAQSURAH
 # @missing: 0000..10FFFF; UCA_Fold_1_Non_Ignorable ; <code point>
 # @missing: 0000..10FFFF; UCA_Fold_2_Non_Ignorable ; <code point>
 # @missing: 0000..10FFFF; UCA_Fold_3_Non_Ignorable ; <code point>
+# @missing: 0000..10FFFF; UCA_Next_Shifted         ; <next code point>
+# @missing: 0000..10FFFF; UCA_Next_Non_Ignorable   ; <next code point>
 
 # @missing: 0000..10FFFF; Idn_Status   ; disallowed
 

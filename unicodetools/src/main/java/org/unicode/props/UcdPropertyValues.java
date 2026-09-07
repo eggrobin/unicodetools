@@ -2546,6 +2546,8 @@ public class UcdPropertyValues {
     // UCA_Fold_3_Non_Ignorable
     // UCA_Fold_3_Shifted
     // UCA_Fold_4_Shifted
+    // UCA_Next_Non_Ignorable
+    // UCA_Next_Shifted
     // Unicode_1_Name
     // Uppercase_Mapping
     public enum Vertical_Orientation_Values implements Named {

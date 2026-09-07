@@ -542,6 +542,8 @@ uca/*/allkeys; UCA_Fold_4_Shifted
 uca/*/allkeys; UCA_Fold_1_Non_Ignorable
 uca/*/allkeys; UCA_Fold_2_Non_Ignorable
 uca/*/allkeys; UCA_Fold_3_Non_Ignorable
+uca/*/allkeys; UCA_Next_Shifted
+uca/*/allkeys; UCA_Next_Non_Ignorable
 
 idna/*/IdnaMappingTable; Idn_Status;
 idna/*/IdnaMappingTable; Idn_Mapping; 2
