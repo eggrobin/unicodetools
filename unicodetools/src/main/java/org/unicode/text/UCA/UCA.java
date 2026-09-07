@@ -273,7 +273,6 @@ public final class UCA implements Comparator<String> {
             // TODO: We should remove the unicodeVersion argument and
             // not try to create a collator for an old Unicode version
             // because we do not track changes to special weight values and algorithm edge cases.
-            // Also, toD is static, so we cannot have multiple versions at the same time.
             toD = Normalizer.getOrMakeNfdInstance(versionString);
         }
 
@@ -837,7 +836,7 @@ public final class UCA implements Comparator<String> {
     }
 
     /** NFD required */
-    private static Normalizer toD;
+    private Normalizer toD;
 
     /** Records the dataversion */
     public static final String BADVERSION = "Missing @version in data!!";
