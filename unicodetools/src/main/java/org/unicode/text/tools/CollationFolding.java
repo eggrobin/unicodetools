@@ -16,6 +16,7 @@ import org.unicode.props.IndexUnicodeProperties;
 import org.unicode.props.UcdProperty;
 import org.unicode.text.UCA.CEList;
 import org.unicode.text.UCA.UCA;
+import org.unicode.text.UCA.UCA.AppendToCe;
 import org.unicode.text.UCA.UCA.UCAContents;
 import org.unicode.text.UCA.UCA_Types.Alternate;
 import org.unicode.text.utility.DiffingPrintWriter;
@@ -196,7 +197,7 @@ public class CollationFolding {
                 } else {
                     collationFolding.putAll(strings, representatives.get(elements));
                 }
-            }
+            }/*
             long[] previousElements = null;
             final UnicodeMap<String> nextCodePoint = new UnicodeMap<>();
             final UnicodeMap<String> previousCodePoint = new UnicodeMap<>();
@@ -231,34 +232,9 @@ public class CollationFolding {
                 }
                 previousElements = elements;
             }
-            /*
-            String prefix = "uca_" + (level + 1);
-            add(
-                    new UnicodeProperty.UnicodeMapProperty()
-                            .set(nextCodePoint)
-                            .setMain(
-                                    prefix + "_previous",
-                                    prefix + "_previous",
-                                    UnicodeProperty.STRING,
-                                    "1.1"));
-            add(
-                    new UnicodeProperty.UnicodeMapProperty()
-                            .set(previousCodePoint)
-                            .setMain(
-                                    prefix + "_next",
-                                    prefix + "_next",
-                                    UnicodeProperty.STRING,
-                                    "1.1"));
-            add(
-                    new UnicodeProperty.UnicodeMapProperty()
-                            .set(collationFolding)
-                            .setMain(
-                                    prefix + "_fold",
-                                    prefix + "_fold",
-                                    UnicodeProperty.STRING,
-                                    "1.1"));*/
+                             */
             System.err.println(
-                    "%%%%%%%%%%%%%%% equivalence classes for "
+                    "%%%%%%%%%%%%%%% foldings for "
                             + type
                             + ": "
                             + (System.currentTimeMillis() - eqstart)
@@ -331,6 +307,64 @@ public class CollationFolding {
         System.err.println(
                 "%%%%%%%%%%%%%%% getSet : " + (System.currentTimeMillis() - getSetStart) + "ms");
         System.err.println(set);
+        Map<Alternate, UnicodeMap<Integer>> next =
+                Map.of(
+                        Alternate.SHIFTED,
+                        new UnicodeMap<>(),
+                        Alternate.NON_IGNORABLE,
+                        new UnicodeMap<>());
+        final var nextStart = System.currentTimeMillis();
+        System.err.println(Utility.hex(uca.getSortKey(
+                                Character.toString(0x249C), Alternate.SHIFTED, true, AppendToCe.tieBreaker)));
+        System.err.println(Utility.hex(uca.getSortKey(
+                                Character.toString(0x363), Alternate.SHIFTED, true, AppendToCe.tieBreaker)));
+        for (final var alternate : Alternate.values()) {
+            final TreeMap<String, Integer> totalOrder = new TreeMap<>();
+            for (int cp = 0; cp <= 0x10FFFF; ++cp) {
+                totalOrder.put(
+                        uca.getSortKey(
+                                Character.toString(cp), alternate, true, AppendToCe.tieBreaker),
+                        cp);
+            }
+            Integer preceding = null;
+            for (final int cp : totalOrder.values()) {
+                if (preceding != null && cp != preceding + 1) {
+                    next.get(alternate).put(preceding, cp);
+                }
+                preceding = cp;
+            }
+        }
+        System.err.println(
+                "%%%%%%%%%%%%%%% next : " + (System.currentTimeMillis() - nextStart) + "ms");
+        try (final var writer =
+                new DiffingPrintWriter(
+                        Settings.UnicodeTools.getDataPath("uca", version.getVersionString(3, 3))
+                                + "/unpublished/",
+                        "CodePointOrder.txt")) {
+            final var tabber = new Tabber.MonoTabber();
+            tabber.add(8, Tabber.LEFT);
+            tabber.add(8, Tabber.LEFT);
+            tabber.add(8, Tabber.LEFT);
+            for (int cp = 0; cp <= 0x10FFFF; ++cp) {
+                final Integer nextShifted = next.get(Alternate.SHIFTED).get(cp);
+                final Integer nextNonIgnorable = next.get(Alternate.NON_IGNORABLE).get(cp);
+                if (nextShifted == null && nextNonIgnorable == null) {
+                    continue;
+                }
+                writer.println(
+                        tabber.process(
+                                Utility.hex(cp)
+                                        + "\t; "
+                                        + Utility.hex(
+                                                Objects.requireNonNullElse(nextShifted, cp + 1))
+                                        + "\t; "
+                                        + Utility.hex(
+                                                Objects.requireNonNullElse(
+                                                        nextNonIgnorable, cp + 1))
+                                        + "\t# "
+                                        + IndexUnicodeProperties.make().getName(cp)));
+            }
+        }
     }
 
     private static String getLine(
