@@ -1,6 +1,7 @@
 package org.unicode.propstest;
 
 import com.ibm.icu.text.UnicodeSet;
+import com.ibm.icu.util.VersionInfo;
 import org.junit.jupiter.api.Test;
 import org.unicode.props.IndexUnicodeProperties;
 import org.unicode.props.UcdProperty;
@@ -12,8 +13,8 @@ public class TestCollationProperties extends TestFmwkMinusMinus {
         final var iup = IndexUnicodeProperties.make();
         assertEquals(
                 "Shifted primary equivalents of ideograph one",
-                iup.getProperty(UcdProperty.UCA_Fold_1_Shifted).getSet("\u4E00"),
-                new UnicodeSet("[㈠ ⼀㊀㆒🈩一]"));
+                new UnicodeSet("[㈠ ⼀㊀㆒🈩一]"),
+                iup.getProperty(UcdProperty.UCA_Fold_1_Shifted).getSet("\u4E00"));
         assertEquals(
                 "Shifted primary collation folding of CARE OF",
                 "co",
@@ -31,16 +32,26 @@ public class TestCollationProperties extends TestFmwkMinusMinus {
                 "\u0368/\u0366",
                 iup.getProperty(UcdProperty.UCA_Fold_4_Shifted).getValue("℅"));
         assertEquals(
-                "Shifted primary collation folding of CARE OF",
+                "Non-ignorable primary collation folding of CARE OF",
                 "c/o",
                 iup.getProperty(UcdProperty.UCA_Fold_1_Non_Ignorable).getValue("℅"));
         assertEquals(
-                "Shifted secondary collation folding of CARE OF",
+                "Non-ignorable secondary collation folding of CARE OF",
                 "c/o",
                 iup.getProperty(UcdProperty.UCA_Fold_2_Non_Ignorable).getValue("℅"));
         assertEquals(
-                "Shifted tertiary collation folding of CARE OF",
+                "Non-ignorable tertiary collation folding of CARE OF",
                 "℅",
                 iup.getProperty(UcdProperty.UCA_Fold_3_Non_Ignorable).getValue("℅"));
+        final var iup150 = IndexUnicodeProperties.make(VersionInfo.UNICODE_15_0);
+        final var iup151 = IndexUnicodeProperties.make(VersionInfo.UNICODE_15_1);
+        assertEquals(
+                "15.0 non-ignorable primary equivalents of APOSTROPHE",
+                new UnicodeSet("['＇]"),
+                iup150.getProperty(UcdProperty.UCA_Fold_1_Non_Ignorable).getSet("'"));
+        assertEquals(
+                "15.1 non-ignorable primary equivalents of APOSTROPHE",
+                new UnicodeSet("['׳‘-‛＇]"),
+                iup151.getProperty(UcdProperty.UCA_Fold_1_Non_Ignorable).getSet("'"));
     }
 }
