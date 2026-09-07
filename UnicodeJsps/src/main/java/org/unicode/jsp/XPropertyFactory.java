@@ -191,7 +191,6 @@ public class XPropertyFactory extends UnicodeProperty.Factory {
                         .set(new UnicodeSet("[\\u0000-\\uFFFF]"))
                         .setMain("bmp", "bmp", UnicodeProperty.BINARY, "6.0"));
 
-        addCollationProperty();
         addExamplarProperty(LocaleData.ES_STANDARD, "exem", "exemplar");
         addExamplarProperty(LocaleData.ES_AUXILIARY, "exema", "exemplar_aux");
         addExamplarProperty(LocaleData.ES_PUNCTUATION, "exemp", "exemplar_punct");
@@ -270,113 +269,6 @@ public class XPropertyFactory extends UnicodeProperty.Factory {
                         .setMain(propertyName, propertyAbbreviation, UnicodeProperty.MISC, "1.1")
                         .addValueAliases(locales, AliasAddAction.ADD_MAIN_ALIAS)
                         .setMultivalued(true));
-    }
-
-    private void addCollationProperty() {
-        final UCA uca = UCA.buildDucetCollator();
-        final UCAContents ucaContents = uca.getContents(null);
-        final List<UnicodeMap<CEList>> stringToElementsByLevel =
-                List.of(new UnicodeMap<>(), new UnicodeMap<>(), new UnicodeMap<>());
-        final List<TreeSet<CEList>> allElementListsByLevel =
-                List.of(new TreeSet<>(), new TreeSet<>(), new TreeSet<>());
-        final int[] masks = {0xFFFF_0000, 0xFFFF_FF80, 0xFFFF_FFFF};
-        final long start = System.currentTimeMillis();
-        for (String s = ucaContents.next(); s != null; s = ucaContents.next()) {
-            CEList collationElements = ucaContents.getCEs();
-            for (int level = 0; level < 3; ++level) {
-                int[] maskedElements = new int[collationElements.length()];
-                for (int i = 0; i < collationElements.length(); ++i) {
-                    maskedElements[i] = masks[level] & collationElements.at(i);
-                }
-                CEList levelElements =
-                        new CEList(Arrays.stream(maskedElements).filter(i -> i != 0).toArray());
-                stringToElementsByLevel.get(level).put(s, levelElements);
-                allElementListsByLevel.get(level).add(levelElements);
-            }
-        }
-        System.err.println(
-                "%%%%%%%%%%%%%%% iteration : " + (System.currentTimeMillis() - start) + "ms");
-
-        for (int level = 0; level < 3; ++level) {
-            final long eqstart = System.currentTimeMillis();
-            final Map<CEList, String> representatives = new TreeMap<>();
-            for (CEList elements : allElementListsByLevel.get(level)) {
-                representatives.put(
-                        elements,
-                        stringToElementsByLevel.get(level).keySet(elements).stream()
-                                .min(uca)
-                                .get());
-            }
-            final UnicodeMap<String> collationFolding = new UnicodeMap<>();
-            foldExpansions:
-            for (CEList elements : allElementListsByLevel.get(level)) {
-                if (elements.length() > 1) {
-                    final var folding = new StringBuilder();
-                    for (int i = 0; i < elements.length(); ++i) {
-                        String representative =
-                                representatives.get(new CEList(new int[] {elements.at(i)}));
-                        if (representative == null) {
-                            collationFolding.putAll(
-                                    stringToElementsByLevel.get(level).keySet(),
-                                    representatives.get(elements));
-                            continue foldExpansions;
-                        }
-                        folding.append(representative);
-                    }
-                    collationFolding.putAll(
-                            stringToElementsByLevel.get(level).keySet(), folding.toString());
-                } else {
-                    collationFolding.putAll(
-                            stringToElementsByLevel.get(level).keySet(),
-                            representatives.get(elements));
-                }
-            }
-            CEList previousElements = null;
-            final UnicodeMap<String> nextCodePoint = new UnicodeMap<>();
-            final UnicodeMap<String> previousCodePoint = new UnicodeMap<>();
-            for (CEList elements : allElementListsByLevel.get(level)) {
-                final UnicodeSet equivalenceClass =
-                        stringToElementsByLevel.get(level).keySet(elements);
-                if (previousElements != null) {
-                    nextCodePoint.putAll(equivalenceClass, representatives.get(previousElements));
-                    previousCodePoint.putAll(
-                            stringToElementsByLevel.get(level).keySet(previousElements),
-                            representatives.get(elements));
-                }
-                previousElements = elements;
-            }
-            String prefix = "uca_" + (level + 1);
-            add(
-                    new UnicodeProperty.UnicodeMapProperty()
-                            .set(nextCodePoint)
-                            .setMain(
-                                    prefix + "_previous",
-                                    prefix + "_previous",
-                                    UnicodeProperty.STRING,
-                                    "1.1"));
-            add(
-                    new UnicodeProperty.UnicodeMapProperty()
-                            .set(previousCodePoint)
-                            .setMain(
-                                    prefix + "_next",
-                                    prefix + "_next",
-                                    UnicodeProperty.STRING,
-                                    "1.1"));
-            add(
-                    new UnicodeProperty.UnicodeMapProperty()
-                            .set(collationFolding)
-                            .setMain(
-                                    prefix + "_fold",
-                                    prefix + "_fold",
-                                    UnicodeProperty.STRING,
-                                    "1.1"));
-            System.err.println(
-                    "%%%%%%%%%%%%%%% equivalence classes level "
-                            + level
-                            + ": "
-                            + (System.currentTimeMillis() - eqstart)
-                            + "ms");
-        }
     }
 
     private void addBytes(StringBuilder builder, int bytes) {
