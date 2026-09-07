@@ -284,11 +284,12 @@ public class IndexUnicodeProperties extends UnicodeProperty.Factory {
     public UnicodeMap<Integer> loadInt(UcdProperty prop2) {
         UnicodeMap<Integer> result = INT_CACHE.get(prop2);
         if (result == null) {
-            UnicodeMap<String> m = load(prop2);
+            UnicodeProperty m = getProperty(prop2);
             result = new UnicodeMap<>();
-            for (String value : m.values()) {
+            for (String value : m.getAvailableValues()) {
                 UnicodeSet uset = m.getSet(value);
                 if (prop2 == UcdProperty.Canonical_Combining_Class) { // hack
+                    System.err.println(value);
                     value = ((Named) prop2.getEnum(value)).getNames().getShortName();
                 }
                 result.putAll(uset, Integer.parseInt(value));
