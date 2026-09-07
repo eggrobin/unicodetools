@@ -89,6 +89,9 @@ public class CollationProperties {
             };
 
     public static Map<FoldingType, UnicodeMap<String>> getFoldings(VersionInfo version) {
+        if (version.compareTo(VersionInfo.UNICODE_3_0) <= 0) {
+            return Map.of();
+        }
         final UCA uca = UCA.buildDucetCollator(version);
         final UCAContents ucaContents = uca.getContents(null);
         final Map<FoldingType, UnicodeMap<long[]>> stringToElementsByType = new HashMap<>();
@@ -212,6 +215,9 @@ public class CollationProperties {
     }
 
     public static Map<Alternate, UnicodeMap<String>> getNext(VersionInfo version) {
+        if (version.compareTo(VersionInfo.UNICODE_3_0) <= 0) {
+            return Map.of();
+        }
         final UCA uca = UCA.buildDucetCollator(version);
         final var nextStart = System.currentTimeMillis();
         final Map<Alternate, UnicodeMap<String>> next =

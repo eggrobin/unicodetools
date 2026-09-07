@@ -289,7 +289,6 @@ public class IndexUnicodeProperties extends UnicodeProperty.Factory {
             for (String value : m.getAvailableValues()) {
                 UnicodeSet uset = m.getSet(value);
                 if (prop2 == UcdProperty.Canonical_Combining_Class) { // hack
-                    System.err.println(value);
                     value = ((Named) prop2.getEnum(value)).getNames().getShortName();
                 }
                 result.putAll(uset, Integer.parseInt(value));

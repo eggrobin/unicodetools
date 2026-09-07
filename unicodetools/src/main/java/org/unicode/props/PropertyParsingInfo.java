@@ -1088,16 +1088,29 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
         final var foldings = CollationProperties.getFoldings(indexUnicodeProperties.ucdVersion);
         properties:
         for (final var entry : foldings.entrySet()) {
+            final var fullMap = entry.getValue();
             final UcdProperty property = UcdProperty.forString("UCA_Fold_" + entry.getKey());
             for (final var propInfo : propInfoSet) {
-                if (nextProperties != null) {
-                    throw new IllegalArgumentException("NYI next=" + nextProperties.ucdVersion);
-                }
                 if (propInfo.property == property) {
-                    indexUnicodeProperties
-                            .property2UnicodeMap
-                            .get(property)
-                            .putAll(entry.getValue());
+                    if (nextProperties == null) {
+                        indexUnicodeProperties
+                                .property2UnicodeMap
+                                .get(property)
+                                .putAll(fullMap);
+                    } else {
+                        final var propertyMap = indexUnicodeProperties
+                                .property2UnicodeMap
+                                .get(property);
+                        final var nextProperty = nextProperties.getProperty(property);
+                        for (final var e : fullMap.entrySet()) {
+                            final String nextValue = nextProperty.getValue(e.getKey());
+                            if (nextValue.equals(e.getValue())) {
+                                propertyMap.put(e.getKey(), IndexUnicodeProperties.UNCHANGED_IN_BASE_VERSION);
+                            } else {
+                                propertyMap.put(e.getKey(), e.getValue());
+                            }
+                        }
+                    }
                     continue properties;
                 }
             }
@@ -1107,16 +1120,29 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
         final var next = CollationProperties.getNext(indexUnicodeProperties.ucdVersion);
         properties:
         for (final var entry : next.entrySet()) {
+            final var fullMap = entry.getValue();
             final UcdProperty property = UcdProperty.forString("UCA_Next_" + entry.getKey());
             for (final var propInfo : propInfoSet) {
-                if (nextProperties != null) {
-                    throw new IllegalArgumentException("NYI next=" + nextProperties.ucdVersion);
-                }
                 if (propInfo.property == property) {
+                    if (nextProperties == null) {
                     indexUnicodeProperties
                             .property2UnicodeMap
                             .get(property)
-                            .putAll(entry.getValue());
+                            .putAll(fullMap);
+                    }else{
+                        final var propertyMap = indexUnicodeProperties
+                                .property2UnicodeMap
+                                .get(property);
+                        final var nextProperty = nextProperties.getProperty(property);
+                        for (final var e : fullMap.entrySet()) {
+                            final String nextValue = nextProperty.getValue(e.getKey());
+                            if (nextValue.equals(e.getValue())) {
+                                propertyMap.put(e.getKey(), IndexUnicodeProperties.UNCHANGED_IN_BASE_VERSION);
+                            } else {
+                                propertyMap.put(e.getKey(), e.getValue());
+                            }
+                        }
+                    }
                     continue properties;
                 }
             }

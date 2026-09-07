@@ -1749,8 +1749,16 @@ public final class UCA implements Comparator<String> {
     private static UCA buildCollator(VersionInfo version, int variableHigh, int firstNonVariable) {
         try {
             if (VERBOSE) System.out.println("Building UCA");
+            VersionInfo ucaVersion = version;
+            if (ucaVersion == VersionInfo.UNICODE_4_0_1) {
+                ucaVersion = VersionInfo.UNICODE_4_0;
+            } else if (ucaVersion == VersionInfo.UNICODE_3_1_0) {
+                ucaVersion = VersionInfo.UNICODE_3_0_1;
+            } else if (ucaVersion == VersionInfo.UNICODE_3_0) {
+                ucaVersion = VersionInfo.UNICODE_2_1_9;
+            }
             final Path dataPath =
-                    Settings.UnicodeTools.getDataPath("uca", version.getVersionString(3, 3));
+                    Settings.UnicodeTools.getDataPath("uca", ucaVersion.getVersionString(3, 3));
             final String file = Utility.searchDirectory(dataPath.toFile(), "allkeys", true, ".txt");
             final UCA collator = new UCA(file, version, variableHigh, firstNonVariable);
             if (VERBOSE)
