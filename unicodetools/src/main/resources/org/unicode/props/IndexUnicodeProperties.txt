@@ -70,6 +70,8 @@ FileType ; NamedSequencesProv ; NamedSequences
 FileType ; NamesList ; NamesList
 FileType ; fr/*/NamesList ; NamesList
 
+FileType ; uca/*/allkeys ; AllKeys
+
 # =======================================
 # FILES FOR PROPERTIES
 # Note that in (currently) exactly one property a missing value in a field means an empty string; in others it means "no value"
@@ -533,13 +535,13 @@ USourceData ; cjkUSource_Comments            ; {2} ↦ 7
 USourceData ; cjkUSource_TotalStrokes        ; {2} ↦ 8
 USourceData ; cjkUSource_FirstResidualStroke ; {2} ↦ 9
 
-uca/*/unpublished/CollationFolding; UCA_Fold_1_Shifted; 1
-uca/*/unpublished/CollationFolding; UCA_Fold_2_Shifted; 2
-uca/*/unpublished/CollationFolding; UCA_Fold_3_Shifted; 3
-uca/*/unpublished/CollationFolding; UCA_Fold_4_Shifted; 4
-uca/*/unpublished/CollationFolding; UCA_Fold_1_Non_Ignorable; 5
-uca/*/unpublished/CollationFolding; UCA_Fold_2_Non_Ignorable; 6
-uca/*/unpublished/CollationFolding; UCA_Fold_3_Non_Ignorable; 7
+uca/*/allkeys; UCA_Fold_1_Shifted
+uca/*/allkeys; UCA_Fold_2_Shifted
+uca/*/allkeys; UCA_Fold_3_Shifted
+uca/*/allkeys; UCA_Fold_4_Shifted
+uca/*/allkeys; UCA_Fold_1_Non_Ignorable
+uca/*/allkeys; UCA_Fold_2_Non_Ignorable
+uca/*/allkeys; UCA_Fold_3_Non_Ignorable
 
 idna/*/IdnaMappingTable; Idn_Status;
 idna/*/IdnaMappingTable; Idn_Mapping; 2

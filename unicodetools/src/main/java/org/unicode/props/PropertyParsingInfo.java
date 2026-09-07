@@ -30,6 +30,7 @@ import org.unicode.props.PropertyUtilities.Merge;
 import org.unicode.props.UcdLineParser.IntRange;
 import org.unicode.props.UcdLineParser.UcdLine.Contents;
 import org.unicode.props.UcdPropertyValues.Binary;
+import org.unicode.text.UCA.CollationProperties;
 import org.unicode.text.utility.Settings;
 import org.unicode.text.utility.Utility;
 
@@ -593,6 +594,7 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
         StandardizedVariants,
         Confusables,
         NamesList,
+        AllKeys,
     }
 
     static Map<String, FileType> file2Type = new HashMap<String, FileType>();
@@ -738,6 +740,9 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                             indexUnicodeProperties,
                             nextProperties,
                             propInfoSet);
+                    break;
+                case AllKeys:
+                    computeCollationProperties(indexUnicodeProperties, nextProperties, propInfoSet);
                     break;
                 case Field:
                     FieldMapping mapping;
@@ -1072,6 +1077,31 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                             indexUnicodeProperties.getUcdVersion());
                 }
             }
+        }
+    }
+
+    private static void computeCollationProperties(
+            IndexUnicodeProperties indexUnicodeProperties,
+            IndexUnicodeProperties nextProperties,
+            Set<PropertyParsingInfo> propInfoSet) {
+        final var foldings = CollationProperties.getFoldings(indexUnicodeProperties.ucdVersion);
+        foldings:
+        for (final var entry : foldings.entrySet()) {
+            final UcdProperty property = UcdProperty.forString("UCA_Fold_" + entry.getKey());
+            for (final var propInfo : propInfoSet) {
+                if (nextProperties != null) {
+                    throw new IllegalArgumentException("next=" + nextProperties.ucdVersion);
+                }
+                if (propInfo.property == property) {
+                    indexUnicodeProperties
+                            .property2UnicodeMap
+                            .get(property)
+                            .putAll(entry.getValue());
+                    continue foldings;
+                }
+            }
+            throw new IllegalArgumentException(
+                    property + " generated from allkeys but not in propInfoSet");
         }
     }
 

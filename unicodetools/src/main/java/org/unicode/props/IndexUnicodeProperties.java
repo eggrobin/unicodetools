@@ -827,6 +827,12 @@ public class IndexUnicodeProperties extends UnicodeProperty.Factory {
 
         @Override
         protected String _getValue(String string) {
+            if (!string.isEmpty()) {
+                final int cp = string.codePointAt(0);
+                if (Character.charCount(cp) == string.length()) {
+                    return _getValue(cp);
+                }
+            }
             return _getRawUnicodeMap().get(string);
         }
 

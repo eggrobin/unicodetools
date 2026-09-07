@@ -1,21 +1,16 @@
-package org.unicode.text.tools;
+package org.unicode.text.UCA;
 
 import com.ibm.icu.impl.UnicodeMap;
 import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.util.VersionInfo;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.unicode.cldr.util.Tabber;
 import org.unicode.props.IndexUnicodeProperties;
-import org.unicode.props.UcdProperty;
-import org.unicode.text.UCA.CEList;
-import org.unicode.text.UCA.UCA;
 import org.unicode.text.UCA.UCA.AppendToCe;
 import org.unicode.text.UCA.UCA.UCAContents;
 import org.unicode.text.UCA.UCA_Types.Alternate;
@@ -23,7 +18,7 @@ import org.unicode.text.utility.DiffingPrintWriter;
 import org.unicode.text.utility.Settings;
 import org.unicode.text.utility.Utility;
 
-public class CollationFolding {
+public class CollationProperties {
 
     private static long addQuaternary(
             UCA uca, Alternate alternate, int collationElement, Integer preceding) {
@@ -53,7 +48,7 @@ public class CollationFolding {
         return (int) (collationElement >> 16);
     }
 
-    static class FoldingType {
+    public static class FoldingType {
         FoldingType(int level, Alternate alternate) {
             if (level < 1 || level > 4) {
                 throw new IllegalArgumentException("Bad level " + level);
@@ -97,8 +92,7 @@ public class CollationFolding {
                 new FoldingType(3, Alternate.NON_IGNORABLE),
             };
 
-    public static final void main(String[] args) throws IOException {
-        final var version = VersionInfo.getInstance(args[0]);
+    public static Map<FoldingType, UnicodeMap<String>> getFoldings(VersionInfo version) {
         final UCA uca = UCA.buildDucetCollator(version);
         final UCAContents ucaContents = uca.getContents(null);
         final Map<FoldingType, UnicodeMap<long[]>> stringToElementsByType = new HashMap<>();
@@ -179,7 +173,10 @@ public class CollationFolding {
                             }
                             if (maskedElements[0] != elements[i]
                                     || maskedElements[1] != elements[i + 1]) {
-                                collationFolding.putAll(strings, representatives.get(elements));
+                                collationFolding.putAll(
+                                        strings.cloneAsThawed()
+                                                .remove(representatives.get(elements)),
+                                        representatives.get(elements));
                                 continue foldExpansions;
                             }
                             ++i;
@@ -187,52 +184,27 @@ public class CollationFolding {
                         } else {
                             String representative = representatives.get(new long[] {elements[i]});
                             if (representative == null) {
-                                collationFolding.putAll(strings, representatives.get(elements));
+                                collationFolding.putAll(
+                                        strings.cloneAsThawed()
+                                                .remove(representatives.get(elements)),
+                                        representatives.get(elements));
                                 continue foldExpansions;
                             }
                             folding.append(representative);
                         }
                     }
-                    collationFolding.putAll(strings, folding.toString());
+                    collationFolding.putAll(
+                            strings.cloneAsThawed().remove(folding.toString()), folding.toString());
                 } else {
-                    collationFolding.putAll(strings, representatives.get(elements));
-                }
-            }/*
-            long[] previousElements = null;
-            final UnicodeMap<String> nextCodePoint = new UnicodeMap<>();
-            final UnicodeMap<String> previousCodePoint = new UnicodeMap<>();
-            for (long[] elements : elementsToStringsByType.get(type).keySet()) {
-                final UnicodeSet equivalenceClass =
-                        stringToElementsByType.get(type).keySet(elements);
-                if (equivalenceClass.contains("é")) {
-                    System.out.println("uca level " + type + " equivalence class of é:");
-                    System.out.println(equivalenceClass);
-                    System.out.println(Utility.hex(collationFolding.get("é")));
-                }
-                if (equivalenceClass.contains("\u4E00")) {
-                    System.out.println("uca level " + type + " equivalence class of \u4E00:");
-                    System.out.println(equivalenceClass);
-                    System.out.println(Utility.hex(collationFolding.get("\u4E00")));
-                }
-                if (equivalenceClass.contains("\u3226")) {
-                    System.out.println("uca level " + type + " equivalence class of \u3226:");
-                    System.out.println(equivalenceClass);
-                    System.out.println(Utility.hex(collationFolding.get("\u3226")));
-                }
-                if (equivalenceClass.contains("\u0439")) {
-                    System.out.println("uca level " + type + " equivalence class of \u0439:");
-                    System.out.println(equivalenceClass);
-                    System.out.println(Utility.hex(collationFolding.get("\u0439")));
-                }
-                if (previousElements != null) {
-                    nextCodePoint.putAll(equivalenceClass, representatives.get(previousElements));
-                    previousCodePoint.putAll(
-                            stringToElementsByType.get(type).keySet(previousElements),
+                    collationFolding.putAll(
+                            strings.cloneAsThawed().remove(representatives.get(elements)),
                             representatives.get(elements));
                 }
-                previousElements = elements;
+                if (collationFolding.stringKeys() != null) {
+                    collationFolding.removeAll(
+                            new UnicodeSet().addAll(collationFolding.stringKeys()));
+                }
             }
-                             */
             System.err.println(
                     "%%%%%%%%%%%%%%% foldings for "
                             + type
@@ -240,84 +212,32 @@ public class CollationFolding {
                             + (System.currentTimeMillis() - eqstart)
                             + "ms");
         }
-        try (final var writer =
-                new DiffingPrintWriter(
-                        Settings.UnicodeTools.getDataPath("uca", version.getVersionString(3, 3))
-                                + "/unpublished/",
-                        "CollationFolding.txt")) {
-            final var iup = IndexUnicodeProperties.make(version);
-            final var tabber = new Tabber.MonoTabber();
-            tabber.add(12, Tabber.LEFT);
-            for (final var type : FOLDING_TYPES) {
-                tabber.add(17, Tabber.LEFT);
-            }
-            int rangeStart = -1;
-            List<String> rangeFoldings = null;
-            for (int cp = 0; cp <= 0x10FFFF + 1; ++cp) {
-                // For use in λs.
-                final var codePoint = cp;
-                final var string = cp == 0x110000 ? null : Character.toString(cp);
-                final var foldings =
-                        cp == 0x110000
-                                ? null
-                                : Arrays.stream(FOLDING_TYPES)
-                                        .map(collationFoldings::get)
-                                        .map(
-                                                f ->
-                                                        Objects.requireNonNullElse(
-                                                                f.get(codePoint), string))
-                                        .toList();
-                if (!Objects.equals(foldings, rangeFoldings)) {
-                    if (rangeFoldings != null) {
-                        writer.println(
-                                tabber.process(getLine(rangeStart, cp - 1, rangeFoldings, iup)));
-                    }
-                    if (foldings != null
-                            && foldings.stream().allMatch(folding -> folding.equals(string))) {
-                        rangeFoldings = null;
-                        continue;
-                    }
-                    rangeStart = cp;
-                    rangeFoldings = foldings;
-                }
-            }
-            /*
-            for (final String s : uca.getContractions()) {
-                final var foldings =
-                        collationFoldings.stream()
-                                        .map(
-                                                f ->
-                                                        Objects.requireNonNullElse(
-                                                                f.get(s), s))
-                                        .toList();
-                        writer.println(
-                                tabber.process(getLine(s, foldings, iup)));
-            }
-            */
-        }
-        final var getPropertyStart = System.currentTimeMillis();
-        final var ucaFold1Shifted =
-                IndexUnicodeProperties.make(version).getProperty(UcdProperty.UCA_Fold_1_Shifted);
-        System.err.println(
-                "%%%%%%%%%%%%%%% getProperty : "
-                        + (System.currentTimeMillis() - getPropertyStart)
-                        + "ms");
-        final var getSetStart = System.currentTimeMillis();
-        final var set = ucaFold1Shifted.getSet("\u4E00");
-        System.err.println(
-                "%%%%%%%%%%%%%%% getSet : " + (System.currentTimeMillis() - getSetStart) + "ms");
-        System.err.println(set);
-        Map<Alternate, UnicodeMap<Integer>> next =
+        return collationFoldings;
+    }
+
+    public void next(VersionInfo version) {
+        final UCA uca = UCA.buildDucetCollator(version);
+        final var nextStart = System.currentTimeMillis();
+        final Map<Alternate, UnicodeMap<Integer>> next =
                 Map.of(
                         Alternate.SHIFTED,
                         new UnicodeMap<>(),
                         Alternate.NON_IGNORABLE,
                         new UnicodeMap<>());
-        final var nextStart = System.currentTimeMillis();
-        System.err.println(Utility.hex(uca.getSortKey(
-                                Character.toString(0x249C), Alternate.SHIFTED, true, AppendToCe.tieBreaker)));
-        System.err.println(Utility.hex(uca.getSortKey(
-                                Character.toString(0x363), Alternate.SHIFTED, true, AppendToCe.tieBreaker)));
+        System.err.println(
+                Utility.hex(
+                        uca.getSortKey(
+                                Character.toString(0x249C),
+                                Alternate.SHIFTED,
+                                true,
+                                AppendToCe.tieBreaker)));
+        System.err.println(
+                Utility.hex(
+                        uca.getSortKey(
+                                Character.toString(0x363),
+                                Alternate.SHIFTED,
+                                true,
+                                AppendToCe.tieBreaker)));
         for (final var alternate : Alternate.values()) {
             final TreeMap<String, Integer> totalOrder = new TreeMap<>();
             for (int cp = 0; cp <= 0x10FFFF; ++cp) {
@@ -365,16 +285,5 @@ public class CollationFolding {
                                         + IndexUnicodeProperties.make().getName(cp)));
             }
         }
-    }
-
-    private static String getLine(
-            int rangeFirst, int rangeLast, List<String> foldings, IndexUnicodeProperties iup) {
-        return Utility.hex(rangeFirst)
-                + (rangeFirst != rangeLast ? ".." + Utility.hex(rangeLast) : "")
-                + "\t; "
-                + foldings.stream().map(Utility::hex).collect(Collectors.joining("\t; "))
-                + "\t# "
-                + iup.getName(rangeFirst)
-                + (rangeFirst != rangeLast ? ".." + iup.getName(rangeLast) : "");
     }
 }
