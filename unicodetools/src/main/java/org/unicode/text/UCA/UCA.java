@@ -254,7 +254,7 @@ public final class UCA implements Comparator<String> {
      * null, uses the normal Unicode data files, which need to be in BASE_DIR.
      */
     public UCA(String sourceFile, VersionInfo unicodeVersion) throws java.io.IOException {
-        this(sourceFile, unicodeVersion, -1, -1);
+        this(new String[] {sourceFile}, unicodeVersion, unicodeVersion, -1, -1);
     }
 
     /**
@@ -262,17 +262,19 @@ public final class UCA implements Comparator<String> {
      * null, uses the normal Unicode data files, which need to be in BASE_DIR. Supports explicit
      * variableHigh for the CLDR sort order.
      */
-    UCA(String sourceFile, VersionInfo unicodeVersion, int variableHigh, int firstNonVariable)
+    UCA(
+            String[] sourceFiles,
+            VersionInfo ducetVersion,
+            VersionInfo unicodeVersion,
+            int variableHigh,
+            int firstNonVariable)
             throws java.io.IOException {
         final String versionString = unicodeVersion.getVersionString(3, 3);
-        fullData = sourceFile == null;
-        fileVersion = sourceFile;
+        fullData = sourceFiles == null;
+        fileVersion = sourceFiles == null ? null : sourceFiles[0];
 
         // load the normalizer
         if (toD == null) {
-            // TODO: We should remove the unicodeVersion argument and
-            // not try to create a collator for an old Unicode version
-            // because we do not track changes to special weight values and algorithm edge cases.
             toD = Normalizer.getOrMakeNfdInstance(versionString);
         }
 
@@ -280,7 +282,7 @@ public final class UCA implements Comparator<String> {
         ucdVersion = ucd.getVersion();
 
         ucaData = new UCA_Data(toD, ucd, variableHigh, firstNonVariable);
-        implicit = new Implicit(ucd);
+        implicit = new Implicit(unicodeVersion);
 
         moreSamples = new UnicodeSet();
         moreSamples.add("\u09C7\u09BE");
@@ -301,9 +303,9 @@ public final class UCA implements Comparator<String> {
             moreSamples.add(r.codepoint).add(r.codepointEnd);
         }
 
-        {
+        for (final String sourceFile : sourceFiles) {
             final BufferedReader in = new BufferedReader(new FileReader(sourceFile), BUFFER_SIZE);
-            addCollationElements(in);
+            addCollationElements(in, ducetVersion);
             in.close();
         }
         cleanup();
@@ -1187,7 +1189,8 @@ public final class UCA implements Comparator<String> {
      * Adds the collation elements from a file (or other stream) in the UCA format. Values will
      * override any previous mappings.
      */
-    private void addCollationElements(BufferedReader in) throws java.io.IOException {
+    private void addCollationElements(BufferedReader in, VersionInfo ducetVersion)
+            throws java.io.IOException {
         final IntStack tempStack = new IntStack(100);
         final StringBuilder multiChars = new StringBuilder(); // used for contracting chars
         String inputLine = "";
@@ -1235,6 +1238,12 @@ public final class UCA implements Comparator<String> {
                             implicit.addRange(r);
                             continue;
                         }
+                    } else if (line.startsWith("@rearrange ")
+                            && ducetVersion.compareTo(VersionInfo.UNICODE_3_0_1) <= 0) {
+                        // TODO(egg): We probably need to do something about this to get a correct
+                        // collator, but it might be fine to ignore them for the code point folding
+                        // and order pseudoproperties.
+                        continue;
                     }
 
                     throw new IllegalArgumentException("Illegal @ command: " + line);
@@ -1749,18 +1758,32 @@ public final class UCA implements Comparator<String> {
     private static UCA buildCollator(VersionInfo version, int variableHigh, int firstNonVariable) {
         try {
             if (VERBOSE) System.out.println("Building UCA");
-            VersionInfo ucaVersion = version;
-            if (ucaVersion == VersionInfo.UNICODE_4_0_1) {
-                ucaVersion = VersionInfo.UNICODE_4_0;
-            } else if (ucaVersion == VersionInfo.UNICODE_3_1_0) {
-                ucaVersion = VersionInfo.UNICODE_3_0_1;
-            } else if (ucaVersion == VersionInfo.UNICODE_3_0) {
-                ucaVersion = VersionInfo.UNICODE_2_1_9;
+            VersionInfo ducetVersion = version;
+            if (ducetVersion == VersionInfo.UNICODE_4_0_1) {
+                ducetVersion = VersionInfo.UNICODE_4_0;
+            } else if (ducetVersion == VersionInfo.UNICODE_3_2) {
+                ducetVersion = VersionInfo.UNICODE_3_1_1;
+            } else if (ducetVersion == VersionInfo.UNICODE_3_1_0) {
+                ducetVersion = VersionInfo.UNICODE_3_0_1;
+            } else if (ducetVersion == VersionInfo.UNICODE_3_0) {
+                ducetVersion = VersionInfo.UNICODE_2_1_9;
             }
             final Path dataPath =
-                    Settings.UnicodeTools.getDataPath("uca", ucaVersion.getVersionString(3, 3));
-            final String file = Utility.searchDirectory(dataPath.toFile(), "allkeys", true, ".txt");
-            final UCA collator = new UCA(file, version, variableHigh, firstNonVariable);
+                    Settings.UnicodeTools.getDataPath("uca", ducetVersion.getVersionString(3, 3));
+            final String[] files =
+                    ducetVersion == VersionInfo.UNICODE_2_1_9
+                            ? new String[] {
+                                Utility.searchDirectory(
+                                        dataPath.toFile(), "basekeys", true, ".txt"),
+                                Utility.searchDirectory(
+                                        dataPath.toFile(), "compkeys", true, ".txt"),
+                                Utility.searchDirectory(dataPath.toFile(), "ctrckeys", true, ".txt")
+                            }
+                            : new String[] {
+                                Utility.searchDirectory(dataPath.toFile(), "allkeys", true, ".txt")
+                            };
+            final UCA collator =
+                    new UCA(files, ducetVersion, version, variableHigh, firstNonVariable);
             if (VERBOSE)
                 System.out.println(
                         "Built version "

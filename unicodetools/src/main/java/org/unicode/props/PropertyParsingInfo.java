@@ -141,6 +141,7 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
     public static final Pattern SLASH = Pattern.compile("\\s*/\\s*");
     public static final Pattern PIPE_SLASH = Pattern.compile("\\s*[|/]\\s*");
     public static final Pattern DECOMP_REMOVE = Pattern.compile("\\{[^}]+\\}|\\<[^>]+\\>");
+    public static final Pattern DECOMPOSITION_TYPE = Pattern.compile("\\<([^>]+)\\>");
 
     /** General constants */
     public static final Pattern SEMICOLON = Pattern.compile("\\s*;\\s*");
@@ -1093,19 +1094,17 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
             for (final var propInfo : propInfoSet) {
                 if (propInfo.property == property) {
                     if (nextProperties == null) {
-                        indexUnicodeProperties
-                                .property2UnicodeMap
-                                .get(property)
-                                .putAll(fullMap);
+                        indexUnicodeProperties.property2UnicodeMap.get(property).putAll(fullMap);
                     } else {
-                        final var propertyMap = indexUnicodeProperties
-                                .property2UnicodeMap
-                                .get(property);
+                        final var propertyMap =
+                                indexUnicodeProperties.property2UnicodeMap.get(property);
                         final var nextProperty = nextProperties.getProperty(property);
                         for (final var e : fullMap.entrySet()) {
                             final String nextValue = nextProperty.getValue(e.getKey());
                             if (nextValue.equals(e.getValue())) {
-                                propertyMap.put(e.getKey(), IndexUnicodeProperties.UNCHANGED_IN_BASE_VERSION);
+                                propertyMap.put(
+                                        e.getKey(),
+                                        IndexUnicodeProperties.UNCHANGED_IN_BASE_VERSION);
                             } else {
                                 propertyMap.put(e.getKey(), e.getValue());
                             }
@@ -1125,19 +1124,17 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
             for (final var propInfo : propInfoSet) {
                 if (propInfo.property == property) {
                     if (nextProperties == null) {
-                    indexUnicodeProperties
-                            .property2UnicodeMap
-                            .get(property)
-                            .putAll(fullMap);
-                    }else{
-                        final var propertyMap = indexUnicodeProperties
-                                .property2UnicodeMap
-                                .get(property);
+                        indexUnicodeProperties.property2UnicodeMap.get(property).putAll(fullMap);
+                    } else {
+                        final var propertyMap =
+                                indexUnicodeProperties.property2UnicodeMap.get(property);
                         final var nextProperty = nextProperties.getProperty(property);
                         for (final var e : fullMap.entrySet()) {
                             final String nextValue = nextProperty.getValue(e.getKey());
                             if (nextValue.equals(e.getValue())) {
-                                propertyMap.put(e.getKey(), IndexUnicodeProperties.UNCHANGED_IN_BASE_VERSION);
+                                propertyMap.put(
+                                        e.getKey(),
+                                        IndexUnicodeProperties.UNCHANGED_IN_BASE_VERSION);
                             } else {
                                 propertyMap.put(e.getKey(), e.getValue());
                             }
@@ -1642,10 +1639,6 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                 parts[1] = "CJK COMPATIBILITY IDEOGRAPH-#"; // hack for uniform data
             }
             lastCodepoint = line.getRange().end;
-            if (!parts[5].isEmpty() && parts[5].indexOf('<') >= 0) {
-                // Decomposition_Mapping: Remove the decomposition type.
-                parts[5] = DECOMP_REMOVE.matcher(parts[5]).replaceAll("").trim();
-            }
             if (indexUnicodeProperties.ucdVersion == VersionInfo.UNICODE_2_1_5
                     && BROKEN_UNICODEDATA_LINES_IN_2_1_5.contains(line.getRange().start)) {
                 // These lines have the form
@@ -1728,6 +1721,20 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                                 : parts[
                                         propInfo.getFieldMapping(indexUnicodeProperties.ucdVersion)
                                                 .valueField];
+                if (propInfo.property == UcdProperty.Decomposition_Mapping) {
+                    value = DECOMP_REMOVE.matcher(value).replaceAll("").trim();
+                } else if (propInfo.property == UcdProperty.Decomposition_Type) {
+                    if (value.isEmpty() && !hackHangul) {
+                        value = "none";
+                    } else {
+                        final var matcher = DECOMPOSITION_TYPE.matcher(value);
+                        if (matcher.find()) {
+                            value = matcher.group(1);
+                        } else {
+                            value = "can";
+                        }
+                    }
+                }
                 if (propInfo.property == UcdProperty.Joining_Group
                         && indexUnicodeProperties.ucdVersion.compareTo(VersionInfo.UNICODE_4_0_1)
                                 <= 0

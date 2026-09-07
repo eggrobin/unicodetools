@@ -105,6 +105,8 @@ UnicodeData; General_Category ; 2
 UnicodeData; Canonical_Combining_Class ; 3
 DerivedBidiClass; Bidi_Class ; 1
 DerivedDecompositionType; Decomposition_Type ; 1
+# Prior to 3.1, there is no DerivedDecompositionType.txt.
+UnicodeData; Decomposition_Type ; 5 ; v3.0.1
 UnicodeData; Decomposition_Mapping ; 5
 # Handle the lack of rational Numeric_Value in older DerivedNumericValues by
 # reading it from UnicodeData via an unofficial contributory property.

@@ -54,6 +54,7 @@ public class TestCollationProperties extends TestFmwkMinusMinus {
                 new UnicodeSet("['׳‘-‛＇]"),
                 iup151.getProperty(UcdProperty.UCA_Fold_1_Non_Ignorable).getSet("'"));
     }
+
     @Test
     public void TestNextCodePoint() {
         final var iup = IndexUnicodeProperties.make();

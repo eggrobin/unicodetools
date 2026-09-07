@@ -4,6 +4,7 @@ import com.ibm.icu.impl.UnicodeMap;
 import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.util.VersionInfo;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -88,8 +89,32 @@ public class CollationProperties {
                 new FoldingType(3, Alternate.NON_IGNORABLE),
             };
 
+    static Comparator<String> markedness(final UCA uca, Alternate alternate) {
+        // Treat normal kana as unmarked, https://www.unicode.org/reports/tr10/#Asymmetric_Search.
+        // We treat katakana as the least marked for folding, see the comments on kanaMap in
+        // unisift.c.
+        return Comparator.<String, String>comparing(
+                s -> {
+                    final var collationElements = uca.getCEList(s, true);
+                    int[] transformed = new int[collationElements.length()];
+                    for (int i = 0; i < collationElements.length(); ++i) {
+                        final int elements = collationElements.at(i);
+                        final int tertiary = CEList.getTertiary(elements);
+                        transformed[i] =
+                                tertiary & ~CEList.TERTIARY_MAX
+                                        | (tertiary == 0
+                                                ? 0
+                                                : tertiary == 0x11
+                                                        ? 2
+                                                        : tertiary == 0x0E ? 3 : tertiary + 2);
+                    }
+                    return uca.getSortKey(
+                            new CEList(transformed), "", alternate, true, AppendToCe.tieBreaker);
+                });
+    }
+
     public static Map<FoldingType, UnicodeMap<String>> getFoldings(VersionInfo version) {
-        if (version.compareTo(VersionInfo.UNICODE_3_0) <= 0) {
+        if (version.compareTo(VersionInfo.UNICODE_2_1_9) <= 0) {
             return Map.of();
         }
         final UCA uca = UCA.buildDucetCollator(version);
@@ -143,7 +168,7 @@ public class CollationProperties {
                 final long[] elements = entry.getKey();
                 final UnicodeSet strings = entry.getValue();
                 representatives.put(
-                        elements, strings.stream().min(uca.thenComparing(String::compareTo)).get());
+                        elements, strings.stream().min(markedness(uca, type.alternate)).get());
             }
             final UnicodeMap<String> collationFolding =
                     collationFoldings.computeIfAbsent(type, k -> new UnicodeMap<>());
@@ -215,7 +240,7 @@ public class CollationProperties {
     }
 
     public static Map<Alternate, UnicodeMap<String>> getNext(VersionInfo version) {
-        if (version.compareTo(VersionInfo.UNICODE_3_0) <= 0) {
+        if (version.compareTo(VersionInfo.UNICODE_2_1_9) < 0) {
             return Map.of();
         }
         final UCA uca = UCA.buildDucetCollator(version);
