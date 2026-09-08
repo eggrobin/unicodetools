@@ -35,8 +35,7 @@ rm -r $DEST/ucd/Unihan
 mv $DEST/ucd/version-ReadMe.txt $DEST/ReadMe.txt
 
 mkdir -p $DEST/uca
-cp $UNITOOLS_DATA/uca/dev/* $DEST/uca
-cp $UNITOOLS_DATA/uca/dev/CollationTest* $DEST/uca/CollationTest
+cp -r $UNITOOLS_DATA/uca/dev/* $DEST/uca
 
 mkdir -p $DEST/emoji
 cp $UNITOOLS_DATA/emoji/dev/* $DEST/emoji
