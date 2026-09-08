@@ -25,7 +25,7 @@ public class TestCollationProperties extends TestFmwkMinusMinus {
                 iup.getProperty(UcdProperty.UCA_Fold_2_Shifted).getValue("℅"));
         assertEquals(
                 "Shifted tertiary collation folding of CARE OF",
-                "⒞⒪",
+                "\u0368\u0366",
                 iup.getProperty(UcdProperty.UCA_Fold_3_Shifted).getValue("℅"));
         assertEquals(
                 "Shifted quaternary collation folding of CARE OF",
@@ -84,5 +84,38 @@ public class TestCollationProperties extends TestFmwkMinusMinus {
                 "15.1 code point following RIGHT SINGLE QUOTATION MARK in shifted order",
                 "‚",
                 iup151.getProperty(UcdProperty.UCA_Next_Shifted).getValue("’"));
+        assertEquals(
+                "15.1 code point following FFFE",
+                "\uFFFF",
+                iup151.getProperty(UcdProperty.UCA_Next_Shifted).getValue("\uFFFE"));
+        assertEquals(
+                "15.1 code point following FFFF",
+                Character.toString(0x1000C),
+                iup151.getProperty(UcdProperty.UCA_Next_Shifted).getValue("\uFFFF"));
+        // The variables are before FFFE in shifted order in this version; this is a defect in 18.0:
+        // https://github.com/unicode-org/properties/issues/617.
+        final var iup18 = IndexUnicodeProperties.make(VersionInfo.getInstance(18));
+        assertEquals(
+                "18.0 code point following FFFE in shifted order",
+                "ː",
+                iup18.getProperty(UcdProperty.UCA_Next_Shifted).getValue("\uFFFE"));
+        // Sholud be the same as below, U+0009, once that issue is fixed.
+        assertEquals(
+                "18.0 code point following FFFE in shifted order",
+                "ː",
+                iup18.getProperty(UcdProperty.UCA_Next_Shifted).getValue("\uFFFE"));
+        // Note that the ignorables still come before FFFE.
+        assertEquals(
+                "18.0 code point following FFFE in non-ignorable order",
+                "\u0009",
+                iup18.getProperty(UcdProperty.UCA_Next_Non_Ignorable).getValue("\uFFFE"));
+        assertEquals(
+                "18.0 code point following FFFF in shifted order",
+                "\uFFFF",
+                iup18.getProperty(UcdProperty.UCA_Next_Shifted).getValue("\uFFFF"));
+        assertEquals(
+                "18.0 code point following FFFF in non-ignorable order",
+                "\uFFFF",
+                iup18.getProperty(UcdProperty.UCA_Next_Non_Ignorable).getValue("\uFFFF"));
     }
 }

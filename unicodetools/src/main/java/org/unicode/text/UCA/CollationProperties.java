@@ -114,7 +114,7 @@ public class CollationProperties {
     }
 
     public static Map<FoldingType, UnicodeMap<String>> getFoldings(VersionInfo version) {
-        if (version.compareTo(VersionInfo.UNICODE_2_1_9) <= 0) {
+        if (version.compareTo(VersionInfo.UNICODE_2_1_9) < 0) {
             return Map.of();
         }
         final UCA uca = UCA.buildDucetCollator(version);
@@ -280,9 +280,35 @@ public class CollationProperties {
                 }
                 preceding = cp;
             }
+            next.get(alternate)
+                    .put(
+                            totalOrder.lastEntry().getValue(),
+                            Character.toString(totalOrder.lastEntry().getValue()));
         }
         System.err.println(
                 "%%%%%%%%%%%%%%% next : " + (System.currentTimeMillis() - nextStart) + "ms");
         return next;
+    }
+
+    public static UnicodeMap<Integer> getTertiaryWeights(VersionInfo version) {
+        if (version.compareTo(VersionInfo.UNICODE_2_1_9) < 0) {
+            return new UnicodeMap<>();
+        }
+        final UCA uca = UCA.buildDucetCollator(version);
+        final UnicodeMap<Integer> result = new UnicodeMap<>();
+        for (int cp = 0; cp <= 0x10FFFF; ++cp) {
+            final var collationElements = uca.getCEList(Character.toString(cp), true);
+            final int tertiaryWeight = CEList.getTertiary(collationElements.at(0));
+            for (int i = 1; i < collationElements.length(); ++i) {
+                if (CEList.getTertiary(collationElements.at(0)) != tertiaryWeight) {
+                    throw new IllegalArgumentException(
+                            "Mixed tertiaries: " + Utility.hex(cp) + " " + collationElements);
+                }
+            }
+            if (tertiaryWeight != 2) {
+                result.put(cp, tertiaryWeight);
+            }
+        }
+        return result;
     }
 }

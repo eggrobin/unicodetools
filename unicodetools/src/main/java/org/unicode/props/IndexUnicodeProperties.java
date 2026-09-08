@@ -324,8 +324,8 @@ public class IndexUnicodeProperties extends UnicodeProperty.Factory {
             return result;
         }
         result = new UnicodeMap<>();
-        UnicodeMap<String> m = load(prop2);
-        for (String value : m.values()) {
+        UnicodeProperty m = getProperty(prop2);
+        for (String value : m.getAvailableValues()) {
             T enumv = (T) prop2.getEnum(value);
             UnicodeSet uset = m.getSet(value);
             result.putAll(uset, enumv);
@@ -757,7 +757,7 @@ public class IndexUnicodeProperties extends UnicodeProperty.Factory {
                 case CODE_POINT:
                     return Character.toString(codePoint).equals(value);
                 case NEXT_CODE_POINT:
-                    return Character.toString((codePoint + 1) % 0x110000).equals(value);
+                    return Character.toString(Math.min(codePoint + 1, 0x10FFFF)).equals(value);
                 case NONE:
                     return value == null;
                 case LITERAL:
@@ -877,7 +877,7 @@ public class IndexUnicodeProperties extends UnicodeProperty.Factory {
             if (DefaultValueType.forString(rawValue) == DefaultValueType.CODE_POINT) {
                 return Character.toString(codepoint);
             } else if (DefaultValueType.forString(rawValue) == DefaultValueType.NEXT_CODE_POINT) {
-                return Character.toString((codepoint + 1) % 0x10FFFF);
+                return Character.toString(Math.min(codepoint + 1, 0x10FFFF));
             } else if (prop == UcdProperty.Name && rawValue != null && rawValue.endsWith("#")) {
                 return rawValue.substring(0, rawValue.length() - 1) + Utility.hex(codepoint);
             } else {

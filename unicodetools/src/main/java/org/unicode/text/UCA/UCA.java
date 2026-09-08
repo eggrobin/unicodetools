@@ -728,9 +728,9 @@ public final class UCA implements Comparator<String> {
         // Otherwise concatenate all lists into a new one.
         final IntStack stack = new IntStack(30);
         ces1.appendNonZeroTo(stack);
-        do {
+        for (; ces != null; ces = nextCEs()) {
             ces.appendNonZeroTo(stack);
-        } while ((ces = nextCEs()) != null);
+        }
         return stack.isEmpty() ? CEList.EMPTY : new CEList(stack);
     }
 
@@ -1636,7 +1636,7 @@ public final class UCA implements Comparator<String> {
         final int key2 = Integer.parseInt(line.substring(start + 7, start + 11), 16);
         final int key3 = Integer.parseInt(line.substring(start + 12, start + 16), 16);
         if (key1 == 0 && variable) {
-            if (zeroVariableWarning == null) {
+            if (zeroVariableWarning == null && !dataVersion.equals("2.1.9d8")) {
                 zeroVariableWarning = "\tBAD DATA: Zero L1s cannot be variable!!: " + line;
             }
             variable = false; // FIX DATA FILE

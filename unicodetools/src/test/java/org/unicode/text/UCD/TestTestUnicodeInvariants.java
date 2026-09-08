@@ -6,15 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.ibm.icu.util.VersionInfo;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import org.junit.jupiter.api.Test;
 import org.unicode.cldr.util.CldrUtility;
-import org.unicode.props.IndexUnicodeProperties;
-import org.unicode.props.UcdProperty;
 import org.unicode.text.UCD.TestUnicodeInvariants.BackwardParseException;
 import org.unicode.text.utility.Settings;
 
@@ -39,22 +36,6 @@ public class TestTestUnicodeInvariants {
 
     @Test
     void testUnicodeInvariants() throws IOException {
-        System.err.println(
-                IndexUnicodeProperties.make()
-                        .getProperty(UcdProperty.Decomposition_Type)
-                        .getValue(0xFDD0));
-        System.err.println(
-                IndexUnicodeProperties.make()
-                        .getProperty(UcdProperty.Decomposition_Type)
-                        .getValue(0xFDD0));
-        System.err.println(
-                IndexUnicodeProperties.make(VersionInfo.UNICODE_3_0)
-                        .getProperty(UcdProperty.Decomposition_Type)
-                        .getValue(0x00E9));
-        System.err.println(
-                IndexUnicodeProperties.make(VersionInfo.UNICODE_3_0)
-                        .getProperty(UcdProperty.Decomposition_Type)
-                        .getValue(0x00E9));
         int rc = TestUnicodeInvariants.testInvariants(null, null, true);
         assertEquals(0, rc, "TestUnicodeInvariants.testInvariants(default) failed");
     }

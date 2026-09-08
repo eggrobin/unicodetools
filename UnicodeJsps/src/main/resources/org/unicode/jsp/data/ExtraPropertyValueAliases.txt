@@ -162,3 +162,5 @@ sc ; Zxxx                             ; Unwritten
 
 # TODO: there is no Unicode 13.1, see https://github.com/unicode-org/unicodetools/issues/100
 age; 13.1                             ; V13_1
+
+# @missing: 0000..10FFFF; UCA_Tertiary_Weight ; 0002

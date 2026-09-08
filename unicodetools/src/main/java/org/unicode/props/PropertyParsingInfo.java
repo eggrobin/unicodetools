@@ -141,7 +141,7 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
     public static final Pattern SLASH = Pattern.compile("\\s*/\\s*");
     public static final Pattern PIPE_SLASH = Pattern.compile("\\s*[|/]\\s*");
     public static final Pattern DECOMP_REMOVE = Pattern.compile("\\{[^}]+\\}|\\<[^>]+\\>");
-    public static final Pattern DECOMPOSITION_TYPE = Pattern.compile("\\<([^>]+)\\>");
+    public static final Pattern DECOMPOSITION_TYPE = Pattern.compile("\\<\\+?([^>]+)\\>");
 
     /** General constants */
     public static final Pattern SEMICOLON = Pattern.compile("\\s*;\\s*");
@@ -1730,6 +1730,25 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
                         final var matcher = DECOMPOSITION_TYPE.matcher(value);
                         if (matcher.find()) {
                             value = matcher.group(1);
+                            // Really 1.1.5, but for some reason we use 1.1.0.
+                            if (indexUnicodeProperties.ucdVersion == VersionInfo.UNICODE_1_1_0) {
+                                // Translate the decomposition types to the 2.0 ones where possible,
+                                // since Ken’s 1.0 reconstruction does that too.
+                                switch (value) {
+                                    case "circled":
+                                        value = "circle";
+                                        break;
+                                    case "font variant":
+                                        value = "font";
+                                        break;
+                                    case "break":
+                                        value = "fraction";
+                                        break;
+                                    case "join":
+                                    case "no-join":
+                                        value = "compat";
+                                }
+                            }
                         } else {
                             value = "can";
                         }
