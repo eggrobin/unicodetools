@@ -1086,66 +1086,60 @@ public class PropertyParsingInfo implements Comparable<PropertyParsingInfo> {
             IndexUnicodeProperties indexUnicodeProperties,
             IndexUnicodeProperties nextProperties,
             Set<PropertyParsingInfo> propInfoSet) {
-        final var foldings = CollationProperties.getFoldings(indexUnicodeProperties.ucdVersion);
-        properties:
-        for (final var entry : foldings.entrySet()) {
-            final var fullMap = entry.getValue();
-            final UcdProperty property = UcdProperty.forString("UCA_Fold_" + entry.getKey());
-            for (final var propInfo : propInfoSet) {
-                if (propInfo.property == property) {
-                    if (nextProperties == null) {
-                        indexUnicodeProperties.property2UnicodeMap.get(property).putAll(fullMap);
-                    } else {
-                        final var propertyMap =
-                                indexUnicodeProperties.property2UnicodeMap.get(property);
-                        final var nextProperty = nextProperties.getProperty(property);
-                        for (final var e : fullMap.entrySet()) {
-                            final String nextValue = nextProperty.getValue(e.getKey());
-                            if (nextValue.equals(e.getValue())) {
-                                propertyMap.put(
-                                        e.getKey(),
-                                        IndexUnicodeProperties.UNCHANGED_IN_BASE_VERSION);
-                            } else {
-                                propertyMap.put(e.getKey(), e.getValue());
-                            }
+        for (final var entry :
+                CollationProperties.getFoldings(indexUnicodeProperties.ucdVersion).entrySet()) {
+            putPropertyFromMap(
+                    UcdProperty.forString("UCA_Fold_" + entry.getKey()),
+                    entry.getValue(),
+                    indexUnicodeProperties,
+                    nextProperties,
+                    propInfoSet);
+        }
+        for (final var entry :
+                CollationProperties.getNext(indexUnicodeProperties.ucdVersion).entrySet()) {
+            putPropertyFromMap(
+                    UcdProperty.forString("UCA_Next_" + entry.getKey()),
+                    entry.getValue(),
+                    indexUnicodeProperties,
+                    nextProperties,
+                    propInfoSet);
+        }
+        putPropertyFromMap(
+                UcdProperty.UCA_Tertiary_Weight,
+                CollationProperties.getTertiaryWeights(indexUnicodeProperties.ucdVersion),
+                indexUnicodeProperties,
+                nextProperties,
+                propInfoSet);
+    }
+
+    private static void putPropertyFromMap(
+            UcdProperty property,
+            UnicodeMap<String> fullMap,
+            IndexUnicodeProperties indexUnicodeProperties,
+            IndexUnicodeProperties nextProperties,
+            Set<PropertyParsingInfo> propInfoSet) {
+        for (final var propInfo : propInfoSet) {
+            if (propInfo.property == property) {
+                if (nextProperties == null) {
+                    indexUnicodeProperties.property2UnicodeMap.get(property).putAll(fullMap);
+                } else {
+                    final var propertyMap =
+                            indexUnicodeProperties.property2UnicodeMap.get(property);
+                    final var nextProperty = nextProperties.getProperty(property);
+                    for (final var e : fullMap.entrySet()) {
+                        final String nextValue = nextProperty.getValue(e.getKey());
+                        if (nextValue.equals(e.getValue())) {
+                            propertyMap.put(
+                                    e.getKey(), IndexUnicodeProperties.UNCHANGED_IN_BASE_VERSION);
+                        } else {
+                            propertyMap.put(e.getKey(), e.getValue());
                         }
                     }
-                    continue properties;
                 }
+                return;
             }
-            throw new IllegalArgumentException(
-                    property + " generated from allkeys but not in propInfoSet");
         }
-        final var next = CollationProperties.getNext(indexUnicodeProperties.ucdVersion);
-        properties:
-        for (final var entry : next.entrySet()) {
-            final var fullMap = entry.getValue();
-            final UcdProperty property = UcdProperty.forString("UCA_Next_" + entry.getKey());
-            for (final var propInfo : propInfoSet) {
-                if (propInfo.property == property) {
-                    if (nextProperties == null) {
-                        indexUnicodeProperties.property2UnicodeMap.get(property).putAll(fullMap);
-                    } else {
-                        final var propertyMap =
-                                indexUnicodeProperties.property2UnicodeMap.get(property);
-                        final var nextProperty = nextProperties.getProperty(property);
-                        for (final var e : fullMap.entrySet()) {
-                            final String nextValue = nextProperty.getValue(e.getKey());
-                            if (nextValue.equals(e.getValue())) {
-                                propertyMap.put(
-                                        e.getKey(),
-                                        IndexUnicodeProperties.UNCHANGED_IN_BASE_VERSION);
-                            } else {
-                                propertyMap.put(e.getKey(), e.getValue());
-                            }
-                        }
-                    }
-                    continue properties;
-                }
-            }
-            throw new IllegalArgumentException(
-                    property + " generated from allkeys but not in propInfoSet");
-        }
+        throw new IllegalArgumentException(property + " computed as map but not in propInfoSet");
     }
 
     private static void parseCJKRadicalsFile(

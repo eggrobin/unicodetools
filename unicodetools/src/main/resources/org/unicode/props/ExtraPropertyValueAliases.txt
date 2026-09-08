@@ -479,3 +479,5 @@ Link_Term  ; Open    ; Open
 # @missing: 0000..10FFFF; kTayNumeric ; NaN
 # @missing: 0000..10FFFF; kTGT_Numeric ; NaN
 # @missing: 0000..10FFFF; Non_Unihan_Numeric_Value ; NaN
+
+# @missing: 0000..10FFFF; UCA_Tertiary_Weight ; 0002

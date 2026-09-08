@@ -290,14 +290,18 @@ public class CollationProperties {
         return next;
     }
 
-    public static UnicodeMap<Integer> getTertiaryWeights(VersionInfo version) {
+    public static UnicodeMap<String> getTertiaryWeights(VersionInfo version) {
         if (version.compareTo(VersionInfo.UNICODE_2_1_9) < 0) {
             return new UnicodeMap<>();
         }
         final UCA uca = UCA.buildDucetCollator(version);
-        final UnicodeMap<Integer> result = new UnicodeMap<>();
+        final UnicodeMap<String> result = new UnicodeMap<>();
         for (int cp = 0; cp <= 0x10FFFF; ++cp) {
             final var collationElements = uca.getCEList(Character.toString(cp), true);
+            if (collationElements.length() == 0) {
+                result.put(cp, Utility.hex(0));
+                continue;
+            }
             final int tertiaryWeight = CEList.getTertiary(collationElements.at(0));
             for (int i = 1; i < collationElements.length(); ++i) {
                 if (CEList.getTertiary(collationElements.at(0)) != tertiaryWeight) {
@@ -306,7 +310,7 @@ public class CollationProperties {
                 }
             }
             if (tertiaryWeight != 2) {
-                result.put(cp, tertiaryWeight);
+                result.put(cp, Utility.hex(tertiaryWeight));
             }
         }
         return result;

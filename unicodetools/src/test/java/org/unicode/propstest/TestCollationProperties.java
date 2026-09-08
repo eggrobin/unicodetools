@@ -118,4 +118,25 @@ public class TestCollationProperties extends TestFmwkMinusMinus {
                 "\uFFFF",
                 iup18.getProperty(UcdProperty.UCA_Next_Non_Ignorable).getValue("\uFFFF"));
     }
+
+    @Test
+    public void TestTertiaryWeights() {
+        final var iup = IndexUnicodeProperties.make();
+        assertEquals(
+                "Tertiary weight of ideograph one",
+                "0002",
+                iup.getProperty(UcdProperty.UCA_Tertiary_Weight).getValue("\u4E00"));
+        final var iup18 = IndexUnicodeProperties.make(VersionInfo.getInstance(18));
+        // Defect in 18.0: https://github.com/unicode-org/properties/issues/663.
+        assertEquals(
+                "Characters with tertiary weights 0005 and 000B",
+                iup18.getProperty(UcdProperty.Decomposition_Type)
+                        .getSet("font")
+                        .removeAll(
+                                new UnicodeSet(
+                                        "[ℏ\\N{1D6A6:MATHEMATICAL ITALIC SMALL LIGATURE LONG S WITH DESCENDER S}]")),
+                iup18.getProperty(UcdProperty.UCA_Tertiary_Weight)
+                        .getSet("0005")
+                        .addAll(iup18.getProperty(UcdProperty.UCA_Tertiary_Weight).getSet("000B")));
+    }
 }
