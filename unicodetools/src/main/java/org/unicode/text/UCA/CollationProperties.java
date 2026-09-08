@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 import org.unicode.text.UCA.UCA.AppendToCe;
 import org.unicode.text.UCA.UCA.UCAContents;
 import org.unicode.text.UCA.UCA_Types.Alternate;
@@ -140,14 +139,6 @@ public class CollationProperties {
                                             i == 0 ? null : collationElements.at(i - 1));
                 }
                 long[] levelElements = Arrays.stream(maskedElements).filter(i -> i != 0).toArray();
-                if (s.equals("\u2105"))
-                    System.out.println(
-                            "\u2105 "
-                                    + type
-                                    + " "
-                                    + Arrays.stream(levelElements)
-                                            .mapToObj(Utility::hex)
-                                            .collect(Collectors.joining(",")));
                 stringToElementsByType
                         .computeIfAbsent(type, k -> new UnicodeMap<>())
                         .put(s, levelElements);
@@ -157,12 +148,9 @@ public class CollationProperties {
                         .add(s);
             }
         }
-        System.err.println(
-                "%%%%%%%%%%%%%%% iteration : " + (System.currentTimeMillis() - start) + "ms");
 
         final Map<FoldingType, UnicodeMap<String>> collationFoldings = new HashMap<>();
         for (final var type : FOLDING_TYPES) {
-            final long eqstart = System.currentTimeMillis();
             final Map<long[], String> representatives = new TreeMap<>(Arrays::compare);
             for (final var entry : elementsToStringsByType.get(type).entrySet()) {
                 final long[] elements = entry.getKey();
@@ -229,13 +217,13 @@ public class CollationProperties {
                             new UnicodeSet().addAll(collationFolding.stringKeys()));
                 }
             }
-            System.err.println(
-                    "%%%%%%%%%%%%%%% foldings for "
-                            + type
-                            + ": "
-                            + (System.currentTimeMillis() - eqstart)
-                            + "ms");
         }
+        System.out.println(
+                "Computed collation foldings for "
+                        + version
+                        + " in "
+                        + (System.currentTimeMillis() - start)
+                        + " ms");
         return collationFoldings;
     }
 
@@ -244,27 +232,12 @@ public class CollationProperties {
             return Map.of();
         }
         final UCA uca = UCA.buildDucetCollator(version);
-        final var nextStart = System.currentTimeMillis();
         final Map<Alternate, UnicodeMap<String>> next =
                 Map.of(
                         Alternate.SHIFTED,
                         new UnicodeMap<>(),
                         Alternate.NON_IGNORABLE,
                         new UnicodeMap<>());
-        System.err.println(
-                Utility.hex(
-                        uca.getSortKey(
-                                Character.toString(0x249C),
-                                Alternate.SHIFTED,
-                                true,
-                                AppendToCe.tieBreaker)));
-        System.err.println(
-                Utility.hex(
-                        uca.getSortKey(
-                                Character.toString(0x363),
-                                Alternate.SHIFTED,
-                                true,
-                                AppendToCe.tieBreaker)));
         for (final var alternate : Alternate.values()) {
             final TreeMap<String, Integer> totalOrder = new TreeMap<>();
             for (int cp = 0; cp <= 0x10FFFF; ++cp) {
@@ -285,8 +258,6 @@ public class CollationProperties {
                             totalOrder.lastEntry().getValue(),
                             Character.toString(totalOrder.lastEntry().getValue()));
         }
-        System.err.println(
-                "%%%%%%%%%%%%%%% next : " + (System.currentTimeMillis() - nextStart) + "ms");
         return next;
     }
 
