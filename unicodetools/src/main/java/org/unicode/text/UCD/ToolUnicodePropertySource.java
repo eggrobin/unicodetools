@@ -1267,7 +1267,7 @@ public class ToolUnicodePropertySource extends UnicodeProperty.Factory {
             // derive the current properties; the derivation is incorrect for earlier versions
             // anyway.
             unicodeMap.setErrorOnReset(
-                  compositeVersion == UCD.makeLatestVersion().getCompositeVersion());
+                    compositeVersion == UCD.makeLatestVersion().getCompositeVersion());
 
             final UnicodeProperty cat = getProperty("General_Category");
             final UnicodeProperty script = getProperty("Script");
