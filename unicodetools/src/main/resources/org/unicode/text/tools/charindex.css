@@ -46,6 +46,10 @@ td.characters {
   max-width: 16ic;
   vertical-align: bottom;
 }
+.characters svg {
+  height: 1em;
+  overflow: visible;
+}
 td.ranges.rs-entry {
   vertical-align: top;
 }

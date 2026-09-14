@@ -161,7 +161,6 @@ async function search(/**@type {string}*/ query) {
           while (tailWord && pivot + tailWord.index <= start) {
             if (tailWord.isWordLike && pivot + tailWord.index != start) {
               ++interveningWords;
-              console.log("intervening #", interveningWords, "=", tailWord.segment);
             }
             tailWord = tailWordIt.next().value;
           }

@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import java.util.zip.DeflaterOutputStream;
@@ -80,6 +82,8 @@ public class Indexer {
         private final UnicodeProperty GENERAL_CATEGORY;
         private final UnicodeSet NONCHARACTERS;
 
+        private final Map<Integer, String> representativeGlyphs;
+
         private final Map<String, UnicodeSet> blockSet = new HashMap<>();
         private final Map<String, String> prettifyBlock = new HashMap<>();
 
@@ -89,7 +93,7 @@ public class Indexer {
                 VersionInfo precedingVersion,
                 String chartsRoot,
                 String filename,
-                String language) {
+                String language) throws IOException {
             final String suffix = language == null ? "" : "_" + language;
             this.version = version;
             this.phase = phase;
@@ -162,6 +166,11 @@ public class Indexer {
                                     .get());
                 }
             }
+            final var unifiedIdeographs = IUP.getProperty(UcdProperty.Unified_Ideograph).getSet("Yes");
+            final var unassigned16 = IndexUnicodeProperties.make(VersionInfo.UNICODE_16_0).getProperty(UcdProperty.General_Category).getSet("Cn");
+            representativeGlyphs = loadRepresentativeGlyphs(
+                cp -> unassigned16.contains(cp)
+            );
         }
 
         private static final Segmenter SENTENCE_BREAK =
@@ -765,7 +774,7 @@ public class Indexer {
                 }
                 result.append("'>");
                 if (characters != null) {
-                    result.append(toHTML.transform(characters));
+                    result.append(characters);
                 }
                 result.append("</td>");
                 return result.toString();
@@ -798,11 +807,7 @@ public class Indexer {
                     currentSubEntry.chartLink =
                             getChartLink(new UnicodeSet(range.codepoint, range.codepoint));
                     currentSubEntry.ranges = Utility.hex(range.codepoint);
-                    if (!General_Category_Values.forName(GENERAL_CATEGORY.getValue(range.codepoint))
-                            .getShortName()
-                            .startsWith("C")) {
-                        currentSubEntry.characters = Character.toString(range.codepoint);
-                    }
+                    currentSubEntry.characters = representativeGlyphs.get(range.codepoint);
                     if (range.codepoint == BOOP || range.codepoint == DOOD) {
                         currentSubEntry.chartLink = "https://unicode.org/charts/PDF/UBOOP.pdf";
                         currentSubEntry.ranges = range.codepoint == BOOP ? "BOOP" : "DOOD";
@@ -859,20 +864,17 @@ public class Indexer {
                                 }
                             }
                             currentSubEntry.characters =
-                                    subrange.stream().collect(Collectors.joining());
+                                    subrange.stream().map(s -> s.codePointAt(0)).map(representativeGlyphs::get).collect(Collectors.joining());
                             currentSubEntry.rsEntry = true;
                             maxRSEntryCharacters = Math.max(maxRSEntryCharacters, subrange.size());
                         }
                         final String firstGC = GENERAL_CATEGORY.getValue(subrange.getRangeStart(0));
                         if (currentSubEntry.characters == null
-                                && !General_Category_Values.forName(firstGC)
-                                        .getShortName()
-                                        .startsWith("C")
                                 && GENERAL_CATEGORY.getSet(firstGC).containsAll(subrange)) {
                             currentSubEntry.characters =
-                                    Character.toString(subrange.getRangeStart(0))
+                                    representativeGlyphs.get(subrange.getRangeStart(0))
                                             + "–"
-                                            + Character.toString(subrange.getRangeEnd(0));
+                                            + representativeGlyphs.get(subrange.getRangeEnd(0));
                         }
                         if (previousSubEntryWithLocation != null
                                 && Objects.equals(
@@ -976,5 +978,36 @@ public class Indexer {
                         "fr/charindex.html",
                         "fr");
         fr.generateIndex(/* linkedVersion= */ null);
+    }
+
+    private static Map<Integer, String> loadRepresentativeGlyphs(Predicate<Integer> filter) throws IOException {
+        System.out.println("Loading representative glyphs…");
+        final Map<Integer, String> result = new HashMap<>();
+        final var id = Pattern.compile("id=\"([0-9a-f]{4,})\"");
+        for (final var row : new File(Settings.UnicodeTools.UNICODETOOLS_REPO_DIR + "/../representative-glyphs/ranges").listFiles()) {
+            try (final var rowGlyphs =
+                    new BufferedReader(
+                            new FileReader(row))) {
+                for (var line = rowGlyphs.readLine(); line != null; line = rowGlyphs.readLine()) {
+                    final var matcher = id.matcher(line);
+                    if (matcher.find()) {
+                        final int cp = Utility.codePointFromHex(matcher.group(1));
+                        if (!filter.test(cp)) {
+                            result.put(cp, VersionedIndexer.toHTML.transform(Character.toString(cp)));
+                            continue;
+                        }
+                        final int start = line.indexOf("<svg");
+                        if (start == -1) {
+                            continue;
+                        }
+                        final int end = line.indexOf("</svg>");
+                        String svg = line.substring(start, end + 6);
+                        svg = svg.replace(line, svg)
+                        result.put(cp, svg);
+                    }
+                }
+            }
+        }
+        return result;
     }
 }
