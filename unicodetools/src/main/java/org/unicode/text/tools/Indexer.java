@@ -962,7 +962,7 @@ public class Indexer {
                         /* language= */ null);
         // Link to the draft if it is at least in α (i.e., do not link to a pre-α dev version), but
         // not if it is γ (i.e., do not link to a file that looks release-final but isn’t).
-        main.generateIndex(
+        if(false)main.generateIndex(
                 /* linkedVersion= */ Settings.latestVersionPhase.compareTo(ReleasePhase.ALPHA) >= 0
                                 && Settings.latestVersionPhase.compareTo(ReleasePhase.GAMMA) < 0
                         ? draft
@@ -980,7 +980,7 @@ public class Indexer {
                         "https://www.unicode.org/charts/fr",
                         "fr/charindex.html",
                         "fr");
-        fr.generateIndex(/* linkedVersion= */ null);
+        if(false)fr.generateIndex(/* linkedVersion= */ null);
     }
 
     private static Map<Integer, String> loadRepresentativeGlyphs(Predicate<Integer> filter) throws IOException {
@@ -1005,6 +1005,7 @@ public class Indexer {
                         }
                         final int end = line.indexOf("</svg>");
                         String svg = line.substring(start, end + 6);
+                        svg = mangleSVG(svg);
                         svg = svg.replace(line, svg);
                         result.put(cp, svg);
                     }
@@ -1100,8 +1101,28 @@ public class Indexer {
         return result;
     }
 
-    private static String transformCommands(String commands, Transform transform) {
+    private static class PathBuilder {
+        void appendInteger(long i) {
+            if(!result.isEmpty() && Character.isDigit(result.charAt(result.length() - 1)) && i >= 0) {
+                result.append(" ");
+            }
+            result.append(i);
+        }
+        void appendIntegerCoordinates(Coordinates q) {
+            appendInteger(Math.round(q.x));
+            appendInteger(Math.round(q.y));
+        }
+        void append(char c) {
+            result.append(c);
+        }
+        @Override public String toString() {
+            return result.toString();
+        }
         StringBuilder result = new StringBuilder();
+    }
+
+    private static String transformCommands(String commands, Transform transform) {
+        final var result = new PathBuilder();
         char implicitCommand = 0;
         for (ParsePosition pos = new ParsePosition(0); pos.getIndex() < commands.length();) {
             char command = commands.charAt(pos.getIndex());
@@ -1113,80 +1134,32 @@ public class Indexer {
                 case 'M':
                 case 'L': {
                     result.append(command);
-                    final var coordinates = transform.apply(Coordinates.parse(commands, pos));
-                    result.append(Math.round(coordinates.x));
-                    final var y = Math.round(coordinates.y);
-                    if (y >= 0) {
-                        result.append(" ");
-                    }
-                    result.append(y);
+                    result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)));
                     break;
                 }
                 case 'Q': {
                     result.append(command);
-                    var coordinates = transform.apply(Coordinates.parse(commands, pos));
-                    result.append(Math.round(coordinates.x));
-                    var y = Math.round(coordinates.y);
-                    if (y >= 0) {
-                        result.append(" ");
-                    }
-                    result.append(y);
-                    coordinates = transform.apply(Coordinates.parse(commands, pos));
-                    final var x = Math.round(coordinates.x);
-                    if (x >= 0) {
-                        result.append(" ");
-                    }
-                    result.append(x);
-                    y = Math.round(coordinates.y);
-                    if (y >= 0) {
-                        result.append(" ");
-                    }
-                    result.append(y);
+                    result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)));
+                    result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)));
                     break;
                 }
                 case 'C': {
                     result.append(command);
-                    var coordinates = transform.apply(Coordinates.parse(commands, pos));
-                    result.append(Math.round(coordinates.x));
-                    var y = Math.round(coordinates.y);
-                    if (y >= 0) {
-                        result.append(" ");
-                    }
-                    result.append(y);
-                    coordinates = transform.apply(Coordinates.parse(commands, pos));
-                    var x = Math.round(coordinates.x);
-                    if (x >= 0) {
-                        result.append(" ");
-                    }
-                    result.append(x);
-                    y = Math.round(coordinates.y);
-                    if (y >= 0) {
-                        result.append(" ");
-                    }
-                    result.append(y);
-                    coordinates = transform.apply(Coordinates.parse(commands, pos));
-                    x = Math.round(coordinates.x);
-                    if (x >= 0) {
-                        result.append(" ");
-                    }
-                    result.append(x);
-                    y = Math.round(coordinates.y);
-                    if (y >= 0) {
-                        result.append(" ");
-                    }
-                    result.append(y);
+                    result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)));
+                    result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)));
+                    result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)));
                     break;
                 }
                 case 'V': {
                     result.append(command);
                     double y = parseNumber(commands, pos);
-                    result.append(Math.round(transform.scale_y * y));
+                    result.appendInteger(Math.round(transform.translation_y + transform.scale_y * y));
                     break;
                 }
                 case 'H': {
                     result.append(command);
                     double x = parseNumber(commands, pos);
-                    result.append(Math.round(transform.translation_x + transform.scale_x * x));
+                    result.appendInteger(Math.round(transform.translation_x + transform.scale_x * x));
                     break;
                 }
                 case 'Z':
