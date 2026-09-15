@@ -1042,6 +1042,9 @@ public class Indexer {
         Coordinates round() {
             return new Coordinates((double)Math.round(x), (double)Math.round(y));
         }
+        double squareNorm() {
+            return x * x + y * y;
+        }
         final double x;
         final double y;
     }
@@ -1127,6 +1130,8 @@ public class Indexer {
         StringBuilder result = new StringBuilder();
     }
 
+    private final static double SHORTEST_CURVE = 100;
+
     private static String transformCommands(String commands, Transform transform) {
         final var result = new PathBuilder();
         char implicitCommand = 0;
@@ -1155,19 +1160,33 @@ public class Indexer {
                     break;
                 }
                 case 'Q': {
-                    result.append(Character.toLowerCase(command));
-                    result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)).round().minus(lastPosition));
+                    final var control = transform.apply(Coordinates.parse(commands, pos)).round();
                     final var to = transform.apply(Coordinates.parse(commands, pos)).round();
-                    result.appendIntegerCoordinates(to.minus(lastPosition));
+                    if (to.minus(lastPosition).squareNorm() < SHORTEST_CURVE) {
+                        result.append('l');
+                        result.appendIntegerCoordinates(to.minus(lastPosition));
+                    } else {
+                        result.append(Character.toLowerCase(command));
+                        result.appendIntegerCoordinates(control.minus(lastPosition));
+                        result.appendIntegerCoordinates(to.minus(lastPosition));
+                    }
                     lastPosition = to;
                     break;
                 }
                 case 'C': {
                     result.append(Character.toLowerCase(command));
-                    result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)).round().minus(lastPosition));
-                    result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)).round().minus(lastPosition));
+                    final var control1 = transform.apply(Coordinates.parse(commands, pos)).round();
+                    final var control2 = transform.apply(Coordinates.parse(commands, pos)).round().minus(lastPosition);
                     final var to = transform.apply(Coordinates.parse(commands, pos)).round();
-                    result.appendIntegerCoordinates(to.minus(lastPosition));
+                    if (to.minus(lastPosition).squareNorm() < SHORTEST_CURVE) {
+                        result.append('l');
+                        result.appendIntegerCoordinates(to.minus(lastPosition));
+                    } else {
+                        result.append(Character.toLowerCase(command));
+                        result.appendIntegerCoordinates(control1.minus(lastPosition));
+                        result.appendIntegerCoordinates(control2.minus(lastPosition));
+                        result.appendIntegerCoordinates(to.minus(lastPosition));
+                    }
                     lastPosition = to;
                     break;
                 }
