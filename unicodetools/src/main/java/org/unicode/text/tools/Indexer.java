@@ -1036,8 +1036,8 @@ public class Indexer {
             this.x = x;
             this.y = y;
         }
-        double x;
-        double y;
+        final double x;
+        final double y;
     }
 
     private static class Transform {
@@ -1124,6 +1124,7 @@ public class Indexer {
     private static String transformCommands(String commands, Transform transform) {
         final var result = new PathBuilder();
         char implicitCommand = 0;
+        var lastPosition = new Coordinates(0, 0);
         for (ParsePosition pos = new ParsePosition(0); pos.getIndex() < commands.length();) {
             char command = commands.charAt(pos.getIndex());
             if (command == ' ') {
@@ -1133,33 +1134,43 @@ public class Indexer {
             switch (command) {
                 case 'M':
                 case 'L': {
+                    final var to = transform.apply(Coordinates.parse(commands, pos));
                     result.append(command);
-                    result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)));
+                    result.appendIntegerCoordinates(to);
+                    lastPosition = to;
                     break;
                 }
                 case 'Q': {
                     result.append(command);
                     result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)));
-                    result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)));
+                    final var to = transform.apply(Coordinates.parse(commands, pos));
+                    result.appendIntegerCoordinates(to);
+                    lastPosition = to;
                     break;
                 }
                 case 'C': {
                     result.append(command);
                     result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)));
                     result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)));
-                    result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)));
+                    final var to = transform.apply(Coordinates.parse(commands, pos));
+                    result.appendIntegerCoordinates(to);
+                    lastPosition = to;
                     break;
                 }
                 case 'V': {
                     result.append(command);
                     double y = parseNumber(commands, pos);
-                    result.appendInteger(Math.round(transform.translation_y + transform.scale_y * y));
+                    final var to = new Coordinates(lastPosition.x, transform.translation_y + transform.scale_y * y);
+                    result.appendInteger(Math.round(to.y));
+                    lastPosition = to;
                     break;
                 }
                 case 'H': {
                     result.append(command);
                     double x = parseNumber(commands, pos);
-                    result.appendInteger(Math.round(transform.translation_x + transform.scale_x * x));
+                    final var to = new Coordinates(transform.translation_x + transform.scale_x * x, lastPosition.y);
+                    result.appendInteger(Math.round(to.x));
+                    lastPosition = to;
                     break;
                 }
                 case 'Z':
