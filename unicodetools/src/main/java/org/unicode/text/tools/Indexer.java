@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.text.ParsePosition;
+import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -28,6 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -169,7 +172,7 @@ public class Indexer {
             final var unifiedIdeographs = IUP.getProperty(UcdProperty.Unified_Ideograph).getSet("Yes");
             final var unassigned16 = IndexUnicodeProperties.make(VersionInfo.UNICODE_16_0).getProperty(UcdProperty.General_Category).getSet("Cn");
             representativeGlyphs = loadRepresentativeGlyphs(
-                cp -> unassigned16.contains(cp)
+                cp -> true
             );
         }
 
@@ -1002,12 +1005,201 @@ public class Indexer {
                         }
                         final int end = line.indexOf("</svg>");
                         String svg = line.substring(start, end + 6);
-                        svg = svg.replace(line, svg)
+                        svg = svg.replace(line, svg);
                         result.put(cp, svg);
                     }
                 }
             }
         }
         return result;
+    }
+
+    private static double parseNumber(String source, ParsePosition pos) {
+        final var NUMBER = Pattern.compile("\\s*-?[\\d.]+");
+        final var matcher = NUMBER.matcher(source);
+        matcher.region(pos.getIndex(), source.length());
+        if (!matcher.lookingAt()) {
+            throw new IllegalArgumentException(source.substring(matcher.regionStart()));
+        }
+        pos.setIndex(matcher.end());
+        return Double.parseDouble(matcher.group());
+    }
+
+    private static class Coordinates {
+        static Coordinates parse(String source, ParsePosition pos) {
+            double x = parseNumber(source, pos);
+            double y = parseNumber(source, pos);
+            return new Coordinates(x, y);
+        }
+        Coordinates(double x, double y) {
+            this.x = x;
+            this.y = y;
+        }
+        double x;
+        double y;
+    }
+
+    private static class Transform {
+        double translation_x;
+        double translation_y;
+        double scale_x;
+        double scale_y;
+        Coordinates apply(Coordinates q) {
+            return new Coordinates(scale_x * q.x + translation_x, scale_y * q.y + translation_y);
+        }
+    }
+
+    private static String mangleSVG(String svg) {
+        final var result = new StringBuilder();
+        final var SVG = Pattern.compile("<svg viewBox=\"(?<minx>-?\\d+) (?<miny>-?\\d+) (?<width>\\d+) (?<height>\\d+)\" data-bounds=\"[\\d -]+\">");
+        final var PATH = Pattern.compile("<path transform=\"(?<transform>[^\"]+)\" d=\"(?<commands>[^\\\"]+)\" />");
+        var matcher = SVG.matcher(svg);
+        if (!matcher.lookingAt()) {
+            throw new IllegalArgumentException(svg);
+        }
+        final double minx = Double.parseDouble(matcher.group("minx"));
+        final double miny = Double.parseDouble(matcher.group("miny"));
+        final double height = Double.parseDouble(matcher.group("height"));
+        final double width = Double.parseDouble(matcher.group("width"));
+        if (height != 22528) {
+            throw new IllegalArgumentException("Unexpected height " + height);
+        }
+        final double scale = 100 / height;
+        result.append("<svg viewbox=\"" + Math.round(minx * scale) + " " + Math.round(miny * scale) + " " + Math.round(width * scale) + " 100\">");
+        result.append("<path d=\"");
+        for (;;) {
+            matcher = PATH.matcher(svg).region(matcher.end(), svg.length());
+            if (!matcher.lookingAt()) {
+                break;
+            }
+            final var transform = parseTransform(matcher.group("transform"));
+            transform.translation_x *= scale;
+            transform.translation_y *= scale;
+            transform.scale_x *= scale;
+            transform.scale_y *= scale;
+            result.append(transformCommands(matcher.group("commands"), transform));
+        }
+        if (!svg.substring(matcher.regionStart()).equals("</svg>")) {
+            throw new IllegalArgumentException(svg.substring(matcher.regionStart()));
+        }
+        result.append("\"/></svg>");
+        return result.toString();
+    }
+
+    private static Transform parseTransform(String transform) {
+        final var SCALE = Pattern.compile("(?:translate\\((?<tx>-?[\\d.]+)(?: (?<ty>-?[\\d.]+))?\\) )?scale\\((?<x>-?[\\d.]+) (?<y>-?[\\d.]+)\\)");
+        var matcher = SCALE.matcher(transform);
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException(transform);
+        }
+        final var result = new Transform();
+        result.scale_x = Double.parseDouble(matcher.group("x"));
+        result.scale_y = Double.parseDouble(matcher.group("y"));
+        result.translation_x = matcher.group("tx") == null ? 0 : Double.parseDouble(matcher.group("tx"));
+        result.translation_y = matcher.group("ty") == null ? 0 : Double.parseDouble(matcher.group("ty"));
+        return result;
+    }
+
+    private static String transformCommands(String commands, Transform transform) {
+        StringBuilder result = new StringBuilder();
+        char implicitCommand = 0;
+        for (ParsePosition pos = new ParsePosition(0); pos.getIndex() < commands.length();) {
+            char command = commands.charAt(pos.getIndex());
+            if (command == ' ') {
+                command = implicitCommand;
+            }
+            pos.setIndex(pos.getIndex() + 1);
+            switch (command) {
+                case 'M':
+                case 'L': {
+                    result.append(command);
+                    final var coordinates = transform.apply(Coordinates.parse(commands, pos));
+                    result.append(Math.round(coordinates.x));
+                    final var y = Math.round(coordinates.y);
+                    if (y >= 0) {
+                        result.append(" ");
+                    }
+                    result.append(y);
+                    break;
+                }
+                case 'Q': {
+                    result.append(command);
+                    var coordinates = transform.apply(Coordinates.parse(commands, pos));
+                    result.append(Math.round(coordinates.x));
+                    var y = Math.round(coordinates.y);
+                    if (y >= 0) {
+                        result.append(" ");
+                    }
+                    result.append(y);
+                    coordinates = transform.apply(Coordinates.parse(commands, pos));
+                    final var x = Math.round(coordinates.x);
+                    if (x >= 0) {
+                        result.append(" ");
+                    }
+                    result.append(x);
+                    y = Math.round(coordinates.y);
+                    if (y >= 0) {
+                        result.append(" ");
+                    }
+                    result.append(y);
+                    break;
+                }
+                case 'C': {
+                    result.append(command);
+                    var coordinates = transform.apply(Coordinates.parse(commands, pos));
+                    result.append(Math.round(coordinates.x));
+                    var y = Math.round(coordinates.y);
+                    if (y >= 0) {
+                        result.append(" ");
+                    }
+                    result.append(y);
+                    coordinates = transform.apply(Coordinates.parse(commands, pos));
+                    var x = Math.round(coordinates.x);
+                    if (x >= 0) {
+                        result.append(" ");
+                    }
+                    result.append(x);
+                    y = Math.round(coordinates.y);
+                    if (y >= 0) {
+                        result.append(" ");
+                    }
+                    result.append(y);
+                    coordinates = transform.apply(Coordinates.parse(commands, pos));
+                    x = Math.round(coordinates.x);
+                    if (x >= 0) {
+                        result.append(" ");
+                    }
+                    result.append(x);
+                    y = Math.round(coordinates.y);
+                    if (y >= 0) {
+                        result.append(" ");
+                    }
+                    result.append(y);
+                    break;
+                }
+                case 'V': {
+                    result.append(command);
+                    double y = parseNumber(commands, pos);
+                    result.append(Math.round(transform.scale_y * y));
+                    break;
+                }
+                case 'H': {
+                    result.append(command);
+                    double x = parseNumber(commands, pos);
+                    result.append(Math.round(transform.translation_x + transform.scale_x * x));
+                    break;
+                }
+                case 'Z':
+                    result.append(command);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unexpected command " + command);
+            }
+            implicitCommand = command;
+            if (implicitCommand == 'M') {
+                implicitCommand = 'L';
+            }
+        }
+        return result.toString();
     }
 }
