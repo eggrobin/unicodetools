@@ -1036,6 +1036,12 @@ public class Indexer {
             this.x = x;
             this.y = y;
         }
+        Coordinates minus(Coordinates q) {
+            return new Coordinates(x - q.x, y - q.y);
+        }
+        Coordinates round() {
+            return new Coordinates((double)Math.round(x), (double)Math.round(y));
+        }
         final double x;
         final double y;
     }
@@ -1125,6 +1131,7 @@ public class Indexer {
         final var result = new PathBuilder();
         char implicitCommand = 0;
         var lastPosition = new Coordinates(0, 0);
+        var pathStart = new Coordinates(0, 0);
         for (ParsePosition pos = new ParsePosition(0); pos.getIndex() < commands.length();) {
             char command = commands.charAt(pos.getIndex());
             if (command == ' ') {
@@ -1132,49 +1139,57 @@ public class Indexer {
             }
             pos.setIndex(pos.getIndex() + 1);
             switch (command) {
-                case 'M':
+                case 'M': {
+                    result.append(Character.toLowerCase(command));
+                    final var to = transform.apply(Coordinates.parse(commands, pos)).round();
+                    result.appendIntegerCoordinates(to.minus(lastPosition));
+                    lastPosition = to;
+                    pathStart = lastPosition;
+                    break;
+                }
                 case 'L': {
-                    final var to = transform.apply(Coordinates.parse(commands, pos));
-                    result.append(command);
-                    result.appendIntegerCoordinates(to);
+                    result.append(Character.toLowerCase(command));
+                    final var to = transform.apply(Coordinates.parse(commands, pos)).round();
+                    result.appendIntegerCoordinates(to.minus(lastPosition));
                     lastPosition = to;
                     break;
                 }
                 case 'Q': {
-                    result.append(command);
-                    result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)));
-                    final var to = transform.apply(Coordinates.parse(commands, pos));
-                    result.appendIntegerCoordinates(to);
+                    result.append(Character.toLowerCase(command));
+                    result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)).round().minus(lastPosition));
+                    final var to = transform.apply(Coordinates.parse(commands, pos)).round();
+                    result.appendIntegerCoordinates(to.minus(lastPosition));
                     lastPosition = to;
                     break;
                 }
                 case 'C': {
-                    result.append(command);
-                    result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)));
-                    result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)));
-                    final var to = transform.apply(Coordinates.parse(commands, pos));
-                    result.appendIntegerCoordinates(to);
+                    result.append(Character.toLowerCase(command));
+                    result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)).round().minus(lastPosition));
+                    result.appendIntegerCoordinates(transform.apply(Coordinates.parse(commands, pos)).round().minus(lastPosition));
+                    final var to = transform.apply(Coordinates.parse(commands, pos)).round();
+                    result.appendIntegerCoordinates(to.minus(lastPosition));
                     lastPosition = to;
                     break;
                 }
                 case 'V': {
-                    result.append(command);
+                    result.append(Character.toLowerCase(command));
                     double y = parseNumber(commands, pos);
-                    final var to = new Coordinates(lastPosition.x, transform.translation_y + transform.scale_y * y);
-                    result.appendInteger(Math.round(to.y));
+                    final var to = new Coordinates(lastPosition.x, transform.translation_y + transform.scale_y * y).round();
+                    result.appendInteger(Math.round(to.y - lastPosition.y));
                     lastPosition = to;
                     break;
                 }
                 case 'H': {
-                    result.append(command);
+                    result.append(Character.toLowerCase(command));
                     double x = parseNumber(commands, pos);
-                    final var to = new Coordinates(transform.translation_x + transform.scale_x * x, lastPosition.y);
-                    result.appendInteger(Math.round(to.x));
+                    final var to = new Coordinates(transform.translation_x + transform.scale_x * x, lastPosition.y).round();
+                    result.appendInteger(Math.round(to.x - lastPosition.x));
                     lastPosition = to;
                     break;
                 }
                 case 'Z':
                     result.append(command);
+                    lastPosition = pathStart;
                     break;
                 default:
                     throw new IllegalArgumentException("Unexpected command " + command);
