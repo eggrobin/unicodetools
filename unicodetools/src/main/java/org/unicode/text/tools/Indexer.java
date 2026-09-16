@@ -1038,13 +1038,21 @@ public class Indexer {
             return new Displacement(x - q.x, y - q.y);
         }
         Point plus(Displacement d) {
+            return new Point(x + d.x, y + d.y);
+        }
+        Point minus(Displacement d) {
             return new Point(x - d.x, y - d.y);
         }
         Point round() {
             return new Point((double)Math.round(x), (double)Math.round(y));
         }
-        double squareNorm() {
-            return x * x + y * y;
+        @Override 
+        public boolean equals(Object other) {
+            if (!(other instanceof Point)) {
+                return false;
+            }
+            final var otherPoint = (Point)other;
+            return otherPoint.x == x && otherPoint.y == y;
         }
         final double x;
         final double y;
@@ -1158,6 +1166,8 @@ public class Indexer {
 
     private static interface Curve {
         Point evaluate(double t);
+        Displacement initialDerivative();
+        Displacement finalDerivative();
     }
 
     private static class Quadratic implements Curve {
@@ -1168,6 +1178,12 @@ public class Indexer {
         }
         public Point evaluate(double t) {
             return start.plus(control.times(1 - t*t)).plus(end.minus(control).times(t * t));
+        }
+        public Displacement initialDerivative() {
+            return control;
+        }
+        public Displacement finalDerivative() {
+            return end.minus(control);
         }
         Point start;
         Displacement control;
@@ -1181,6 +1197,12 @@ public class Indexer {
             this.control2 = control2;
             this.end = end;
         }
+        public Displacement initialDerivative() {
+            return control1;
+        }
+        public Displacement finalDerivative() {
+            return end.minus(control2);
+        }
         public Point evaluate(double t) {
             return start.plus(control1.times(3*(1-t)*(1-t)).plus(control2.times(3*(1-t)).plus(end.times(t))).times(t));
         }
@@ -1190,8 +1212,36 @@ public class Indexer {
         Displacement end;
     }
 
-    private static class PiecewiseFunction {
+    private static class PiecewiseFunction implements Curve {
         List<Curve> pieces;
+        public Displacement initialDerivative() {
+            return pieces.get(0).initialDerivative();
+        }
+        public Displacement finalDerivative() {
+            return pieces.get(pieces.size() - 1).finalDerivative();
+        }
+        public Point evaluate(double t) {
+            int piece = (int)(t * pieces.size());
+            return pieces.get(piece).evaluate(pieces.size() * t - piece);
+        }
+        Quadratic quadraticInterpolant() {
+            final var start = pieces.get(0).evaluate(0);
+            final var end = pieces.get(pieces.size() - 1).evaluate(1);
+            final var initialDerivative = pieces.get(0).initialDerivative();
+            final var finalDerivative = pieces.get(0).finalDerivative();
+            final double denominator = initialDerivative.y * finalDerivative.x - initialDerivative.x * finalDerivative.y;
+            final double a = (end.y - start.y) * finalDerivative.x + (start.x - end.x) * finalDerivative.y / denominator;
+            final double b = (end.y - start.y) * initialDerivative.x + (start.x - end.x) * initialDerivative.y / denominator;
+            final Point controlPoint = (start.plus(initialDerivative.times(a))).round();
+            if (!controlPoint.equals(end.minus(finalDerivative.times(b)).round())) {
+                throw new IllegalArgumentException();
+            }
+            return new Quadratic(start, controlPoint.minus(start), end.minus(start));
+        }
+    }
+
+    private static double errorArea(Curve γ1, Curve γ2) {
+        
     }
 
     private final static double AREA_TOLERANCE = 30;
