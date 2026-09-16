@@ -85,7 +85,7 @@ public class Indexer {
         private final UnicodeProperty GENERAL_CATEGORY;
         private final UnicodeSet NONCHARACTERS;
 
-        private final Map<Integer, String> representativeGlyphs;
+        private Map<Integer, String> representativeGlyphs;
 
         private final Map<String, UnicodeSet> blockSet = new HashMap<>();
         private final Map<String, String> prettifyBlock = new HashMap<>();
@@ -169,11 +169,6 @@ public class Indexer {
                                     .get());
                 }
             }
-            final var unifiedIdeographs = IUP.getProperty(UcdProperty.Unified_Ideograph).getSet("Yes");
-            final var unassigned16 = IndexUnicodeProperties.make(VersionInfo.UNICODE_16_0).getProperty(UcdProperty.General_Category).getSet("Cn");
-            representativeGlyphs = loadRepresentativeGlyphs(
-                cp -> true
-            );
         }
 
         private static final Segmenter SENTENCE_BREAK =
@@ -378,6 +373,9 @@ public class Indexer {
         }
 
         public void generateIndex(VersionedIndexer linkedVersion) throws IOException {
+            representativeGlyphs = loadRepresentativeGlyphs(
+                cp -> true
+            );
             class PropertyComparator implements Comparator<UnicodeProperty> {
                 @Override
                 public int compare(UnicodeProperty left, UnicodeProperty right) {
@@ -1130,7 +1128,7 @@ public class Indexer {
         StringBuilder result = new StringBuilder();
     }
 
-    private final static double SHORTEST_CURVE = 100;
+    private final static double AREA_TOLERANCE = 30;
 
     private static String transformCommands(String commands, Transform transform) {
         final var result = new PathBuilder();
@@ -1162,7 +1160,9 @@ public class Indexer {
                 case 'Q': {
                     final var control = transform.apply(Coordinates.parse(commands, pos)).round();
                     final var to = transform.apply(Coordinates.parse(commands, pos)).round();
-                    if (to.minus(lastPosition).squareNorm() < SHORTEST_CURVE) {
+                    final var c = control.minus(lastPosition);
+                    final var d = to.minus(lastPosition);
+                    if (Math.abs(c.y * d.x - c.x * d.y) / 3 < AREA_TOLERANCE) {
                         result.append('l');
                         result.appendIntegerCoordinates(to.minus(lastPosition));
                     } else {
@@ -1178,7 +1178,7 @@ public class Indexer {
                     final var control1 = transform.apply(Coordinates.parse(commands, pos)).round();
                     final var control2 = transform.apply(Coordinates.parse(commands, pos)).round().minus(lastPosition);
                     final var to = transform.apply(Coordinates.parse(commands, pos)).round();
-                    if (to.minus(lastPosition).squareNorm() < SHORTEST_CURVE) {
+                    if (to.minus(lastPosition).squareNorm() < AREA_TOLERANCE) {
                         result.append('l');
                         result.appendIntegerCoordinates(to.minus(lastPosition));
                     } else {
