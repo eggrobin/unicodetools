@@ -1024,21 +1024,45 @@ public class Indexer {
         return Double.parseDouble(matcher.group());
     }
 
-    private static class Coordinates {
-        static Coordinates parse(String source, ParsePosition pos) {
+    private static class Point {
+        static Point parse(String source, ParsePosition pos) {
             double x = parseNumber(source, pos);
             double y = parseNumber(source, pos);
-            return new Coordinates(x, y);
+            return new Point(x, y);
         }
-        Coordinates(double x, double y) {
+        Point(double x, double y) {
             this.x = x;
             this.y = y;
         }
-        Coordinates minus(Coordinates q) {
-            return new Coordinates(x - q.x, y - q.y);
+        Displacement minus(Point q) {
+            return new Displacement(x - q.x, y - q.y);
         }
-        Coordinates round() {
-            return new Coordinates((double)Math.round(x), (double)Math.round(y));
+        Point plus(Displacement d) {
+            return new Point(x - d.x, y - d.y);
+        }
+        Point round() {
+            return new Point((double)Math.round(x), (double)Math.round(y));
+        }
+        double squareNorm() {
+            return x * x + y * y;
+        }
+        final double x;
+        final double y;
+    }
+
+    private static class Displacement {
+        Displacement(double x, double y) {
+            this.x = x;
+            this.y = y;
+        }
+        Displacement plus(Displacement d) {
+            return new Displacement(x + d.x, y + d.y);
+        }
+        Displacement minus(Displacement d) {
+            return new Displacement(x - d.x, y - d.y);
+        }
+        Displacement times(double λ) {
+            return new Displacement(λ * x, λ * y);
         }
         double squareNorm() {
             return x * x + y * y;
@@ -1052,8 +1076,8 @@ public class Indexer {
         double translation_y;
         double scale_x;
         double scale_y;
-        Coordinates apply(Coordinates q) {
-            return new Coordinates(scale_x * q.x + translation_x, scale_y * q.y + translation_y);
+        Point apply(Point q) {
+            return new Point(scale_x * q.x + translation_x, scale_y * q.y + translation_y);
         }
     }
 
@@ -1115,9 +1139,13 @@ public class Indexer {
             }
             result.append(i);
         }
-        void appendIntegerCoordinates(Coordinates q) {
+        void appendIntegerPoint(Point q) {
             appendInteger(Math.round(q.x));
             appendInteger(Math.round(q.y));
+        }
+        void appendIntegerPoint(Displacement d) {
+            appendInteger(Math.round(d.x));
+            appendInteger(Math.round(d.y));
         }
         void append(char c) {
             result.append(c);
@@ -1128,13 +1156,51 @@ public class Indexer {
         StringBuilder result = new StringBuilder();
     }
 
+    private static interface Curve {
+        Point evaluate(double t);
+    }
+
+    private static class Quadratic implements Curve {
+        Quadratic(Point start, Displacement control, Displacement end) {
+            this.start = start;
+            this.control = control;
+            this.end = end;
+        }
+        public Point evaluate(double t) {
+            return start.plus(control.times(1 - t*t)).plus(end.minus(control).times(t * t));
+        }
+        Point start;
+        Displacement control;
+        Displacement end;
+    }
+
+    private static class Cubic implements Curve {
+        Cubic(Point start, Displacement control1, Displacement control2, Displacement end) {
+            this.start = start;
+            this.control1 = control1;
+            this.control2 = control2;
+            this.end = end;
+        }
+        public Point evaluate(double t) {
+            return start.plus(control1.times(3*(1-t)*(1-t)).plus(control2.times(3*(1-t)).plus(end.times(t))).times(t));
+        }
+        Point start;
+        Displacement control1;
+        Displacement control2;
+        Displacement end;
+    }
+
+    private static class PiecewiseFunction {
+        List<Curve> pieces;
+    }
+
     private final static double AREA_TOLERANCE = 30;
 
     private static String transformCommands(String commands, Transform transform) {
         final var result = new PathBuilder();
         char implicitCommand = 0;
-        var lastPosition = new Coordinates(0, 0);
-        var pathStart = new Coordinates(0, 0);
+        var lastPosition = new Point(0, 0);
+        var pathStart = new Point(0, 0);
         for (ParsePosition pos = new ParsePosition(0); pos.getIndex() < commands.length();) {
             char command = commands.charAt(pos.getIndex());
             if (command == ' ') {
@@ -1144,48 +1210,48 @@ public class Indexer {
             switch (command) {
                 case 'M': {
                     result.append(Character.toLowerCase(command));
-                    final var to = transform.apply(Coordinates.parse(commands, pos)).round();
-                    result.appendIntegerCoordinates(to.minus(lastPosition));
+                    final var to = transform.apply(Point.parse(commands, pos)).round();
+                    result.appendIntegerPoint(to.minus(lastPosition));
                     lastPosition = to;
                     pathStart = lastPosition;
                     break;
                 }
                 case 'L': {
                     result.append(Character.toLowerCase(command));
-                    final var to = transform.apply(Coordinates.parse(commands, pos)).round();
-                    result.appendIntegerCoordinates(to.minus(lastPosition));
+                    final var to = transform.apply(Point.parse(commands, pos)).round();
+                    result.appendIntegerPoint(to.minus(lastPosition));
                     lastPosition = to;
                     break;
                 }
                 case 'Q': {
-                    final var control = transform.apply(Coordinates.parse(commands, pos)).round();
-                    final var to = transform.apply(Coordinates.parse(commands, pos)).round();
+                    final var control = transform.apply(Point.parse(commands, pos)).round();
+                    final var to = transform.apply(Point.parse(commands, pos)).round();
                     final var c = control.minus(lastPosition);
                     final var d = to.minus(lastPosition);
                     if (Math.abs(c.y * d.x - c.x * d.y) / 3 < AREA_TOLERANCE) {
                         result.append('l');
-                        result.appendIntegerCoordinates(to.minus(lastPosition));
+                        result.appendIntegerPoint(to.minus(lastPosition));
                     } else {
                         result.append(Character.toLowerCase(command));
-                        result.appendIntegerCoordinates(control.minus(lastPosition));
-                        result.appendIntegerCoordinates(to.minus(lastPosition));
+                        result.appendIntegerPoint(control.minus(lastPosition));
+                        result.appendIntegerPoint(to.minus(lastPosition));
                     }
                     lastPosition = to;
                     break;
                 }
                 case 'C': {
                     result.append(Character.toLowerCase(command));
-                    final var control1 = transform.apply(Coordinates.parse(commands, pos)).round();
-                    final var control2 = transform.apply(Coordinates.parse(commands, pos)).round().minus(lastPosition);
-                    final var to = transform.apply(Coordinates.parse(commands, pos)).round();
+                    final var control1 = transform.apply(Point.parse(commands, pos)).round();
+                    final var control2 = transform.apply(Point.parse(commands, pos)).round();
+                    final var to = transform.apply(Point.parse(commands, pos)).round();
                     if (to.minus(lastPosition).squareNorm() < AREA_TOLERANCE) {
                         result.append('l');
-                        result.appendIntegerCoordinates(to.minus(lastPosition));
+                        result.appendIntegerPoint(to.minus(lastPosition));
                     } else {
                         result.append(Character.toLowerCase(command));
-                        result.appendIntegerCoordinates(control1.minus(lastPosition));
-                        result.appendIntegerCoordinates(control2.minus(lastPosition));
-                        result.appendIntegerCoordinates(to.minus(lastPosition));
+                        result.appendIntegerPoint(control1.minus(lastPosition));
+                        result.appendIntegerPoint(control2.minus(lastPosition));
+                        result.appendIntegerPoint(to.minus(lastPosition));
                     }
                     lastPosition = to;
                     break;
@@ -1193,7 +1259,7 @@ public class Indexer {
                 case 'V': {
                     result.append(Character.toLowerCase(command));
                     double y = parseNumber(commands, pos);
-                    final var to = new Coordinates(lastPosition.x, transform.translation_y + transform.scale_y * y).round();
+                    final var to = new Point(lastPosition.x, transform.translation_y + transform.scale_y * y).round();
                     result.appendInteger(Math.round(to.y - lastPosition.y));
                     lastPosition = to;
                     break;
@@ -1201,7 +1267,7 @@ public class Indexer {
                 case 'H': {
                     result.append(Character.toLowerCase(command));
                     double x = parseNumber(commands, pos);
-                    final var to = new Coordinates(transform.translation_x + transform.scale_x * x, lastPosition.y).round();
+                    final var to = new Point(transform.translation_x + transform.scale_x * x, lastPosition.y).round();
                     result.appendInteger(Math.round(to.x - lastPosition.x));
                     lastPosition = to;
                     break;
