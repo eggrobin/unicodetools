@@ -1244,7 +1244,20 @@ public class Indexer {
     }
 
     private static double errorArea(Curve γ1, Curve γ2) {
-        
+        final int steps = 100;
+        var q1_previous = γ1.evaluate(0);
+        var q2_previous = γ2.evaluate(0);
+        double result = 0;
+        for (int i = 0; i < steps; ++i) {
+            double t = (i + 1.0) / steps;
+            final var q1 = γ1.evaluate(t);
+            final var q2 = γ2.evaluate(t);
+            final var d1 = q1.minus(q2_previous);
+            final var d2 = q2.minus(q1_previous);
+            result += d1 +
+            q1_previous = q1;
+            q2_previous = q2;
+        }
     }
 
     private final static double AREA_TOLERANCE = 30;
