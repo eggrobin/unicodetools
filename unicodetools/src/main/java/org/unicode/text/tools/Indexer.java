@@ -1022,6 +1022,8 @@ public class Indexer {
                         }
                         final int end = line.indexOf("</svg>");
                         String svg = line.substring(start, end + 6);
+                        //System.err.println(Utility.hex(cp));
+                        current_cp = cp;
                         svg = mangleSVG(svg);
                         svg = svg.replace(line, svg);
                         result.put(cp, svg);
@@ -1031,6 +1033,8 @@ public class Indexer {
         }
         return result;
     }
+
+    private static int current_cp;
 
     private static double parseNumber(String source, ParsePosition pos) {
         final var NUMBER = Pattern.compile("\\s*-?[\\d.]+");
@@ -1073,6 +1077,10 @@ public class Indexer {
             final var otherPoint = (Point)other;
             return otherPoint.x == x && otherPoint.y == y;
         }
+        @Override 
+        public String toString() {
+            return "(" + x + "," + y + ")";
+        }
         final double x;
         final double y;
     }
@@ -1091,8 +1099,15 @@ public class Indexer {
         Displacement times(double λ) {
             return new Displacement(λ * x, λ * y);
         }
+        double dot(Displacement v) {
+            return x * v.x + y * v.y;
+        }
         double squareNorm() {
             return x * x + y * y;
+        }
+        @Override 
+        public String toString() {
+            return "(" + x + "," + y + ")";
         }
         final double x;
         final double y;
@@ -1170,23 +1185,81 @@ public class Indexer {
             appendInteger(Math.round(q.x));
             appendInteger(Math.round(q.y));
         }
-        void appendIntegerPoint(Displacement d) {
+        void appendIntegerDisplacement(Displacement d) {
             appendInteger(Math.round(d.x));
             appendInteger(Math.round(d.y));
         }
         void append(char c) {
+            flushCurrent();
             result.append(c);
         }
+        void append(Curve γ) {
+            if (current == null) {
+                current = new PiecewiseFunction(γ);
+            } else {
+                current.pieces.add(γ);
+                if (errorArea(current.quadraticInterpolant(), current) > AREA_TOLERANCE) {
+                    current.pieces.removeLast();
+                    flushCurrent();
+                    current = new PiecewiseFunction(γ);
+                }
+        }
+        }
+        void flushCurrent() {
+            if (current == null) {
+                return;
+            }
+            Line linearInterpolant = current.linearInterpolant();
+            if (errorArea(linearInterpolant, current) > AREA_TOLERANCE) {
+                final var interpolant = current.quadraticInterpolant();
+                result.append('q');
+                appendIntegerDisplacement(interpolant.control);
+                appendIntegerDisplacement(interpolant.end);
+            } else {
+                result.append('l');
+                appendIntegerDisplacement(linearInterpolant.end);
+            }
+            current = null;
+        }
         @Override public String toString() {
+            if (current != null) {
+                throw new IllegalArgumentException(current.toString());
+            }
+            if (current_cp == 0x954 && result.toString().startsWith("m22-55")) {
+                //throw new IllegalArgumentException(result.toString());
+            }
             return result.toString();
         }
         StringBuilder result = new StringBuilder();
+        PiecewiseFunction current;
     }
 
     private static interface Curve {
         Point evaluate(double t);
         Displacement initialDerivative();
         Displacement finalDerivative();
+    }
+
+    private static class Line implements Curve {
+        Line(Point start, Displacement end) {
+            this.start = start;
+            this.end = end;
+        }
+        public Point evaluate(double t) {
+            return start.plus(end.times(t));
+        }
+        public Displacement initialDerivative() {
+            return end;
+        }
+        public Displacement finalDerivative() {
+            return end;
+        }
+        @Override 
+        public String toString() {
+            return "M" + start + " l " + end;
+        }
+        Point start;
+        Displacement end;
     }
 
     private static class Quadratic implements Curve {
@@ -1196,13 +1269,17 @@ public class Indexer {
             this.end = end;
         }
         public Point evaluate(double t) {
-            return start.plus(control.times(1 - t*t)).plus(end.minus(control).times(t * t));
+            return start.plus(control.times(2*(t-1)).plus(end.times(t)).times(t));
         }
         public Displacement initialDerivative() {
             return control;
         }
         public Displacement finalDerivative() {
             return end.minus(control);
+        }
+        @Override 
+        public String toString() {
+            return "M" + start + " q " + control + " " + end;
         }
         Point start;
         Displacement control;
@@ -1232,6 +1309,10 @@ public class Indexer {
     }
 
     private static class PiecewiseFunction implements Curve {
+        PiecewiseFunction(Curve γ) {
+            pieces = new ArrayList<>();
+            pieces.add(γ);
+        }
         List<Curve> pieces;
         public Displacement initialDerivative() {
             return pieces.get(0).initialDerivative();
@@ -1241,21 +1322,45 @@ public class Indexer {
         }
         public Point evaluate(double t) {
             int piece = (int)(t * pieces.size());
+            if (t == 1) {
+                --piece;
+            }
             return pieces.get(piece).evaluate(pieces.size() * t - piece);
         }
+        Line linearInterpolant() {
+            final var start = pieces.get(0).evaluate(0);
+            final var end = pieces.get(pieces.size() - 1).evaluate(1);
+            return new Line(start, end.minus(start));
+        }
+
         Quadratic quadraticInterpolant() {
             final var start = pieces.get(0).evaluate(0);
             final var end = pieces.get(pieces.size() - 1).evaluate(1);
-            final var initialDerivative = pieces.get(0).initialDerivative();
-            final var finalDerivative = pieces.get(0).finalDerivative();
+            final var initialDerivative = initialDerivative();
+            final var finalDerivative = finalDerivative();
             final double denominator = initialDerivative.y * finalDerivative.x - initialDerivative.x * finalDerivative.y;
-            final double a = (end.y - start.y) * finalDerivative.x + (start.x - end.x) * finalDerivative.y / denominator;
-            final double b = (end.y - start.y) * initialDerivative.x + (start.x - end.x) * initialDerivative.y / denominator;
-            final Point controlPoint = (start.plus(initialDerivative.times(a))).round();
-            if (!controlPoint.equals(end.minus(finalDerivative.times(b)).round())) {
-                throw new IllegalArgumentException();
+            final Point controlPoint;
+            if (denominator == 0) {
+                controlPoint = (start.plus(end.minus(start).times(0.5))).round();
+            } else {
+            final double a = ((end.y - start.y) * finalDerivative.x + (start.x - end.x) * finalDerivative.y) / denominator;
+            final double b = ((end.y - start.y) * initialDerivative.x + (start.x - end.x) * initialDerivative.y) / denominator;
+             controlPoint = (start.plus(initialDerivative.times(a))).round();
+            if (false&& !controlPoint.equals(end.plus(finalDerivative.times(b)).round())
+            ||denominator != 0&&current_cp==0x954&&controlPoint.minus(start).x < -43) {
+                throw new IllegalArgumentException(toString()+"-->start="+start+",end="+end+",initialDerivative="+initialDerivative
+                    +",finalDerivative="+finalDerivative+",a="+a+",b="+b+",controlPoint="+controlPoint+",end.plus(finalDerivative.times(b)).round()="+end.plus(finalDerivative.times(b)).round()
+                    +"unrounded:" + start.plus(initialDerivative.times(a))+ ","+end.plus(finalDerivative.times(b))
+                );
             }
+        }
+            if (current_cp==0x954) System.err.println(denominator + " " + (controlPoint.minus(start).x < -43) + " " +controlPoint.minus(start));
+            if (current_cp==0x954) System.err.println(new Quadratic(start, controlPoint.minus(start), end.minus(start)));
             return new Quadratic(start, controlPoint.minus(start), end.minus(start));
+        }
+        @Override 
+        public String toString() {
+            return pieces.stream().map(Curve::toString).collect(Collectors.joining(" "));
         }
     }
 
@@ -1270,13 +1375,14 @@ public class Indexer {
             final var q2 = γ2.evaluate(t);
             final var d1 = q1.minus(q2_previous);
             final var d2 = q2.minus(q1_previous);
-            result += d1 +
+            result += Math.abs(d1.x * d2.y - d2.x * d1.y) / 2;
             q1_previous = q1;
             q2_previous = q2;
         }
+        return result;
     }
 
-    private final static double AREA_TOLERANCE = 30;
+    private final static double AREA_TOLERANCE = 10;
 
     private static String transformCommands(String commands, Transform transform) {
         final var result = new PathBuilder();
@@ -1293,15 +1399,14 @@ public class Indexer {
                 case 'M': {
                     result.append(Character.toLowerCase(command));
                     final var to = transform.apply(Point.parse(commands, pos)).round();
-                    result.appendIntegerPoint(to.minus(lastPosition));
+                    result.appendIntegerDisplacement(to.minus(lastPosition));
                     lastPosition = to;
                     pathStart = lastPosition;
                     break;
                 }
                 case 'L': {
-                    result.append(Character.toLowerCase(command));
                     final var to = transform.apply(Point.parse(commands, pos)).round();
-                    result.appendIntegerPoint(to.minus(lastPosition));
+                    result.append(new Line(lastPosition, to.minus(lastPosition)));
                     lastPosition = to;
                     break;
                 }
@@ -1310,31 +1415,15 @@ public class Indexer {
                     final var to = transform.apply(Point.parse(commands, pos)).round();
                     final var c = control.minus(lastPosition);
                     final var d = to.minus(lastPosition);
-                    if (Math.abs(c.y * d.x - c.x * d.y) / 3 < AREA_TOLERANCE) {
-                        result.append('l');
-                        result.appendIntegerPoint(to.minus(lastPosition));
-                    } else {
-                        result.append(Character.toLowerCase(command));
-                        result.appendIntegerPoint(control.minus(lastPosition));
-                        result.appendIntegerPoint(to.minus(lastPosition));
-                    }
+                    result.append(new Quadratic(lastPosition, c, d));
                     lastPosition = to;
                     break;
                 }
                 case 'C': {
-                    result.append(Character.toLowerCase(command));
                     final var control1 = transform.apply(Point.parse(commands, pos)).round();
                     final var control2 = transform.apply(Point.parse(commands, pos)).round();
                     final var to = transform.apply(Point.parse(commands, pos)).round();
-                    if (to.minus(lastPosition).squareNorm() < AREA_TOLERANCE) {
-                        result.append('l');
-                        result.appendIntegerPoint(to.minus(lastPosition));
-                    } else {
-                        result.append(Character.toLowerCase(command));
-                        result.appendIntegerPoint(control1.minus(lastPosition));
-                        result.appendIntegerPoint(control2.minus(lastPosition));
-                        result.appendIntegerPoint(to.minus(lastPosition));
-                    }
+                    result.append(new Cubic(lastPosition, control1.minus(lastPosition), control2.minus(lastPosition), to.minus(lastPosition)));
                     lastPosition = to;
                     break;
                 }
