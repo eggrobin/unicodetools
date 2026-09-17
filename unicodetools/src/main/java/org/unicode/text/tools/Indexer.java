@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -1505,7 +1506,7 @@ public class Indexer {
         double lower = lowerBound;
         double upper = upperBound;
         for (;;) {
-        final double middle = lower + (upper-lower)/2;
+        final double middle = (lower + lower)/2;
         // The size of the interval has reached one ULP.
         if (middle == lower || middle == upper) {
             return middle;
@@ -1521,6 +1522,14 @@ public class Indexer {
         }
     }
     final static double φ = 1.61803398874989484820458683436563811772030917980576;
+
+    private static double Brent(Function<Double, Double> f,
+               double lowerBound,
+               double upperBound,
+               Comparator<Double> compare) {
+return Brent(f, lowerBound, upperBound, compare, 
+    Math.sqrt(Math.scalb(0.5, 1 - 53)));
+               }
     private static double Brent(Function<Double, Double> f_orig,
                double lowerBound,
                double upperBound,
@@ -1551,7 +1560,8 @@ public class Indexer {
     double a = lowerBound;
     double b = upperBound;
     final double c = 2 - φ;
-    double d;
+    // Initializing to please the compiler.
+    double d = Double.NaN;
     double u;
     double v;
     double w;
@@ -1565,7 +1575,7 @@ public class Indexer {
     double e = 0;
     f_v = f_w = f_x = f.apply(x);
     for (;;) {
-      final double m = a + (b-a)/2;
+      final double m = (a+b)/2;
       final double tol = eps * Math.abs(x) + t;
       final double t2 = 2 * tol;
       // Check stopping criterion.
@@ -1637,5 +1647,112 @@ public class Indexer {
       }
     }
   }
+}
+
+Set<Double> DoubleBrent(Function<Double, Double> f,
+                                      final double lower_bound,
+                                      final double upper_bound,
+                                      final double eps) {
+  Set<Double> zeroes = new TreeSet<>();
+  Set<Double> zeroes_above = Set.of();
+  Set<Double> zeroes_below = Set.of();
+
+  final double a = lower_bound;
+  final double b = upper_bound;
+
+  // The tolerance is essentially a relative error bound on the bounds of the
+  // interval, computed in a way that yields a sensible result if one of the
+  // bounds is zero.  If `Argument` is an affine space, the tolerance is not
+  // position-independent because the underlying algorithms `Brent` and `Brent`
+  // are not.
+  final double tolerance = eps * Math.max(Math.abs(a), Math.abs(b));
+  final double a_effective = a + tolerance;
+  final double b_effective = b - tolerance;
+
+  final double f_a = f.apply(a);
+  final double f_b = f.apply(b);
+
+  // The case of a zero at a bound will be handled below.  It can arise because
+  // the search for a zero returns a bound, even though the function is not
+  // exactly zero there.
+  boolean has_zero_at_bound = false;
+
+  if (f_a == 0) {
+    zeroes.add(a);
+    has_zero_at_bound = true;
+  }
+  if (f_b == 0) {
+    zeroes.add(b);
+    has_zero_at_bound = true;
+  }
+
+  if (!has_zero_at_bound) {
+    final var sign_f_a = sign(f_a);
+    final var sign_f_b = sign(f_b);
+    if (sign_f_a == sign_f_b) {
+      // The function has the same sign at both bounds of the interval.  We can
+      // still have a zero if there is an extremum (a minimum if f is positive
+      // at the bounds, a maximum if it is negative).  Use `Brent` to find an
+      // extremum and recurse if needed.
+      if (sign_f_a > 0) {
+        final var minimum = Brent(f, a, b, Comparator.naturalOrder());
+        if (minimum >= a_effective && minimum <= b_effective) {
+          zeroes_above = DoubleBrent(f, minimum, b, eps);
+          zeroes_below = DoubleBrent(f, a, minimum, eps);
+        } else {
+          return Set.of();
+        }
+      } else {
+        final var maximum = Brent(f, a, b, Comparator.reverseOrder());
+        if (maximum >= a_effective && maximum <= b_effective) {
+          zeroes_above = DoubleBrent(f, maximum, b, eps);
+          zeroes_below = DoubleBrent(f, a, maximum, eps);
+        } else {
+          return Set.of();
+        }
+      }
+    } else {
+      // The function alternates, there must be a zero.  Use `Brent` to find it.
+      final var c = Brent(f, a, b);
+      if (a == c || b == c) {
+        // The zero is not quite zero, but it's at a bound.
+        zeroes.add(c);
+        has_zero_at_bound = true;
+      } else {
+        // Note that `c` is *not* inserted into `zeroes` on this path:
+        // 1. If `f(c) = 0` the insertion will be done by the recursive calls
+        //    when checking for a zero at a bound.
+        // 2. If `f(c) ≠ 0`, then, given that `f(a)` and `f(b)` are both
+        //    nonzero, one of the subintervals will have alternate signs for its
+        //    bounds, and a zero search will happen.  It will either return a
+        //    bound (presumably `c`); or it will find a zero in the interior of
+        //    the interval, which will be "more precise" than `c`.
+        zeroes_above = DoubleBrent(f, c, b, eps);
+        zeroes_below = DoubleBrent(f, a, c, eps);
+      }
+    }
+  }
+
+  if (has_zero_at_bound) {
+    // If there is a zero at one bound, there may still be more zeroes if
+    // there is an extremum.  Note that here we must look for both a minimum and
+    // a maximum.  We use `Brent` to find an extremum and recurse as soon as one
+    // is found.
+    final var minimum = Brent(f, a, b, Comparator.naturalOrder());
+    if (minimum >= a_effective && minimum <= b_effective) {
+      zeroes_above = DoubleBrent(f, minimum, b, eps);
+      zeroes_below = DoubleBrent(f, a, minimum, eps);
+    } else {
+      final var maximum = Brent(f, a, b, Comparator.reverseOrder());
+      if (maximum >= a_effective && maximum <= b_effective) {
+        zeroes_above = DoubleBrent(f, maximum, b, eps);
+        zeroes_below = DoubleBrent(f, a, maximum, eps);
+      }
+    }
+  }
+
+  zeroes.addAll(zeroes_below);
+  zeroes.addAll(zeroes_above);
+  return zeroes;
 }
 }
