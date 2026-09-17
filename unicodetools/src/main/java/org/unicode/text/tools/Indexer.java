@@ -373,9 +373,7 @@ public class Indexer {
         }
 
         public void generateIndex(VersionedIndexer linkedVersion) throws IOException {
-            representativeGlyphs = loadRepresentativeGlyphs(
-                cp -> true
-            );
+            representativeGlyphs = loadRepresentativeGlyphs();
             class PropertyComparator implements Comparator<UnicodeProperty> {
                 @Override
                 public int compare(UnicodeProperty left, UnicodeProperty right) {
@@ -1000,7 +998,7 @@ public class Indexer {
         if(false)fr.generateIndex(/* linkedVersion= */ null);
     }
 
-    private static Map<Integer, String> loadRepresentativeGlyphs(Predicate<Integer> filter) throws IOException {
+    private static Map<Integer, String> loadRepresentativeGlyphs() throws IOException {
         System.out.println("Loading representative glyphs…");
         final Map<Integer, String> result = new HashMap<>();
         final var id = Pattern.compile("id=\"([0-9a-f]{4,})\"");
@@ -1012,10 +1010,6 @@ public class Indexer {
                     final var matcher = id.matcher(line);
                     if (matcher.find()) {
                         final int cp = Utility.codePointFromHex(matcher.group(1));
-                        if (!filter.test(cp)) {
-                            result.put(cp, VersionedIndexer.toHTML.transform(Character.toString(cp)));
-                            continue;
-                        }
                         final int start = line.indexOf("<svg");
                         if (start == -1) {
                             continue;
@@ -1025,7 +1019,7 @@ public class Indexer {
                         //System.err.println(Utility.hex(cp));
                         current_cp = cp;
                         svg = mangleSVG(svg);
-                        svg = svg.replace(line, svg);
+                        svg = "<span class=character>" + svg + "<span class=literal>" + VersionedIndexer.toHTML.transform(Character.toString(cp)) + "</span></span>";
                         result.put(cp, svg);
                     }
                 }
