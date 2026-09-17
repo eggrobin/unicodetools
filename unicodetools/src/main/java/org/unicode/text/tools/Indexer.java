@@ -1352,6 +1352,22 @@ public class Indexer {
             if (current_cp==0x954) System.err.println(new Quadratic(start, controlPoint.minus(start), end.minus(start)));
             return new Quadratic(start, controlPoint.minus(start), end.minus(start));
         }
+
+        Cubic cubicInterpolant() {
+            final var start = pieces.get(0).evaluate(0);
+            final var end = pieces.get(pieces.size() - 1).evaluate(1);
+            final var d = end.minus(start);
+            final var initialDerivative = initialDerivative();
+            final var finalDerivative = finalDerivative();
+            final double a = signedArea(this);
+            double α = 0;
+            // TODO(egg): Optimize α.
+            double αMax = (10 * a)/(3 * (d.y * initialDerivative.x - d.x * initialDerivative.y));
+            double β = (20 * a - 6 *d.y * α * initialDerivative.x + 6 * d.x * α  * initialDerivative.y)/(
+6 * d.y * finalDerivative.x - 3 * α * initialDerivative.y  * finalDerivative.x - 
+ 6 * d.x  * finalDerivative.y + 3 * α * initialDerivative.x * finalDerivative.y);
+            return new Cubic(start, initialDerivative.times(α), end.minus(finalDerivative.times(β)).minus(start) , end.minus(start));
+        }
         @Override 
         public String toString() {
             return pieces.stream().map(Curve::toString).collect(Collectors.joining(" "));
@@ -1372,6 +1388,21 @@ public class Indexer {
             result += Math.abs(d1.x * d2.y - d2.x * d1.y) / 2;
             q1_previous = q1;
             q2_previous = q2;
+        }
+        return result;
+    }
+
+    private static double signedArea(Curve γ) {
+        final int steps = 100;
+        final Point γ0 = γ.evaluate(0);
+        var r_previous = new Displacement(0, 0);
+        double result = 0;
+        for (int i = 0; i < steps; ++i) {
+            double t = (i + 1.0) / steps;
+            final var r = γ.evaluate(t).minus(γ0);
+            final var dr = r.minus(r_previous);
+            result += r.x * dr.y - dr.y * dr.x / 2;
+            r_previous = r;
         }
         return result;
     }
