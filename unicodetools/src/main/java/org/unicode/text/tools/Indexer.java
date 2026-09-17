@@ -1364,13 +1364,18 @@ public class Indexer {
             final var initialDerivative = initialDerivative();
             final var finalDerivative = finalDerivative();
             final double a = signedArea(this);
-            double α = 0;
-            // TODO(egg): Optimize α.
-            double αMax = (10 * a)/(3 * (d.y * initialDerivative.x - d.x * initialDerivative.y));
-            double β = (20 * a - 6 *d.y * α * initialDerivative.x + 6 * d.x * α  * initialDerivative.y)/(
-6 * d.y * finalDerivative.x - 3 * α * initialDerivative.y  * finalDerivative.x - 
- 6 * d.x  * finalDerivative.y + 3 * α * initialDerivative.x * finalDerivative.y);
-            return new Cubic(start, initialDerivative.times(α), end.minus(finalDerivative.times(β)).minus(start) , end.minus(start));
+            final double αMax = (10 * a)/(3 * (d.y * initialDerivative.x - d.x * initialDerivative.y));
+            final double αOptimal =
+            Brent((α) -> {
+                double β = (20 * a - 6 *d.y * α * initialDerivative.x + 6 * d.x * α  * initialDerivative.y)/(
+                6 * d.y * finalDerivative.x - 3 * α * initialDerivative.y  * finalDerivative.x - 
+                6 * d.x  * finalDerivative.y + 3 * α * initialDerivative.x * finalDerivative.y);
+                return errorArea(this, new Cubic(start, initialDerivative.times(α), end.minus(finalDerivative.times(β)).minus(start) , end.minus(start)));
+            }, 0, αMax, Comparator.naturalOrder());
+            double β = (20 * a - 6 *d.y * αOptimal * initialDerivative.x + 6 * d.x * αOptimal  * initialDerivative.y)/(
+                        6 * d.y * finalDerivative.x - 3 * αOptimal * initialDerivative.y  * finalDerivative.x - 
+                        6 * d.x  * finalDerivative.y + 3 * αOptimal * initialDerivative.x * finalDerivative.y);
+            return new Cubic(start, initialDerivative.times(αOptimal), end.minus(finalDerivative.times(β)).minus(start) , end.minus(start));
         }
         @Override 
         public String toString() {
