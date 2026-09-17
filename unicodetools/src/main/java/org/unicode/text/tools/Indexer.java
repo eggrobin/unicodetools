@@ -1,6 +1,7 @@
 package org.unicode.text.tools;
 
 import com.google.common.collect.Lists;
+import com.ibm.icu.impl.UResource.Value;
 import com.ibm.icu.segmenter.LocalizedSegmenter;
 import com.ibm.icu.segmenter.LocalizedSegmenter.SegmentationType;
 import com.ibm.icu.segmenter.Segment;
@@ -10,6 +11,8 @@ import com.ibm.icu.text.Transliterator;
 import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.util.ULocale;
 import com.ibm.icu.util.VersionInfo;
+import com.thaiopensource.relaxng.translate.test.Compare;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -1482,4 +1485,157 @@ public class Indexer {
         }
         return result.toString();
     }
+
+    private static double sign(double x) {
+        return Math.copySign(1, x);
+    }
+
+    private static double Brent(Function<Double, Double> f, double lowerBound, double upperBound) {
+        final double f_upper = f.apply(upperBound);
+        final double f_lower = f.apply(lowerBound);
+        if (f_upper == 0) {
+        return upperBound;
+        }
+        if (f_lower == 0) {
+        return lowerBound;
+        }
+         if(sign(f_lower) == sign(f_upper))
+            throw new IllegalArgumentException("\nlower: " + lowerBound + " ↦ " + f_lower + ", "
+            + "\nupper: " + upperBound + " ↦ " + f_upper);
+        double lower = lowerBound;
+        double upper = upperBound;
+        for (;;) {
+        final double middle = lower + (upper-lower)/2;
+        // The size of the interval has reached one ULP.
+        if (middle == lower || middle == upper) {
+            return middle;
+        }
+        final double f_middle = f.apply(middle);
+        if (f_middle == 0) {
+            return middle;
+        } else if (sign(f_middle) == sign(f_upper)) {
+            upper = middle;
+        } else {
+            lower = middle;
+        }
+        }
+    }
+    final static double φ = 1.61803398874989484820458683436563811772030917980576;
+    private static double Brent(Function<Double, Double> f_orig,
+               double lowerBound,
+               double upperBound,
+               Comparator<Double> compare,
+               double eps) {
+  if(!compare.equals(Comparator.naturalOrder()) && !compare.equals(Comparator.reverseOrder())) {
+                throw new IllegalArgumentException("Brent’s method relies on the consistency of the order whose "+
+                "extremum is sought with the arithmetic operations.  For "+
+                "arbitrary order relations, use golden section search.");
+  }
+
+  // The code from [Bre73] looks for a minimum; for a maximum, we look for a
+  // minimum of the opposite.
+  final Function<Double, Double> f = compare.equals(Comparator.reverseOrder()) ?
+    (x) -> -f_orig.apply(x) : f_orig;
+  {
+    // We do not use `std::numeric_limits<double>::epsilon()`, because it is 2ϵ
+    // in Brent’s notation: Brent uses ϵ = β^(1-τ) / 2 for rounded arithmetic,
+    // see [Bre73], chapter 4, (2.9).
+    final double ϵ = Math.scalb(0.5, 1 - 53);
+    // In order to ensure convergence, eps should be no smaller than 2ϵ, see
+    // [Bre73] chapter 5, section 5.
+    eps = Math.max(eps, 2 * ϵ);
+    // Similarly, t needs to be greater than 0, see [Bre73] chapter 5,
+    // section 4.
+    final double t = Double.MIN_VALUE;
+
+    double a = lowerBound;
+    double b = upperBound;
+    final double c = 2 - φ;
+    double d;
+    double u;
+    double v;
+    double w;
+    double x;
+    double f_u;
+    double f_v;
+    double f_w;
+    double f_x;
+
+    v = w = x = a + c * (b - a);
+    double e = 0;
+    f_v = f_w = f_x = f.apply(x);
+    for (;;) {
+      final double m = a + (b-a)/2;
+      final double tol = eps * Math.abs(x) + t;
+      final double t2 = 2 * tol;
+      // Check stopping criterion.
+      if (Math.abs(x - m) <= t2 - 0.5 * (b - a)) {
+        return x;
+      }
+      // p = q = r = 0;
+      double p = 0;
+      double q = 0;
+      if (Math.abs(e) > tol) {
+        // Fit parabola.
+        final var r1 = (x - w) * (f_x - f_v);
+        final var r2 = (x - v) * (f_x - f_w);
+        p = (x - v) * r2 - (x - w) * r1;
+        q = 2 * (r2 - r1);
+        if (sign(q) > 0) {
+          p = -p;
+        } else {
+          q = -q;
+        }
+      }
+      // The second clause is incorrectly p < q * (a - x) in [Bre73] p.80, see
+      // the errata.
+      if (sign(p) < sign(0.5 * q * e) && p > q * (a - x) && p < q * (b - x)) {
+        e = d;
+        // A “parabolic interpolation” step.
+        d = p / q;
+        u = x + d;
+        // f must not be evaluated too close to a or b.
+        if (u - a < t2 || b - u < t2) {
+          d = x < m ? tol : -tol;
+        }
+      } else {
+        // A “golden section” step.
+        e = (x < m ? b : a) - x;
+        d = c * e;
+      }
+      // f must not be evaluated too close to x.
+      u = x + (sign(d) > tol ? d : tol * sign(d));
+      f_u = f.apply(u);
+      // Update a, b, v, w, and x.
+      if (f_u <= f_x) {
+        if (u < x) {
+          b = x;
+        } else {
+          a = x;
+        }
+        v = w;
+        f_v = f_w;
+        w = x;
+        f_w = f_x;
+        x = u;
+        f_x = f_u;
+      } else {
+        if (u < x) {
+          a = u;
+        } else {
+          b = u;
+        }
+        if (f_u <= f_w || w == x) {
+          v = w;
+          f_v = f_w;
+          w = u;
+          f_w = f_u;
+        } else if (f_u <= f_v || v == x || v == w) {
+          v = u;
+          f_v = f_u;
+        }
+      }
+    }
+  }
+}
 }
