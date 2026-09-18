@@ -1236,8 +1236,9 @@ public class Indexer {
                 current = new PiecewiseFunction(γ);
             } else {
                 current.pieces.add(γ);
-                if (errorMetric(current.quadraticInterpolant(), current) > TOLERANCE &&
-                    errorMetric(current.cubicInterpolant(), current) > TOLERANCE) {
+                if (errorMetric(current.quadraticInterpolant(), current) > TOLERANCE
+                    //&&errorMetric(current.cubicInterpolant(), current) > TOLERANCE
+                    ) {
                     current.pieces.removeLast();
                     flushCurrent();
                     current = new PiecewiseFunction(γ);
@@ -1251,7 +1252,7 @@ public class Indexer {
             Line linearInterpolant = current.linearInterpolant();
             if (errorMetric(linearInterpolant, current) > TOLERANCE) {
                 final var quadraticInterpolant = current.quadraticInterpolant();
-                if (errorMetric(quadraticInterpolant, current) > TOLERANCE) {
+                if (false&&errorMetric(quadraticInterpolant, current) > TOLERANCE) {
                     final var cubicInterpolant = current.cubicInterpolant();
                     result.append('c');
                     appendIntegerDisplacement(cubicInterpolant.control1);
