@@ -961,6 +961,34 @@ public class Indexer {
     }
 
     public static final void main(String[] args) throws IOException {
+        /*System.err.println(signedArea(
+            new Cubic(new Point(21, -12), 
+            new Displacement(2.3263950580876793, 3.4895925871315194), 
+            new Displacement(34.6573492121799, 5.3426507878201),
+            new Displacement(41, -1))));
+        final var q = new Quadratic(new Point(2, 3), 
+            new Displacement(-4-2,-5-3),
+            new Displacement(6-2,7-3));
+        System.err.println(q.evaluate(0));
+        System.err.println(q.evaluate(.5));
+        System.err.println(q.evaluate(1));
+        System.err.println(signedArea(
+            q));
+        final var piecewise = new PiecewiseFunction(
+            new Quadratic(new Point(21, -12),
+            new Displacement(6, 9),
+            new Displacement(18, 9)));
+        piecewise.pieces.add(
+            new Quadratic(new Point(39.0,-3.0), 
+            new Displacement(13.0,0.0), 
+        new Displacement(23.0,-10.0)));
+        System.err.println(piecewise.evaluate(0));
+        System.err.println(piecewise.evaluate(.25));
+        System.err.println(piecewise.evaluate(.5));
+        System.err.println(piecewise.evaluate(.75));
+        System.err.println(piecewise.evaluate(1));
+        System.err.println(signedArea(piecewise));
+        System.exit(2);*/
         final var main =
                 new VersionedIndexer(
                         Settings.LAST_VERSION_INFO,
@@ -1006,7 +1034,10 @@ public class Indexer {
         System.out.println("Loading representative glyphs…");
         final Map<Integer, String> result = new HashMap<>();
         final var id = Pattern.compile("id=\"([0-9a-f]{4,})\"");
-        for (final var row : new File(Settings.UnicodeTools.UNICODETOOLS_REPO_DIR + "/../representative-glyphs/ranges").listFiles()) {
+        final var rows = new File(Settings.UnicodeTools.UNICODETOOLS_REPO_DIR + "/../representative-glyphs/ranges").listFiles();
+        Arrays.sort(rows, Comparator.<File, Integer>comparing(f -> f.getName().length()).thenComparing(f -> f.getName()));
+        for (final var row : rows) {
+            System.err.println("Glyphs for row " + row.getName() +"...");
             try (final var rowGlyphs =
                     new BufferedReader(
                             new FileReader(row))) {
@@ -1021,6 +1052,9 @@ public class Indexer {
                         final int end = line.indexOf("</svg>");
                         String svg = line.substring(start, end + 6);
                         //System.err.println(Utility.hex(cp));
+                        if (false&&cp > 0x1F00) {
+                            return result;
+                        }
                         current_cp = cp;
                         svg = mangleSVG(svg);
                         svg = "<span class=character>" + svg + "<span class=literal>" + VersionedIndexer.toHTML.transform(Character.toString(cp)) + "</span></span>";
@@ -1101,7 +1135,13 @@ public class Indexer {
             return x * v.x + y * v.y;
         }
         double squareNorm() {
-            return x * x + y * y;
+            return this.dot(this);
+        }
+        double norm() {
+            return Math.sqrt(squareNorm());
+        }
+        Displacement round() {
+            return new Displacement((double)Math.round(x), (double)Math.round(y));
         }
         @Override 
         public String toString() {
@@ -1196,7 +1236,8 @@ public class Indexer {
                 current = new PiecewiseFunction(γ);
             } else {
                 current.pieces.add(γ);
-                if (errorArea(current.quadraticInterpolant(), current) > AREA_TOLERANCE) {
+                if (errorMetric(current.quadraticInterpolant(), current) > TOLERANCE &&
+                    errorMetric(current.cubicInterpolant(), current) > TOLERANCE) {
                     current.pieces.removeLast();
                     flushCurrent();
                     current = new PiecewiseFunction(γ);
@@ -1208,11 +1249,19 @@ public class Indexer {
                 return;
             }
             Line linearInterpolant = current.linearInterpolant();
-            if (errorArea(linearInterpolant, current) > AREA_TOLERANCE) {
-                final var interpolant = current.quadraticInterpolant();
-                result.append('q');
-                appendIntegerDisplacement(interpolant.control);
-                appendIntegerDisplacement(interpolant.end);
+            if (errorMetric(linearInterpolant, current) > TOLERANCE) {
+                final var quadraticInterpolant = current.quadraticInterpolant();
+                if (errorMetric(quadraticInterpolant, current) > TOLERANCE) {
+                    final var cubicInterpolant = current.cubicInterpolant();
+                    result.append('c');
+                    appendIntegerDisplacement(cubicInterpolant.control1);
+                    appendIntegerDisplacement(cubicInterpolant.control2);
+                    appendIntegerDisplacement(cubicInterpolant.end);
+                } else {
+                    result.append('q');
+                    appendIntegerDisplacement(quadraticInterpolant.control);
+                    appendIntegerDisplacement(quadraticInterpolant.end);
+                }
             } else {
                 result.append('l');
                 appendIntegerDisplacement(linearInterpolant.end);
@@ -1267,7 +1316,7 @@ public class Indexer {
             this.end = end;
         }
         public Point evaluate(double t) {
-            return start.plus(control.times(2*(t-1)).plus(end.times(t)).times(t));
+            return start.plus(control.times(2*(1-t)).plus(end.times(t)).times(t));
         }
         public Displacement initialDerivative() {
             return control;
@@ -1298,7 +1347,14 @@ public class Indexer {
             return end.minus(control2);
         }
         public Point evaluate(double t) {
-            return start.plus(control1.times(3*(1-t)*(1-t)).plus(control2.times(3*(1-t)).plus(end.times(t))).times(t));
+            return start.plus(
+                control1.times(3*(1-t)*(1-t))
+                .plus(control2.times(3*(1-t)).plus(end.times(t)).times(t))
+                    .times(t));
+        }
+        @Override 
+        public String toString() {
+            return "M" + start + " c " + control1 + " " + control2 + " " + end;
         }
         Point start;
         Displacement control1;
@@ -1364,18 +1420,29 @@ public class Indexer {
             final var initialDerivative = initialDerivative();
             final var finalDerivative = finalDerivative();
             final double a = signedArea(this);
-            final double αMax = (10 * a)/(3 * (d.y * initialDerivative.x - d.x * initialDerivative.y));
+            if (current_cp=='C'&&start.x==21) System.err.println("C target a="+a);
+            final double αMax = Math.min((10 * a)/(3 * (d.y * initialDerivative.x - d.x * initialDerivative.y)),100);
+            if (αMax <= 0 || Double.isNaN(αMax)) {
+                return new Cubic(start, initialDerivative.round(), end.minus(finalDerivative).minus(start).round(), end.minus(start));
+            }
             final double αOptimal =
             Brent((α) -> {
                 double β = (20 * a - 6 *d.y * α * initialDerivative.x + 6 * d.x * α  * initialDerivative.y)/(
                 6 * d.y * finalDerivative.x - 3 * α * initialDerivative.y  * finalDerivative.x - 
                 6 * d.x  * finalDerivative.y + 3 * α * initialDerivative.x * finalDerivative.y);
-                return errorArea(this, new Cubic(start, initialDerivative.times(α), end.minus(finalDerivative.times(β)).minus(start) , end.minus(start)));
+                if (Double.isNaN(β)) {
+                    β = -1;  // TODO(egg): This should not happen; factor out the d∧γ′(0)
+                }
+                if (current_cp=='C'&&start.x==21)System.err.println("C interpolant:"+new Cubic(start, initialDerivative.times(α), end.plus(finalDerivative.times(β)).minus(start) , end.minus(start)));
+                if (current_cp=='C'&&start.x==21)System.err.println("C interpolant β="+β);
+                if (current_cp=='C'&&start.x==21)System.err.println("C interpolant a="+signedArea(new Cubic(start, initialDerivative.times(α), end.plus(finalDerivative.times(β)).minus(start) , end.minus(start))));
+                return errorMetric(this, new Cubic(start, initialDerivative.times(α), end.plus(finalDerivative.times(β)).minus(start) , end.minus(start)));
             }, 0, αMax, Comparator.naturalOrder());
             double β = (20 * a - 6 *d.y * αOptimal * initialDerivative.x + 6 * d.x * αOptimal  * initialDerivative.y)/(
                         6 * d.y * finalDerivative.x - 3 * αOptimal * initialDerivative.y  * finalDerivative.x - 
                         6 * d.x  * finalDerivative.y + 3 * αOptimal * initialDerivative.x * finalDerivative.y);
-            return new Cubic(start, initialDerivative.times(αOptimal), end.minus(finalDerivative.times(β)).minus(start) , end.minus(start));
+            if (current_cp=='C'&&start.x==21) System.err.println("C αOptimal="+αOptimal);
+            return new Cubic(start, initialDerivative.times(αOptimal).round(), end.plus(finalDerivative.times(β)).minus(start).round(), end.minus(start));
         }
         @Override 
         public String toString() {
@@ -1383,11 +1450,13 @@ public class Indexer {
         }
     }
 
-    private static double errorArea(Curve γ1, Curve γ2) {
+    private static double errorMetric(Curve γ1, Curve γ2) {
         final int steps = 100;
         var q1_previous = γ1.evaluate(0);
         var q2_previous = γ2.evaluate(0);
         double result = 0;
+        double arcLength1 = 0;
+        double arcLength2 = 0;
         for (int i = 0; i < steps; ++i) {
             double t = (i + 1.0) / steps;
             final var q1 = γ1.evaluate(t);
@@ -1395,10 +1464,15 @@ public class Indexer {
             final var d1 = q1.minus(q2_previous);
             final var d2 = q2.minus(q1_previous);
             result += Math.abs(d1.x * d2.y - d2.x * d1.y) / 2;
+            arcLength1 += q1.minus(q1_previous).norm();
+            arcLength2 += q2.minus(q2_previous).norm();
             q1_previous = q1;
             q2_previous = q2;
         }
-        return result;
+        if (current_cp=='C') {
+            System.err.println("C error between "+γ1 +" and "+γ2 +":\n"+result / Math.min(arcLength1, arcLength2)+"area="+result+",arcLength1="+arcLength2+",arcLength1="+arcLength2);
+        }
+        return result / Math.min(arcLength1, arcLength2);
     }
 
     private static double signedArea(Curve γ) {
@@ -1410,13 +1484,13 @@ public class Indexer {
             double t = (i + 1.0) / steps;
             final var r = γ.evaluate(t).minus(γ0);
             final var dr = r.minus(r_previous);
-            result += r.x * dr.y - dr.y * dr.x / 2;
+            result += (r.x * dr.y - r.y * dr.x) / 2;
             r_previous = r;
         }
         return result;
     }
 
-    private final static double AREA_TOLERANCE = 10;
+    private final static double TOLERANCE = 1;
 
     private static String transformCommands(String commands, Transform transform) {
         final var result = new PathBuilder();
@@ -1497,6 +1571,7 @@ public class Indexer {
     }
 
     private static double Brent(Function<Double, Double> f, double lowerBound, double upperBound) {
+                System.err.println("Brent zero");
         final double f_upper = f.apply(upperBound);
         final double f_lower = f.apply(lowerBound);
         if (f_upper == 0) {
@@ -1604,7 +1679,7 @@ return Brent(f, lowerBound, upperBound, compare,
       }
       // The second clause is incorrectly p < q * (a - x) in [Bre73] p.80, see
       // the errata.
-      if (sign(p) < sign(0.5 * q * e) && p > q * (a - x) && p < q * (b - x)) {
+      if (Math.abs(p) < Math.abs(0.5 * q * e) && p > q * (a - x) && p < q * (b - x)) {
         e = d;
         // A “parabolic interpolation” step.
         d = p / q;
@@ -1619,7 +1694,7 @@ return Brent(f, lowerBound, upperBound, compare,
         d = c * e;
       }
       // f must not be evaluated too close to x.
-      u = x + (sign(d) > tol ? d : tol * sign(d));
+      u = x + (Math.abs(d) > tol ? d : tol * sign(d));
       f_u = f.apply(u);
       // Update a, b, v, w, and x.
       if (f_u <= f_x) {
