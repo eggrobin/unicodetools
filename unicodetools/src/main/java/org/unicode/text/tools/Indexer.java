@@ -1470,9 +1470,9 @@ public class Indexer {
             q2_previous = q2;
         }
         if (current_cp=='C') {
-            System.err.println("C error between "+γ1 +" and "+γ2 +":\n"+result / Math.min(arcLength1, arcLength2)+"area="+result+",arcLength1="+arcLength2+",arcLength1="+arcLength2);
+            System.err.println("C error between "+γ1 +" and "+γ2 +":\n"+result / Math.min(arcLength1, arcLength2)+"area="+result+",arcLength1="+arcLength1+",arcLength2="+arcLength2);
         }
-        return result / Math.min(arcLength1, arcLength2);
+        return result;
     }
 
     private static double signedArea(Curve γ) {
@@ -1490,7 +1490,7 @@ public class Indexer {
         return result;
     }
 
-    private final static double TOLERANCE = 1;
+    private final static double TOLERANCE = 10;
 
     private static String transformCommands(String commands, Transform transform) {
         final var result = new PathBuilder();
