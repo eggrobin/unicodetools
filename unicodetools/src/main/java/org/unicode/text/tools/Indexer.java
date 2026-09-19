@@ -1459,19 +1459,13 @@ public class Indexer {
         double arcLength1 = 0;
         double arcLength2 = 0;
         for (int i = 0; i < steps; ++i) {
-            double t = (i + 1.0) / steps;
-            final var q1 = γ1.evaluate(t);
-            final var q2 = γ2.evaluate(t);
-            final var d1 = q1.minus(q2_previous);
-            final var d2 = q2.minus(q1_previous);
-            result += Math.abs(d1.x * d2.y - d2.x * d1.y) / 2;
-            arcLength1 += q1.minus(q1_previous).norm();
-            arcLength2 += q2.minus(q2_previous).norm();
-            q1_previous = q1;
-            q2_previous = q2;
+            final double t1 = (i + 1.0) / steps;
+            final var γ1_t1 = γ1.evaluate(t1);
+            final Function<Double, Double> distance = t2 -> (γ1_t1.minus(γ2.evaluate(t2))).norm();
+            result = Math.max(result, distance.apply(Brent(distance, 0, 1, Comparator.naturalOrder(), 0.01)));
         }
         if (current_cp=='C') {
-            System.err.println("C error between "+γ1 +" and "+γ2 +":\n"+result / Math.min(arcLength1, arcLength2)+"area="+result+",arcLength1="+arcLength1+",arcLength2="+arcLength2);
+            System.err.println("C error between "+γ1 +" and "+γ2 +":\n"+result);
         }
         return result;
     }
@@ -1491,7 +1485,7 @@ public class Indexer {
         return result;
     }
 
-    private final static double TOLERANCE = 10;
+    private final static double TOLERANCE = 2;
 
     private static String transformCommands(String commands, Transform transform) {
         final var result = new PathBuilder();
