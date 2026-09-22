@@ -1455,15 +1455,14 @@ public class Indexer {
         final int steps = 100;
         var q1_previous = γ1.evaluate(0);
         var q2_previous = γ2.evaluate(0);
-        double result = 0;
         double arcLength1 = 0;
         double arcLength2 = 0;
-        for (int i = 0; i < steps; ++i) {
-            final double t1 = (i + 1.0) / steps;
+        final Function<Double, Double> distance_from_γ1_of =  t1 -> {
             final var γ1_t1 = γ1.evaluate(t1);
             final Function<Double, Double> distance = t2 -> (γ1_t1.minus(γ2.evaluate(t2))).norm();
-            result = Math.max(result, distance.apply(Brent(distance, 0, 1, Comparator.naturalOrder(), 0.01)));
-        }
+            return distance.apply(Brent(distance, 0, 1, Comparator.naturalOrder(), 0.01));
+        };
+        final double result = distance_from_γ1_of.apply(Brent(distance_from_γ1_of, 0, 1, Comparator.reverseOrder(), 0.01));
         if (current_cp=='C') {
             System.err.println("C error between "+γ1 +" and "+γ2 +":\n"+result);
         }
