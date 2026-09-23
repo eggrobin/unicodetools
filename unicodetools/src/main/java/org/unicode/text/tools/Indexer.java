@@ -1052,7 +1052,7 @@ public class Indexer {
                         final int end = line.indexOf("</svg>");
                         String svg = line.substring(start, end + 6);
                         //System.err.println(Utility.hex(cp));
-                        if (false&&cp > 0x1F00) {
+                        if (cp > 0x1F00) {
                             return result;
                         }
                         current_cp = cp;
@@ -1228,50 +1228,79 @@ public class Indexer {
             appendInteger(Math.round(d.y));
         }
         void append(char c) {
-            flushCurrent();
+            flushAll();
             result.append(c);
         }
+        private void flushAll() {
+        if (currentCubic == null) {
+            return;
+        }
+                final var cubicInterpolant = currentCubic.cubicInterpolant();
+                final var cubicCandidate = new PathBuilder();
+                cubicCandidate.result.append(result);
+                cubicCandidate.result.append('c');
+                cubicCandidate.appendIntegerDisplacement(cubicInterpolant.control1);
+                cubicCandidate.appendIntegerDisplacement(cubicInterpolant.control2);
+                cubicCandidate.appendIntegerDisplacement(cubicInterpolant.end);
+                final var lowDegreeEquivalent = new PathBuilder();
+                lowDegreeEquivalent.result.append(lowDegreeCandidate);
+                flushCurrentLowDegree(lowDegreeEquivalent);
+                if (cubicCandidate.result.length() <= lowDegreeEquivalent.result.length()) {
+                    result = cubicCandidate.result;
+                    lowDegreeCandidate = new PathBuilder();
+                    lowDegreeCandidate.result.append(result);
+                } else {
+                    result = lowDegreeEquivalent.result;
+                    lowDegreeCandidate = new PathBuilder();
+                    lowDegreeCandidate.result.append(result);
+                }
+                currentCubic = null;
+                currentLowdegree = null;
+        }
         void append(Curve γ) {
-            if (current == null) {
-                current = new PiecewiseFunction(γ);
+            if (currentLowdegree == null) {
+                currentLowdegree = new PiecewiseFunction(γ);
+                lowDegreeCandidate = new PathBuilder();
+                lowDegreeCandidate.result.append(result);
             } else {
-                current.pieces.add(γ);
-                if (errorMetric(current.quadraticInterpolant(), current) > TOLERANCE
-                    //&&errorMetric(current.cubicInterpolant(), current) > TOLERANCE
-                    ) {
-                    current.pieces.removeLast();
-                    flushCurrent();
-                    current = new PiecewiseFunction(γ);
+                currentLowdegree.pieces.add(γ);
+                if (errorMetric(currentLowdegree.quadraticInterpolant(), currentLowdegree) > TOLERANCE) {
+                    currentLowdegree.pieces.removeLast();
+                    flushCurrentLowDegree(lowDegreeCandidate);
+                    currentLowdegree = new PiecewiseFunction(γ);
                 }
         }
+        if (currentCubic == null) {
+                currentCubic = new PiecewiseFunction(γ);
+        } else {
+            currentCubic.pieces.add(γ);
+            if (errorMetric(currentCubic.cubicInterpolant(), currentCubic) > TOLERANCE) {
+                currentCubic.pieces.removeLast();
+                flushAll();
+                currentLowdegree = new PiecewiseFunction(γ);
+                currentCubic = new PiecewiseFunction(γ);
+            }
         }
-        void flushCurrent() {
-            if (current == null) {
+        }
+        void flushCurrentLowDegree(PathBuilder builder) {
+            if (currentLowdegree == null) {
                 return;
             }
-            Line linearInterpolant = current.linearInterpolant();
-            if (errorMetric(linearInterpolant, current) > TOLERANCE) {
-                final var quadraticInterpolant = current.quadraticInterpolant();
-                if (false&&errorMetric(quadraticInterpolant, current) > TOLERANCE) {
-                    final var cubicInterpolant = current.cubicInterpolant();
-                    result.append('c');
-                    appendIntegerDisplacement(cubicInterpolant.control1);
-                    appendIntegerDisplacement(cubicInterpolant.control2);
-                    appendIntegerDisplacement(cubicInterpolant.end);
-                } else {
-                    result.append('q');
-                    appendIntegerDisplacement(quadraticInterpolant.control);
-                    appendIntegerDisplacement(quadraticInterpolant.end);
-                }
+            Line linearInterpolant = currentLowdegree.linearInterpolant();
+            if (errorMetric(linearInterpolant, currentLowdegree) > TOLERANCE) {
+                final var quadraticInterpolant = currentLowdegree.quadraticInterpolant();
+                    builder.result.append('q');
+                    builder.appendIntegerDisplacement(quadraticInterpolant.control);
+                    builder.appendIntegerDisplacement(quadraticInterpolant.end);
             } else {
-                result.append('l');
-                appendIntegerDisplacement(linearInterpolant.end);
+                builder.result.append('l');
+                builder.appendIntegerDisplacement(linearInterpolant.end);
             }
-            current = null;
+            currentLowdegree = null;
         }
         @Override public String toString() {
-            if (current != null) {
-                throw new IllegalArgumentException(current.toString());
+            if (currentLowdegree != null) {
+                throw new IllegalArgumentException(currentLowdegree.toString());
             }
             if (current_cp == 0x954 && result.toString().startsWith("m22-55")) {
                 //throw new IllegalArgumentException(result.toString());
@@ -1279,7 +1308,9 @@ public class Indexer {
             return result.toString();
         }
         StringBuilder result = new StringBuilder();
-        PiecewiseFunction current;
+        PiecewiseFunction currentLowdegree;
+        PathBuilder lowDegreeCandidate;
+        PiecewiseFunction currentCubic;
     }
 
     private static interface Curve {
