@@ -1460,9 +1460,14 @@ public class Indexer {
         final Function<Double, Double> distance_from_γ1_of =  t1 -> {
             final var γ1_t1 = γ1.evaluate(t1);
             final Function<Double, Double> distance = t2 -> (γ1_t1.minus(γ2.evaluate(t2))).norm();
-            return distance.apply(Brent(distance, 0, 1, Comparator.naturalOrder(), 0.01));
+            return Math.min(distance.apply(Brent(distance, 0, 1.0/3.0, Comparator.naturalOrder(), 0.01)),
+            Math.min(distance.apply(Brent(distance, 1.0/3.0,2.0/3.0, Comparator.naturalOrder(), 0.01)),
+            distance.apply(Brent(distance, 2.0/3.0, 1, Comparator.naturalOrder(), 0.01))));
         };
-        final double result = distance_from_γ1_of.apply(Brent(distance_from_γ1_of, 0, 1, Comparator.reverseOrder(), 0.01));
+        final double result = 
+                Math.max(Math.max(distance_from_γ1_of.apply(Brent(distance_from_γ1_of, 0, 1.0/3.0, Comparator.reverseOrder(), 0.01)),
+                                  distance_from_γ1_of.apply(Brent(distance_from_γ1_of, 1.0/3.0, 2.0/3.0, Comparator.reverseOrder(), 0.01))),
+                                  distance_from_γ1_of.apply(Brent(distance_from_γ1_of, 2.0/3.0, 1.0, Comparator.reverseOrder(), 0.01)));
         if (current_cp=='C') {
             System.err.println("C error between "+γ1 +" and "+γ2 +":\n"+result);
         }
