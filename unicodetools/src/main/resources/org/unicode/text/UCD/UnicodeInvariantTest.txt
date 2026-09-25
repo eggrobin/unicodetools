@@ -1601,6 +1601,13 @@ OnPairsOf [$code_points - $noncharacter_charts - $uncharted_block_ends - $unchar
 [∅] ⊂ \p{Standardized_Variation_Base}
 [∅] ⊂ \p{Emoji_Variation_Base=No}
 
+# Collation:
+Let $ucaWasteland := [\p{Unassigned}\p{Private_Use}\p{Surrogate} - [\uFFFE]]
+In [$ucaWasteland-[\x{10FFFF}]],  UCA_Next_Non_Ignorable ∈ $ucaWasteland
+Let $firstUnassigned := [\u0378]
+$firstUnassigned ⊂ \p{Unassigned}
+In [[^$ucaWasteland]-[\uFFFD]], UCA_Next_Non_Ignorable ∉ [$ucaWasteland-$firstUnassigned]
+
 # Basic Propertywise tests.
 Ignoring Name:
 
