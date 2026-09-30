@@ -13,6 +13,7 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.ibm.icu.impl.UnicodeMap;
 import com.ibm.icu.impl.Utility;
+import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.text.NumberFormat;
 import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.text.UnicodeSet.SpanCondition;
@@ -35,6 +36,9 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import org.unicode.cldr.draft.FileUtilities;
 import org.unicode.cldr.util.TransliteratorUtilities;
+import org.unicode.props.IndexUnicodeProperties;
+import org.unicode.props.UcdProperty;
+import org.unicode.props.UnicodeProperty;
 import org.unicode.text.UCD.VersionedSymbolTable;
 import org.unicode.text.utility.Settings;
 import org.unicode.text.utility.UTF16Plus;
@@ -47,6 +51,58 @@ public class Segmenter {
     private static final UnicodeSet PATTERN_SYNTAX = new UnicodeSet("\\p{pattern syntax}").freeze();
     private static final UnicodeSet PATTERN_SYNTAX_OR_WHITE_SPACE =
             new UnicodeSet("[\\p{pattern white space}\\p{pattern syntax}]").freeze();
+
+    public static class SegmenterSymbolTable extends VersionedSymbolTable {
+        public SegmenterSymbolTable(
+                UcdProperty property, VersionInfo version, Map<String, UnicodeSet> variables) {
+            super(version);
+            this.property = IndexUnicodeProperties.make(implicitVersion).getProperty(property);
+            this.variables = variables;
+        }
+
+        @Override
+        public UnicodeSet lookupSet(String name) {
+            if (property.getValueAliases().contains(name)) {
+                return property.getSet(name);
+            } else {
+                return variables.get(name);
+            }
+        }
+
+        @Override
+        public String scanVariable(String text, ParsePosition pos, int limit) {
+            if (UCharacter.isUnicodeIdentifierStart(text.charAt(pos.getIndex()))) {
+                final var name = parseReference(text, pos, limit);
+                if (!property.getValueAliases().contains(name)) {
+                    throw new IllegalArgumentException(
+                            "Segmenter UnicodeSet forbids literal-elements in [:XID_Start:], and "
+                                    + name
+                                    + " is not a value alias for "
+                                    + property.getName());
+                }
+            }
+            if (text.charAt(pos.getIndex()) == '$') {
+                final var pastDollar = new ParsePosition(pos.getIndex() + 1);
+                final var name = parseReference(text, pastDollar, limit);
+                if (name != null) {
+                    pos.setIndex(pastDollar.getIndex());
+                    if (property.getValueAliases().contains(name)) {
+                        throw new IllegalArgumentException(
+                                "Names of Segmenter UnicodeSet $-variables cannot be aliases of the"
+                                        + " segmentation property (here "
+                                        + property.getName()
+                                        + ")");
+                    }
+                    return name;
+                }
+                return null;
+            }
+            return null;
+        }
+
+        private final UnicodeProperty property;
+        private final Map<String, UnicodeSet> variables;
+    }
 
     /**
      * If not null, masks off the character properties so the UnicodeSets are easier to use when
@@ -76,7 +132,7 @@ public class Segmenter {
                                 ? "dev"
                                 : version.getVersionString(3, 3))
                         + ".txt";
-        Builder b = new Builder(version);
+        Builder b = new Builder(UcdProperty.forString(type + "Break"), version);
 
         // quick and dirty cache of file lines, so we don't hit file multiple times.
         Multimap<String, String> data = FILE_CACHE.get(sourceFileName);
@@ -392,9 +448,9 @@ public class Segmenter {
     /** A rule that determines the status of an offset. */
     public static class RegexRule extends SegmentationRule {
         /**
-         * @param before pattern for the text after the offset. All variables must be resolved.
+         * @param before pattern for the text after the offset.
          * @param result the break status to return when the rule is invoked
-         * @param after pattern for the text before the offset. All variables must be resolved.
+         * @param after pattern for the text before the offset.
          * @param line
          */
         public RegexRule(
@@ -519,6 +575,7 @@ public class Segmenter {
      * adding a rule sorts/overrides according to numeric value.
      */
     public static class Builder {
+        private final UcdProperty property;
         private final VersionInfo version;
         private List<String> rawVariables = new ArrayList<String>();
         private Map<Double, String> xmlRules = new TreeMap<Double, String>();
@@ -629,7 +686,8 @@ public class Segmenter {
 
         private List<NamedRefinedSet> partition = new ArrayList<>(List.of(new NamedRefinedSet()));
 
-        public Builder(VersionInfo version) {
+        public Builder(UcdProperty property, VersionInfo version) {
+            this.property = property;
             this.version = version;
         }
 
@@ -674,8 +732,7 @@ public class Segmenter {
             if (line.startsWith("show")) {
                 line = line.substring(4).trim();
                 System.out.println("# " + line + ": ");
-                System.out.println(
-                        "\t" + expandUnicodeSets(replaceVariables(line, variables), version));
+                System.out.println("\t" + expandUnicodeSets(line, version));
                 return false;
             }
             // dumb parsing for now
@@ -748,14 +805,15 @@ public class Segmenter {
                             + "\">"
                             + TransliteratorUtilities.toXML.transliterate(value)
                             + "</variable>");
-            value = replaceVariables(value, variables);
             ;
             if (!name.endsWith("_")) {
                 try {
                     parsePosition.setIndex(0);
                     UnicodeSet valueSet =
                             new UnicodeSet(
-                                    value, parsePosition, VersionedSymbolTable.frozenAt(version));
+                                    value,
+                                    parsePosition,
+                                    new SegmenterSymbolTable(property, version, variables));
                     if (parsePosition.getIndex() != value.length()) {
                         if (SHOW_SAMPLES)
                             System.out.println(
@@ -789,7 +847,9 @@ public class Segmenter {
             // if (false && name.equals("$AL")) {
             // findRegexProblem(value);
             // }
-            variables.put(name, value);
+            variables.put(
+                    name,
+                    new UnicodeSet(value, null, new SegmenterSymbolTable(null, version, null)));
             expandedVariables.put(name, expandUnicodeSets(value, version));
             return this;
         }
@@ -846,10 +906,7 @@ public class Segmenter {
                             + "> "
                             + TransliteratorUtilities.toXML.transliterate(line)
                             + " </rule>");
-            rules.put(
-                    order,
-                    new Segmenter.RemapRule(
-                            replaceVariables(before, variables), after, line, version));
+            rules.put(order, new Segmenter.RemapRule(before, after, line, version));
             return this;
         }
 
@@ -907,14 +964,7 @@ public class Segmenter {
             if (after.contains("[^$OLetter")) {
                 System.out.println("!@#$31 Debug");
             }
-            rules.put(
-                    order,
-                    new Segmenter.RegexRule(
-                            replaceVariables(before, variables),
-                            breaks,
-                            replaceVariables(after, variables),
-                            line,
-                            version));
+            rules.put(order, new Segmenter.RegexRule(before, breaks, after, line, version));
             return this;
         }
 
@@ -940,7 +990,7 @@ public class Segmenter {
 
         // ============== internals ===================
         private Map<String, String> expandedVariables = new TreeMap<String, String>();
-        private Map<String, String> variables = new TreeMap<String, String>();
+        private Map<String, UnicodeSet> variables = new TreeMap<String, UnicodeSet>();
         private Map<Double, SegmentationRule> rules = new TreeMap<Double, SegmentationRule>();
 
         public Map<Double, SegmentationRule> getProcessedRules() {
@@ -985,7 +1035,9 @@ public class Segmenter {
                     parsePosition.setIndex(i);
                     UnicodeSet temp =
                             new UnicodeSet(
-                                    result, parsePosition, VersionedSymbolTable.frozenAt(version));
+                                    result,
+                                    parsePosition,
+                                    new SegmenterSymbolTable(null, version, null));
                     // The empty class is not supported, insert an impossible expression instead.
                     String insert = temp.isEmpty() ? "(?:(?!a)a)" : getInsertablePattern(temp);
                     result =
@@ -1067,7 +1119,7 @@ public class Segmenter {
         }
 
         /* The mapping of variables to their values. */
-        public Map<String, String> getVariables() {
+        public Map<String, UnicodeSet> getVariables() {
             return Collections.unmodifiableMap(variables);
         }
 
