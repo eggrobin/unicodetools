@@ -44,9 +44,9 @@ import org.unicode.tools.Segmenter.SegmentationRule.Breaks;
 /** Ordered list of rules, with variables resolved before building. Use Builder to make. */
 public class Segmenter {
     public static final int REGEX_FLAGS = Pattern.COMMENTS | Pattern.DOTALL;
-    private static final UnicodeSet PATTERN_SYNTAX = new UnicodeSet("\\p{pattern syntax}").freeze();
+    private static final UnicodeSet PATTERN_SYNTAX = new UnicodeSet("\\p{pattern syntax}", null, VersionedSymbolTable.forDevelopment()).freeze();
     private static final UnicodeSet PATTERN_SYNTAX_OR_WHITE_SPACE =
-            new UnicodeSet("[\\p{pattern white space}\\p{pattern syntax}]").freeze();
+            new UnicodeSet("[\\p{pattern white space}\\p{pattern syntax}]", null, VersionedSymbolTable.forDevelopment()).freeze();
 
     /**
      * If not null, masks off the character properties so the UnicodeSets are easier to use when
@@ -1030,9 +1030,13 @@ public class Segmenter {
 
         static UnicodeSet JavaRegex_uxxx =
                 new UnicodeSet(
-                        "[[[:White_Space:][:defaultignorablecodepoint:]#]&[\\u0000-\\uFFFF]]"); // hack to fix # in Java
+                        "[[[:White_Space:][:defaultignorablecodepoint:]#]&[\\u0000-\\uFFFF]]",
+                    null,
+                    VersionedSymbolTable.forDevelopment()); // hack to fix # in Java
         static UnicodeSet JavaRegex_slash =
-                new UnicodeSet("[[:Pattern_White_Space:]" + "\\[\\]\\-\\^\\&\\\\\\{\\}\\$\\:]");
+                new UnicodeSet("[[:Pattern_White_Space:]" + "\\[\\]\\-\\^\\&\\\\\\{\\}\\$\\:]",
+                    null,
+                    VersionedSymbolTable.forDevelopment());
         static CodePointShower JavaRegexShower =
                 new CodePointShower() {
                     public String show(int codePoint) {

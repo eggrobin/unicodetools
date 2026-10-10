@@ -1,5 +1,9 @@
 package org.unicode.text.utility;
 
+import com.ibm.icu.text.NumberFormat;
+import com.ibm.icu.text.UnicodeSet;
+import com.ibm.icu.text.UnicodeSet.XSymbolTable;
+import com.ibm.icu.util.ULocale;
 import com.ibm.icu.util.VersionInfo;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -7,8 +11,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
+import java.util.function.Supplier;
+
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.Tabber;
+import org.unicode.cldr.util.TransliteratorUtilities;
+import org.unicode.text.UCD.VersionedSymbolTable;
 
 public class Settings {
 
@@ -20,6 +29,28 @@ public class Settings {
     // java.nio.file.Paths
     // and sometimes Utility.fixFileName() which normalizes paths via java.io.File?
     // Are they equivalent for our purposes?
+
+    static {
+        NumberFormat.getInstance(ULocale.ENGLISH).format(42);
+        CldrUtility.getProperty("meow");
+        new Tabber.MonoTabber();
+        TransliteratorUtilities.toXML.transform("meow");
+        UnicodeSet.setDefaultXSymbolTable(VersionedSymbolTable.NO_PROPS);
+    }
+
+    public static synchronized <T> T withDefaultSymbolTable(Supplier<T> supplier) {
+        return withSymbolTable(null, supplier);
+    }
+
+    public static synchronized <T> T withSymbolTable(XSymbolTable symbolTable, Supplier<T> supplier) {
+        final var oldSymbolTable = UnicodeSet.getDefaultXSymbolTable();
+        try {
+            UnicodeSet.setDefaultXSymbolTable(symbolTable);
+            return supplier.get();
+        } finally {
+            UnicodeSet.setDefaultXSymbolTable(oldSymbolTable);
+        }
+    }
 
     // FIX_FOR_NEW_VERSION (4×).
     // The version of the /dev directories.

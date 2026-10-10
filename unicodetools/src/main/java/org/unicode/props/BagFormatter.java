@@ -463,12 +463,6 @@ public class BagFormatter {
         }
     }
 
-    private static NumberFormat nf = NumberFormat.getIntegerInstance(Locale.ENGLISH);
-
-    static {
-        nf.setGroupingUsed(false);
-    }
-
     private int maxWidthOverride = -1;
     private int maxLabelWidthOverride = -1;
 
@@ -613,14 +607,14 @@ public class BagFormatter {
                     toOutput("");
                     toOutput(
                             "# The above property value applies to "
-                                    + nf.format(fullTotal - counter)
+                                    + (fullTotal - counter)
                                     + " code points not listed here.");
-                    toOutput("# Total code points: " + nf.format(fullTotal));
+                    toOutput("# Total code points: " + fullTotal);
                 }
                 fullTotal = -1;
             } else if (showTotal) {
                 toOutput("");
-                toOutput("# Total code points: " + nf.format(counter));
+                toOutput("# Total code points: " + counter);
             }
         }
 
@@ -717,7 +711,7 @@ public class BagFormatter {
             String count = "";
             if (mergeRanges && showCount) {
                 if (end == start) count = "\t";
-                else count = "\t [" + nf.format(end - start + 1) + "]";
+                else count = "\t [" + (end - start + 1) + "]";
             }
             final String rightHandSide =
                     pn

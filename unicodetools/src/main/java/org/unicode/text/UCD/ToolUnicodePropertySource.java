@@ -1066,7 +1066,9 @@ public class ToolUnicodePropertySource extends UnicodeProperty.Factory {
                             .remove(0x200d)
                             .addAll(
                                     new UnicodeSet(
-                                            "[[\u0E31 \u0E34-\u0E3A \u0EB1 \u0EB4-\u0EB9 \u0EBB \u0EBA]-[:cn:]]"))
+                                            "[[\u0E31 \u0E34-\u0E3A \u0EB1 \u0EB4-\u0EB9 \u0EBB \u0EBA]-[:cn:]]",
+                                            null,
+                                        VersionedSymbolTable.forDevelopment()))
                             //                    .removeAll(virama)
                             .addAll(E_Modifier);
             unicodeMap.putAll(extend, "Extend");

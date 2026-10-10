@@ -1873,8 +1873,9 @@ public abstract class GenerateBreakTest implements UCD_Types {
 
     static final boolean DEBUG_GRAPHEMES = false;
     static final Transliterator escaper =
+        Settings.withSymbolTable(VersionedSymbolTable.forDevelopment(), () ->
             Transliterator.createFromRules(
-                    "escape", "::[[:di:][:c:]] any-hex/c;", Transliterator.FORWARD);
+                    "escape", "::[[:di:][:c:]] any-hex/c;", Transliterator.FORWARD));
 
     static class MyBreakIterator {
         int offset = 0;

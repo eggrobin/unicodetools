@@ -36,14 +36,21 @@ import java.util.regex.Pattern;
 import org.unicode.cldr.util.Rational.RationalParser;
 import org.unicode.cldr.util.props.UnicodeLabel;
 import org.unicode.props.UcdPropertyValues.Binary;
+import org.unicode.text.UCD.VersionedSymbolTable;
 import org.unicode.text.utility.UTF16Plus;
 
 public abstract class UnicodeProperty extends UnicodeLabel {
 
     public static final UnicodeSet NONCHARACTERS =
-            new UnicodeSet("[:noncharactercodepoint:]").freeze();
-    public static final UnicodeSet PRIVATE_USE = new UnicodeSet("[:gc=privateuse:]").freeze();
-    public static final UnicodeSet SURROGATE = new UnicodeSet("[:gc=surrogate:]").freeze();
+            new UnicodeSet("[:noncharactercodepoint:]",
+                null,
+                VersionedSymbolTable.forDevelopment()).freeze();
+    public static final UnicodeSet PRIVATE_USE = new UnicodeSet("[:gc=privateuse:]",
+                null,
+                VersionedSymbolTable.forDevelopment()).freeze();
+    public static final UnicodeSet SURROGATE = new UnicodeSet("[:gc=surrogate:]",
+                null,
+                VersionedSymbolTable.forDevelopment()).freeze();
 
     public static final UnicodeSet HIGH_SURROGATES = new UnicodeSet("[\\uD800-\\uDB7F]").freeze();
     public static final int SAMPLE_HIGH_SURROGATE = HIGH_SURROGATES.charAt(0);
