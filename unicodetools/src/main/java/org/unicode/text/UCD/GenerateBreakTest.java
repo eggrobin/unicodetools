@@ -1132,7 +1132,7 @@ public abstract class GenerateBreakTest implements UCD_Types {
                 final String rule = it.next();
                 setRule(rule);
             }
-            variables = segBuilder.getVariables();
+            variables = Map.of();//TODO(egg): was  segBuilder.getVariables();
             collectingRules = false;
             segmenter = seg;
             partition = seg.getSamples();
