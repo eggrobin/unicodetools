@@ -55,9 +55,9 @@ for (let [name, entry] of indexEntries.get("Name_Alias")) {
   }
 }
 
-async function getString(/**@type {number}*/ start) {
+function getString(/**@type {number}*/ start) {
   let RECORD_SEPARATOR = "\x1E";
-  await allTheStringsReady;
+  //await allTheStringsReady;
   let limit = allTheStrings.indexOf(RECORD_SEPARATOR, start);
   return allTheStrings.substring(start, limit);
 }
@@ -98,23 +98,32 @@ async function search(/**@type {string}*/ query) {
   var covered = [];
   /**@type {string[]}*/
   var result = [];
+  /**@type {Map<number, number>}*/
+  var pivots = wordIndex.get(foldedQuery[0]) ?? new Map();
   /**@type {Set<number>}*/
-  var resultSnippetIndices = new Set(wordIndex.get(foldedQuery[0])?.keys() ?? []);
+  var resultSnippetIndices = new Set(pivots?.keys() ?? []);
   /**@type {Set<number>}*/
   let fullLemmaMatches;
   let firstLemmata = [foldedQuery[0]];
   let matchedLemmata = [...foldedQuery];
+  let gp = 0;
   if (foldedQuery.length == 1) {
     fullLemmaMatches = new Set(resultSnippetIndices);
     if (fullLemmaMatches.size < maxResults) {
+      const startTime = performance.now();
       let prefix = fold(queryWords.at(-1));
       for (let [completion, snippets] of wordIndex) {
         if (completion.startsWith(prefix)) {
           matchedLemmata.push(completion);
           firstLemmata.push(completion);
+          gp -= performance.now();
+          pivots = new Map([...pivots, ...snippets]);
+          gp += performance.now();
           resultSnippetIndices = resultSnippetIndices.union(snippets);
         }
       }
+      const endTime = performance.now();
+      console.log(`Adding completions: ${endTime-startTime} ms`);
     }
   }
   for (var i = 1; i < foldedQuery.length; ++i) {
@@ -136,24 +145,34 @@ async function search(/**@type {string}*/ query) {
       resultSnippetIndices = intersection;
     }
   }
-  let pivots = firstLemmata.map(l => wordIndex.get(l)).filter(x => !!x);
-  let getPivot = (/**@type {number}*/s) => pivots.map(p => p.get(s)).filter(x => x !== undefined)[0];
   let allMatchStarts = matchedLemmata.map(l => wordIndex.get(l)).filter(x => !!x);
   let getMatchStarts = (/**@type {number}*/s) =>
       allMatchStarts.map(p => p.get(s)).filter(x => x !== undefined);
   let collator = new Intl.Collator("en");
+  let wordIteration = 0;
+  let gms = 0;
+  gs = 0;
+  const skStartTime = performance.now();
   let sortKeys = new Map(await Promise.all(Array.from(resultSnippetIndices).map(
     async i => {
-      let snippet = await getString(i);
-      let pivot = getPivot(i);
+      gs -= performance.now();
+      let snippet = getString(i);
+      gs += performance.now();
+      gp -= performance.now();
+      let pivot = pivots.get(i);
+      gp += performance.now();
       let tail = snippet.substring(pivot);
       let head = snippet.substring(0, pivot);
+      gms -= performance.now();
       let matchStarts = getMatchStarts(i);
+      gms += performance.now();
       let previousMatch = -1;
       let orderedMatches = 1;
       let interveningWords = 0;
+      wordIteration -= performance.now();
       let tailWordIt = wordBreak.segment(tail)[Symbol.iterator]();
       let tailWord = tailWordIt.next().value;
+      wordIteration += performance.now();
       for (let start of matchStarts) {
         if (start > previousMatch) {
           ++orderedMatches;
@@ -161,9 +180,10 @@ async function search(/**@type {string}*/ query) {
           while (tailWord && pivot + tailWord.index <= start) {
             if (tailWord.isWordLike && pivot + tailWord.index != start) {
               ++interveningWords;
-              console.log("intervening #", interveningWords, "=", tailWord.segment);
             }
+      wordIteration -= performance.now();
             tailWord = tailWordIt.next().value;
+      wordIteration += performance.now();
           }
         } else {
           break;
@@ -187,10 +207,15 @@ async function search(/**@type {string}*/ query) {
               tail.substring(0, tail.length - thagomizer.length) + '\uFFFE '+
               head];
     })));
+  const skEndTime = performance.now();
+  console.log(`Computing ${resultSnippetIndices.size} sort keys: ${skEndTime-skStartTime} ms, ${wordIteration} ms in word iteration, ${gms} ms in getMatchStarts, ${gp} ms in getPivot, ${gs} ms in getString`);
+  const startTime = performance.now();
   let sortedSnippetIndices = Array.from(resultSnippetIndices).sort(
     (left, right) => collator.compare(
       sortKeys.get(left),
       sortKeys.get(right)));
+  const endTime = performance.now();
+  console.log(`Sorting ${resultSnippetIndices.size} results: ${endTime-startTime} ms`);
   for (let snippetSet of [fullLemmaMatches, resultSnippetIndices]) {
     for (let propertyIndex of indexEntries.values()) {
       for (let snippetIndex of sortedSnippetIndices) {
@@ -207,7 +232,7 @@ async function search(/**@type {string}*/ query) {
         }
         rangeCount += entrySet.length;
         covered = covered.concat(entrySet);
-        let pivot = getPivot(snippetIndex);
+        let pivot = pivots.get(snippetIndex);
         let matchStarts = new Set(getMatchStarts(snippetIndex));
         let snippet = await getString(snippetIndex);
         if (!shouldPermute(snippet, pivot)) {
